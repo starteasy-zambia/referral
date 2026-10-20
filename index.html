@@ -3,40 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StartEasy Referral Program — Earn on Every Sale</title>
+<title>StartEasy Agent Opportunity</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700;1,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
 :root {
-  --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --green-2:#2E9C4A;
-  --orange:#E8730F; --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F;
-  --purple:#7A4FA3; --blue:#1B6CA8; --teal:#0E7C7B; --gold:#8A6828;
+  --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F; 
+  --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --teal:#0E7C7B;
 }
-* { box-sizing: border-box; min-width: 0; }
-html, body { margin: 0; padding: 0; }
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: var(--light); color: var(--forest); overflow-x: hidden;
+  background: var(--light); color: var(--forest); overflow-x: hidden; margin: 0;
 }
-h1, h2, h3, h4, h5, h6, p, span, div, button, a, li { overflow-wrap: break-word; }
-button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .serif { font-family: 'Playfair Display', Georgia, serif; }
-.micro { font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; }
-input, select, textarea { font-family: inherit; }
-input:focus, select:focus, textarea:focus { outline: none; }
-.fadein { animation: fi .5s cubic-bezier(.22,.61,.36,1) both; }
-@keyframes fi { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes spin { to { transform: rotate(360deg); } }
+input:focus, select:focus { outline: none; border-color: var(--orange) !important; }
+.fadein { animation: fi .4s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes fi { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .spin { animation: spin 1s linear infinite; display: inline-block; }
-::selection { background: var(--orange-2); color: var(--forest); }
-@media (max-width: 768px) { .fadein { animation: none !important; opacity: 1 !important; transform: none !important; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* BULLETPROOF HEADER */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: #0A1F12; border-bottom: 1px solid rgba(245,166,35,.1);
+  padding: 0 16px;
+}
+.header-container {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; width: 100%;
+}
+.header-logo {
+  display: flex; align-items: center; gap: 10px; text-decoration: none;
+  background: none; border: none; cursor: pointer; font-family: inherit; padding: 0;
+}
+.header-logo-mark {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg,var(--orange),var(--orange-2));
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-weight: 800; font-size: 16px;
+}
+.header-logo-text { display: flex; flex-direction: column; text-align: left; line-height: 1; }
+.header-logo-sub { font-size: 8.5px; letter-spacing: .15em; text-transform: uppercase; font-weight: 700; color: rgba(255,255,255,.4); margin-bottom: 3px; }
+.header-logo-main { font-size: 15px; font-weight: 700; color: #fff; }
+.header-logo-main em { font-style: normal; color: var(--orange-2); }
+
+.header-nav { display: flex; align-items: center; gap: 20px; }
+.header-link {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,.6);
+  padding: 6px 0; position: relative; text-decoration: none;
+}
+.header-link.active { color: var(--orange-2); font-weight: 700; }
+.header-link.active::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px;
+  background: var(--orange-2); border-radius: 99px;
+}
+
+.header-btn {
+  background: linear-gradient(135deg,var(--orange),var(--orange-2));
+  color: #fff; border: none; border-radius: 8px; padding: 8px 16px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+  white-space: nowrap;
+}
+
+.header-mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 8px; }
+
+@media (max-width: 768px) {
+  .header-nav { display: none; }
+  .header-btn { display: none; }
+  .header-mobile-toggle { display: block; }
+  .header-mobile-menu {
+    background: #0A1F12; padding: 16px; border-top: 1px solid rgba(255,255,255,.1);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .header-mobile-menu .header-link { font-size: 15px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+}
+
+/* ENGAGEMENT DOCUMENT STYLES */
+.doc-wrapper {
+  background: #fff; border: 1px solid #D0D0D0; border-radius: 8px;
+  padding: 32px; max-width: 760px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,.05);
+}
+.doc-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding-bottom: 18px; border-bottom: 3px solid var(--forest); margin-bottom: 24px;
+}
+.doc-brand { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--forest); letter-spacing: 1px; }
+.doc-brand em { font-style: normal; color: var(--orange); }
+.doc-sub { font-size: 9.5px; color: #8A6828; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-top: 4px; }
+.doc-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 800; color: var(--orange); letter-spacing: 1.2px; text-align: right; }
+.doc-meta { font-size: 11px; color: #666; text-align: right; margin-top: 6px; }
+
+.doc-body { font-size: 13px; line-height: 1.7; color: #333; }
+.doc-body p { margin: 0 0 16px; }
+.doc-body strong { color: var(--forest); }
+.doc-section-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--forest); font-weight: 700; margin: 24px 0 12px; }
+
+.doc-input-line {
+  display: inline-block; border-bottom: 1px dashed #999; min-width: 150px;
+  padding: 0 6px; font-family: inherit; font-size: 13px; color: var(--forest);
+  background: #F9FBFA; border-top: none; border-left: none; border-right: none;
+}
+.doc-input-line:focus { background: #fff; border-bottom: 1px solid var(--orange); }
+
+.doc-signature-block {
+  margin-top: 32px; padding-top: 24px; border-top: 1px solid #E0E0E0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+}
+@media (max-width: 600px) {
+  .doc-wrapper { padding: 20px; }
+  .doc-signature-block { grid-template-columns: 1fr; gap: 20px; }
+  .doc-header { flex-direction: column; gap: 10px; }
+  .doc-title, .doc-meta { text-align: left; }
+}
+.sig-line {
+  font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic;
+  color: var(--forest); border-bottom: 1px solid #333; padding-bottom: 8px;
+  margin-bottom: 8px; min-height: 38px;
+}
+.sig-input {
+  width: 100%; font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic;
+  color: var(--forest); border: none; border-bottom: 1px solid #333; background: transparent;
+  padding-bottom: 8px; margin-bottom: 8px; min-height: 38px;
+}
+.sig-input:focus { border-bottom-color: var(--orange); }
+.sig-label { font-size: 10.5px; color: #666; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -45,10 +142,7 @@ input:focus, select:focus, textarea:focus { outline: none; }
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 <script type="text/babel" data-presets="react">
-/* ================================================================
-   STARTEASY REFERRAL PROGRAM — STANDALONE APP (INSTANT ONBOARDING)
-   ================================================================ */
-const { useState, useEffect, useMemo, useCallback, useRef } = React;
+const { useState, useEffect, useCallback } = React;
 
 /* ---------------- CONFIG ---------------- */
 const CONFIG = {
@@ -62,15 +156,10 @@ const CONFIG = {
   },
   mainSiteUrl: 'https://starteasyzambia.com',
   adminWhatsapp: '260762499581',
-  contactEmail: 'referrals@starteasyzambia.com',
   attributionDays: 30,
   minPayoutZmw: 200,
   clearingDays: 7,
-  commissionTable: {
-    micro: 40, basic: 30, standard: 25, complex: 22,
-    checkup: 22, regularise: 18, venture: 20,
-    ongoing_filing: 20, ongoing_standard: 20, ongoing_managed: 15
-  }
+  commissionTable: { micro: 40, basic: 30, standard: 25, complex: 22, checkup: 22, regularise: 18, venture: 20, ongoing_filing: 20, ongoing_standard: 20, ongoing_managed: 15 }
 };
 
 const SE_AGENTS = 'se_agents';
@@ -85,15 +174,12 @@ const CODE_RX = /^SE-[A-Z0-9-]{3,32}$/;
 /* ---------------- FIREBASE ---------------- */
 let db = null, auth = null, fbReady = false;
 try {
-  if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(CONFIG.firebase);
+  if (!firebase.apps.length) firebase.initializeApp(CONFIG.firebase);
   db = firebase.firestore();
   auth = firebase.auth();
   fbReady = true;
-  // Ensure anonymous auth for pre-checks
-  auth.signInAnonymously().catch(e => console.warn('[Referral] anon auth:', e && e.message));
-} catch (e) {
-  console.error('[Referral] Firebase init failed:', e);
-}
+  auth.signInAnonymously().catch(() => {});
+} catch (e) { console.error(e); }
 
 /* ---------------- HELPERS ---------------- */
 const fmtZmw = n => 'K' + (Number(n) || 0).toFixed(2);
@@ -104,32 +190,23 @@ const timeAgo = ts => {
   if (s < 60) return 'just now';
   if (s < 3600) return Math.floor(s / 60) + 'm ago';
   if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-  const d = Math.floor(s / 86400);
-  return d + 'd ago';
+  return Math.floor(s / 86400) + 'd ago';
 };
 const copyText = async t => {
   try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(t); return true;
-    }
-    const ta = document.createElement('textarea');
-    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-    return true;
+    if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(t); return true; }
+    const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); return true;
   } catch (e) { return false; }
 };
 const isMobileUA = () => /android|iphone|ipad|ipod|mobile/i.test((navigator.userAgent || '').toLowerCase());
 const waUrl = (msg, phone) => {
-  const p = phone || CONFIG.adminWhatsapp;
-  const e = encodeURIComponent(msg);
+  const p = phone || CONFIG.adminWhatsapp; const e = encodeURIComponent(msg);
   return isMobileUA() ? 'whatsapp://send?phone=' + p + '&text=' + e : 'https://wa.me/' + p + '?text=' + e;
 };
 const baseUrl = () => window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
 const generateAgentCode = name => {
   const clean = String(name || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 8) || 'AGENT';
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return 'SE-' + clean + '-' + rand;
+  return 'SE-' + clean + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 };
 const resolveServiceType = payment => {
   const code = String(payment.serviceCode || '').toUpperCase();
@@ -158,7 +235,6 @@ const readAttribution = () => {
     return raw;
   } catch (e) { return null; }
 };
-
 const storeAttribution = code => {
   try {
     const c = String(code).toUpperCase().trim();
@@ -168,21 +244,17 @@ const storeAttribution = code => {
     return rec;
   } catch (e) { return null; }
 };
-
 const logReferralClick = async code => {
   if (!fbReady) return;
   try {
-    await db.collection(SE_EVENTS).add({
-      type: 'referral_click', agentCode: code, at: Date.now(), route: 'redirect'
-    });
+    await db.collection(SE_EVENTS).add({ type: 'referral_click', agentCode: code, at: Date.now(), route: 'redirect' });
     const q = await db.collection(SE_AGENTS).where('agentCode', '==', code).limit(1).get();
     if (!q.empty) {
       const ref = q.docs[0].ref;
       await db.runTransaction(async t => {
         const s = await t.get(ref);
         if (!s.exists) return;
-        const d = s.data(); const tot = d.totals || {};
-        t.update(ref, { 'totals.clicks': (tot.clicks || 0) + 1 });
+        t.update(ref, { 'totals.clicks': ((s.data().totals || {}).clicks || 0) + 1 });
       });
     }
   } catch (e) {}
@@ -191,8 +263,7 @@ const logReferralClick = async code => {
 /* ---------------- COMMISSION ENGINE ---------------- */
 const createCommissionForPayment = async (payment, agent) => {
   if (!fbReady || !payment.ref || !agent) return { ok: false };
-  const existing = await db.collection(SE_COMMISSIONS)
-    .where('paymentRef', '==', payment.ref).limit(1).get();
+  const existing = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', payment.ref).limit(1).get();
   if (!existing.empty) return { ok: true, skipped: true };
 
   const gross = parseFloat(String(payment.amount || '0').replace(/[^\d.]/g, '')) || 0;
@@ -202,28 +273,24 @@ const createCommissionForPayment = async (payment, agent) => {
   const { pct, amount } = calcCommission(serviceType, gross);
 
   const commission = {
-    agentId: agent.id, agentCode: agent.agentCode,
-    paymentRef: payment.ref, serviceCode: payment.serviceCode || '',
-    serviceTitle: payment.serviceTitle || '', serviceType,
-    grossZmw: gross, commissionPct: pct, commissionZmw: amount,
+    agentId: agent.id, agentCode: agent.agentCode, paymentRef: payment.ref,
+    serviceCode: payment.serviceCode || '', serviceTitle: payment.serviceTitle || '',
+    serviceType, grossZmw: gross, commissionPct: pct, commissionZmw: amount,
     status: 'pending', createdAt: Date.now(), approvedAt: Date.now(),
-    clearAt: Date.now() + CONFIG.clearingDays * 24 * 3600 * 1000,
-    paidAt: null, payoutId: null, reversedAt: null
+    clearAt: Date.now() + CONFIG.clearingDays * 24 * 3600 * 1000, paidAt: null, payoutId: null
   };
 
   const added = await db.collection(SE_COMMISSIONS).add(commission);
-
-  const agentRef = db.collection(SE_AGENTS).doc(agent.id);
   await db.runTransaction(async t => {
-    const s = await t.get(agentRef);
+    const ref = db.collection(SE_AGENTS).doc(agent.id);
+    const s = await t.get(ref);
     if (!s.exists) return;
-    const d = s.data(); const tot = d.totals || {};
-    t.update(agentRef, {
+    const tot = s.data().totals || {};
+    t.update(ref, {
       'totals.conversions': (tot.conversions || 0) + 1,
       'totals.pendingZmw': (tot.pendingZmw || 0) + amount
     });
   });
-
   return { ok: true, commission: { id: added.id, ...commission } };
 };
 
@@ -231,17 +298,16 @@ const cancelCommissionForPayment = async paymentRef => {
   if (!fbReady || !paymentRef) return { ok: false };
   try {
     const snap = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', paymentRef).limit(1).get();
-    if (snap.empty) return { ok: true, skipped: true };
-    const doc = snap.docs[0];
-    const c = doc.data();
+    if (snap.empty) return { ok: true };
+    const doc = snap.docs[0]; const c = doc.data();
     if (c.status === 'paid') return { ok: false };
     await doc.ref.update({ status: 'cancelled', reversedAt: Date.now() });
-    const agentRef = db.collection(SE_AGENTS).doc(c.agentId);
     await db.runTransaction(async t => {
-      const s = await t.get(agentRef);
+      const ref = db.collection(SE_AGENTS).doc(c.agentId);
+      const s = await t.get(ref);
       if (!s.exists) return;
-      const d = s.data(); const tot = d.totals || {};
-      t.update(agentRef, {
+      const tot = s.data().totals || {};
+      t.update(ref, {
         'totals.pendingZmw': Math.max(0, (tot.pendingZmw || 0) - c.commissionZmw),
         'totals.conversions': Math.max(0, (tot.conversions || 0) - 1)
       });
@@ -250,144 +316,49 @@ const cancelCommissionForPayment = async paymentRef => {
   } catch (e) { return { ok: false }; }
 };
 
-const markPayoutPaid = async payoutId => {
-  if (!fbReady) return { ok: false };
-  try {
-    const ref = db.collection(SE_PAYOUTS).doc(payoutId);
-    const snap = await ref.get();
-    if (!snap.exists) return { ok: false };
-    const po = snap.data();
-    if (po.status === 'paid') return { ok: true };
-
-    const batch = db.batch();
-    batch.update(ref, { status: 'paid', paidAt: Date.now() });
-    (po.commissionIds || []).forEach(cid => {
-      batch.update(db.collection(SE_COMMISSIONS).doc(cid), { status: 'paid', paidAt: Date.now(), payoutId });
-    });
-    await batch.commit();
-
-    const agentRef = db.collection(SE_AGENTS).doc(po.agentId);
-    await db.runTransaction(async t => {
-      const s = await t.get(agentRef);
-      if (!s.exists) return;
-      const d = s.data(); const tot = d.totals || {};
-      t.update(agentRef, {
-        'totals.earnedZmw': (tot.earnedZmw || 0) + po.amountZmw,
-        'totals.paidZmw':   (tot.paidZmw || 0) + po.amountZmw,
-        'totals.pendingZmw': Math.max(0, (tot.pendingZmw || 0) - po.amountZmw)
-      });
-    });
-    return { ok: true };
-  } catch (e) { return { ok: false }; }
-};
-
 const syncCommissions = async () => {
-  if (!fbReady) return { created: 0, cancelled: 0 };
-  let created = 0, cancelled = 0;
+  if (!fbReady) return;
   try {
     const paysSnap = await db.collection(SE_PAYMENTS).where('status', '==', 'approved').orderBy('submittedAt', 'desc').limit(500).get();
-    const withRef = paysSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.referralCode);
-
-    for (const pay of withRef) {
-      const exists = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', pay.ref).limit(1).get();
-      if (!exists.empty) continue;
+    for (const d of paysSnap.docs) {
+      const pay = d.data();
+      if (!pay.referralCode) continue;
+      const cSnap = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', pay.ref).limit(1).get();
+      if (!cSnap.empty) continue;
       const q = await db.collection(SE_AGENTS).where('agentCode', '==', pay.referralCode).limit(1).get();
       if (q.empty) continue;
       const agent = { id: q.docs[0].id, ...q.docs[0].data() };
       if (agent.status !== 'active') continue;
       if (pay.clientEmail && agent.email && pay.clientEmail.toLowerCase() === agent.email.toLowerCase()) continue;
       if (pay.clientPhone && agent.phone && pay.clientPhone.replace(/\D/g, '') === agent.phone.replace(/\D/g, '')) continue;
-      const r = await createCommissionForPayment(pay, agent);
-      if (r.ok && !r.skipped) created++;
+      await createCommissionForPayment({ ...pay, id: d.id }, agent);
     }
-
-    const cancellingSnap = await db.collection(SE_PAYMENTS).where('status', 'in', ['reverted', 'declined']).orderBy('submittedAt', 'desc').limit(200).get();
-    for (const d of cancellingSnap.docs) {
-      const p = d.data();
-      if (!p.ref) continue;
-      const cSnap = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', p.ref).limit(1).get();
-      if (cSnap.empty) continue;
-      const c = cSnap.docs[0].data();
-      if (c.status === 'pending' || c.status === 'earned') {
-        const r = await cancelCommissionForPayment(p.ref);
-        if (r.ok) cancelled++;
-      }
+    
+    const cancelSnap = await db.collection(SE_PAYMENTS).where('status', 'in', ['reverted', 'declined']).orderBy('submittedAt', 'desc').limit(200).get();
+    for (const d of cancelSnap.docs) {
+      const pay = d.data();
+      if (pay.ref) await cancelCommissionForPayment(pay.ref);
     }
   } catch (e) {}
-  return { created, cancelled };
 };
 
-/* ---------------- UI PRIMITIVES ---------------- */
+/* ---------------- UI COMPONENTS ---------------- */
 const Mark = ({ size = 36 }) => (
-  <span style={{
-    width: size, height: size, borderRadius: '50%', display: 'inline-flex',
-    alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#E8730F,#F5A623)',
-    boxShadow: '0 4px 12px -4px rgba(10,31,18,.5)', color: '#fff',
-    fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: size * 0.5, flexShrink: 0
-  }}>S</span>
+  <span style={{ width: size, height: size, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: size * 0.5, flexShrink: 0 }}>S</span>
 );
 
 const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style, type = 'button' }) => {
-  const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9, border: 'none', borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
-  const sizes = { sm: { padding: '9px 14px', fontSize: 12 }, md: { padding: '12px 20px', fontSize: 13.5 }, lg: { padding: '15px 28px', fontSize: 14.5 } };
+  const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
+  const sizes = { sm: { padding: '8px 14px', fontSize: 12 }, md: { padding: '11px 20px', fontSize: 13.5 }, lg: { padding: '14px 24px', fontSize: 14.5 } };
   const variants = {
     primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' },
     dark: { background: '#0A1F12', color: '#fff' },
     ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' },
-    ghostLt: { background: 'rgba(255,255,255,.06)', color: '#fff', border: '1px solid rgba(255,255,255,.2)' },
-    whatsapp: { background: '#25D366', color: '#fff' },
     success: { background: '#1E7B3C', color: '#fff' },
-    danger: { background: '#B8564F', color: '#fff' },
-    warning: { background: '#F5A623', color: '#0A1F12' }
+    danger: { background: '#B8564F', color: '#fff' }
   };
   return <button type={type} onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
-
-const Input = ({ value, onChange, placeholder, type = 'text', label, required, error, hint, autoComplete }) => (
-  <div style={{ marginBottom: 14 }}>
-    {label && <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#0A1F12', marginBottom: 6 }}>{label}{required && ' *'}</label>}
-    <input type={type} value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} autoComplete={autoComplete}
-      style={{ width: '100%', background: '#fff', border: `2px solid ${error ? '#B8564F' : 'rgba(10,31,18,.12)'}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: '#0A1F12', fontFamily: 'inherit' }} />
-    {hint && !error && <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)', marginTop: 5 }}>{hint}</div>}
-    {error && <div style={{ fontSize: 11.5, color: '#B8564F', marginTop: 5 }}>{error}</div>}
-  </div>
-);
-
-const Select = ({ value, onChange, options, label, required }) => (
-  <div style={{ marginBottom: 14 }}>
-    {label && <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#0A1F12', marginBottom: 6 }}>{label}{required && ' *'}</label>}
-    <select value={value || ''} onChange={e => onChange(e.target.value)}
-      style={{ width: '100%', background: '#fff', border: '2px solid rgba(10,31,18,.12)', borderRadius: 10, padding: '12px 16px', fontSize: 14, color: '#0A1F12', fontFamily: 'inherit', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235E7A67' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }}>
-      <option value="">— Choose —</option>
-      {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
-    </select>
-  </div>
-);
-
-const Badge = ({ status }) => {
-  const m = {
-    pending: { label: 'Pending', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
-    active: { label: 'Active', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
-    suspended: { label: 'Suspended', color: '#7A4FA3', bg: '#F2EDF7', icon: 'fa-pause' },
-    rejected: { label: 'Rejected', color: '#B8564F', bg: '#FFE8E5', icon: 'fa-circle-xmark' },
-    earned: { label: 'Earned', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
-    paid: { label: 'Paid', color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' },
-    cancelled: { label: 'Cancelled', color: '#B8564F', bg: '#FFE8E5', icon: 'fa-circle-xmark' },
-    requested: { label: 'Requested', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' }
-  }[status] || { label: status || '—', color: '#666', bg: '#eee', icon: 'fa-circle' };
-  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 99, fontSize: 10.5, fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase', background: m.bg, color: m.color, border: `1px solid ${m.color}44` }}><i className={`fas ${m.icon}`} style={{ fontSize: 9 }}></i>{m.label}</span>;
-};
-
-const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
-  <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '18px 20px', borderTopWidth: 3, borderTopColor: color }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-      <span style={{ fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)' }}>{label}</span>
-      {icon && <span style={{ width: 28, height: 28, borderRadius: 8, background: color + '1a', color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className={`fas ${icon}`} style={{ fontSize: 11 }}></i></span>}
-    </div>
-    <div className="serif" style={{ fontSize: 26, fontWeight: 800, color: '#0A1F12', lineHeight: 1.05, marginBottom: 4 }}>{value}</div>
-    {sub && <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)' }}>{sub}</div>}
-  </div>
-);
 
 const Spinner = ({ label }) => (
   <div style={{ padding: 80, textAlign: 'center' }}>
@@ -396,66 +367,75 @@ const Spinner = ({ label }) => (
   </div>
 );
 
-/* ---------------- NAV (FIXED) ---------------- */
+const Badge = ({ status }) => {
+  const m = {
+    active: { label: 'Active', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
+    pending: { label: 'Pending', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
+    earned: { label: 'Earned', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
+    paid: { label: 'Paid', color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' },
+    requested: { label: 'Requested', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' }
+  }[status] || { label: status, color: '#666', bg: '#eee', icon: 'fa-circle' };
+  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 99, fontSize: 10.5, fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase', background: m.bg, color: m.color, border: `1px solid ${m.color}33` }}><i className={`fas ${m.icon}`}></i> {m.label}</span>;
+};
+
+const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
+  <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '16px 18px', borderTopWidth: 3, borderTopColor: color }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+      <span style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)' }}>{label}</span>
+      {icon && <i className={`fas ${icon}`} style={{ color, fontSize: 12 }}></i>}
+    </div>
+    <div className="serif" style={{ fontSize: 24, fontWeight: 800, color: '#0A1F12', lineHeight: 1.1, marginBottom: 2 }}>{value}</div>
+    {sub && <div style={{ fontSize: 11, color: 'rgba(10,31,18,.5)' }}>{sub}</div>}
+  </div>
+);
+
+/* ---------------- NAV (BULLETPROOF) ---------------- */
 function Nav({ route, go, agent, onSignOut }) {
   const [open, setOpen] = useState(false);
-  const links = [['', 'Home'], ['join', 'Join Program'], ['terms', 'Terms']];
-
   return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#0A1F12', borderBottom: '1px solid rgba(245,166,35,.1)' }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64 }}>
-          
-          {/* Logo */}
-          <button onClick={() => go('')} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
-            <Mark size={34} />
-            <span style={{ textAlign: 'left', lineHeight: 1 }}>
-              <span style={{ display: 'block', fontSize: 9, letterSpacing: '.16em', textTransform: 'uppercase', fontWeight: 700, color: 'rgba(255,255,255,.35)', marginBottom: 3 }}>Referral Program</span>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#fff' }}>Start<em style={{ fontStyle: 'normal', color: '#F5A623' }}>Easy</em></span>
-            </span>
-          </button>
-
-          {/* Desktop Nav */}
-          <nav style={{ display: 'none', gap: 20 }} className="md:flex">
-            {links.map(([r, l]) => (
-              <button key={r} onClick={() => go(r)} style={{ fontSize: 13, padding: '4px 0', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: route === r ? '#F5A623' : 'rgba(255,255,255,.6)' }}>
-                {l}
-                {route === r && <span style={{ position: 'absolute', bottom: -2, left: 0, right: 0, height: 2, background: '#F5A623', borderRadius: 99 }} />}
-              </button>
-            ))}
-          </nav>
-
-          {/* Right Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {agent ? (
-              <>
-                <button onClick={() => go('dashboard')} style={{ padding: '8px 14px', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <i className="fas fa-gauge-high"></i> Dashboard
-                </button>
-                <button onClick={onSignOut} style={{ padding: '8px 12px', background: 'none', border: '1px solid rgba(255,255,255,.2)', color: 'rgba(255,255,255,.7)', borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }} className="hidden sm:block">Sign out</button>
-              </>
-            ) : (
-              <button onClick={() => go('join')} style={{ padding: '9px 18px', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
-                Sign Up
-              </button>
-            )}
-            <button onClick={() => setOpen(!open)} className="md:hidden" style={{ width: 34, height: 34, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer' }}>
-              <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 99 }} />
-              <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 99 }} />
-              <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 99 }} />
-            </button>
+    <header className="site-header">
+      <div className="header-container">
+        <button onClick={() => go('')} className="header-logo">
+          <div className="header-logo-mark">S</div>
+          <div className="header-logo-text">
+            <span className="header-logo-sub">Agent Opportunity</span>
+            <span className="header-logo-main">Start<em>Easy</em></span>
           </div>
-        </div>
+        </button>
+
+        <nav className="header-nav">
+          <button onClick={() => go('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
+          {agent ? (
+            <>
+              <button onClick={() => go('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>Dashboard</button>
+              <button onClick={onSignOut} className="header-btn" style={{ background: 'rgba(255,255,255,.1)' }}>Sign Out</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => go('join')} className={`header-link ${route === 'join' ? 'active' : ''}`}>Get Code</button>
+              <button onClick={() => go('login')} className="header-btn">Sign In</button>
+            </>
+          )}
+        </nav>
+
+        <button onClick={() => setOpen(!open)} className="header-mobile-toggle">
+          <i className={`fas ${open ? 'fa-times' : 'fa-bars'}`}></i>
+        </button>
       </div>
 
-      {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden" style={{ borderTop: '1px solid rgba(255,255,255,.1)', background: '#0A1F12', padding: '12px 16px' }}>
-          {links.map(([r, l]) => (
-            <button key={r} onClick={() => { setOpen(false); go(r); }} style={{ width: '100%', display: 'block', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,.05)', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: route === r ? '#F5A623' : 'rgba(255,255,255,.7)', fontSize: 14 }}>{l}</button>
-          ))}
-          {agent && (
-            <button onClick={() => { setOpen(false); onSignOut(); }} style={{ width: '100%', display: 'block', padding: '12px 0', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: '#B8564F', fontSize: 14 }}>Sign out</button>
+        <div className="header-mobile-menu">
+          <button onClick={() => { setOpen(false); go(''); }} className="header-link">Home</button>
+          {agent ? (
+            <>
+              <button onClick={() => { setOpen(false); go('dashboard'); }} className="header-link">Dashboard</button>
+              <button onClick={() => { setOpen(false); onSignOut(); }} className="header-link" style={{ color: '#B8564F' }}>Sign Out</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => { setOpen(false); go('join'); }} className="header-link">Get Code</button>
+              <button onClick={() => { setOpen(false); go('login'); }} className="header-link">Sign In</button>
+            </>
           )}
         </div>
       )}
@@ -463,173 +443,170 @@ function Nav({ route, go, agent, onSignOut }) {
   );
 }
 
-/* ---------------- LANDING ---------------- */
+/* ---------------- PAGES ---------------- */
 function Landing({ go }) {
   return (
     <div className="fadein">
-      <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: 'clamp(56px,8vw,96px) 24px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <span className="micro" style={{ color: '#F5A623', display: 'block', marginBottom: 16 }}>StartEasy Referral Program · Zambia</span>
-          <h1 className="serif" style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', lineHeight: 1.08, marginBottom: 20, maxWidth: '46rem' }}>
+      <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '64px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <span style={{ fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', fontWeight: 800, color: '#F5A623', display: 'block', marginBottom: 16 }}>StartEasy Referral Program</span>
+          <h1 className="serif" style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', lineHeight: 1.1, marginBottom: 20 }}>
             Share StartEasy. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Earn on every sale.</em>
           </h1>
-          <p style={{ fontSize: 15.5, lineHeight: 1.7, color: 'rgba(255,255,255,.72)', maxWidth: '44rem', marginBottom: 28 }}>
-            Sign up in 60 seconds. Get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement and pays, you earn a commission on the service fee.
+          <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
+            Sign your engagement agreement to get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement, you earn a commission.
           </p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Btn size="lg" variant="primary" onClick={() => go('join')}>Get My Referral Code <i className="fas fa-arrow-right" style={{ fontSize: 11 }}></i></Btn>
-          </div>
+          <Btn size="lg" variant="primary" onClick={() => go('join')}>Sign & Generate Code <i className="fas fa-arrow-right"></i></Btn>
         </div>
       </section>
-
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 24px' }}>
-        <h2 className="serif" style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', color: '#0A1F12', marginBottom: 12 }}>What you earn per service</h2>
-        <p style={{ fontSize: 14, color: 'rgba(10,31,18,.65)', marginBottom: 24, maxWidth: '44rem' }}>Commission is calculated on the StartEasy service fee only — not on any government fee. Rates are fixed and published.</p>
-        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
-              <thead>
-                <tr>{['Service tier', 'Service fee', 'Commission', 'You earn'].map(h => <th key={h} style={{ textAlign: 'left', padding: '14px 18px', background: '#0A1F12', fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(255,255,255,.7)' }}>{h}</th>)}</tr>
-              </thead>
-              <tbody>
-                {[
-                  { tier: 'Micro · Wizard', fee: 'K25', pct: '40%', earn: 'K10' },
-                  { tier: 'Basic', fee: 'K250', pct: '30%', earn: 'K75' },
-                  { tier: 'Standard', fee: 'K400', pct: '25%', earn: 'K100' },
-                  { tier: 'Complex · Company Inc.', fee: 'K750', pct: '22%', earn: 'K165' },
-                  { tier: 'Compliance Check-Up', fee: 'K750', pct: '22%', earn: 'K165' },
-                  { tier: 'Regularisation', fee: 'from K1,500', pct: '18%', earn: 'from K270' }
-                ].map((r, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid rgba(10,31,18,.06)' }}>
-                    <td style={{ padding: '14px 18px', fontSize: 13, color: '#0A1F12', fontWeight: 600 }}>{r.tier}</td>
-                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.fee}</td>
-                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.pct}</td>
-                    <td style={{ padding: '14px 18px', fontSize: 13, color: '#E8730F', fontWeight: 800 }}>{r.earn}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '56px 24px' }}>
+        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 20 }}>How it works</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
+          {[
+            { t: '1. Sign', d: 'Fill out the engagement form. Takes 2 minutes.' },
+            { t: '2. Get Code', d: 'Your unique referral link is generated instantly.' },
+            { t: '3. Share', d: 'Share it with clients, on WhatsApp, or social media.' },
+            { t: '4. Earn', d: 'Get paid commission on every approved sale.' }
+          ].map((x, i) => (
+            <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)' }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#0A1F12', marginBottom: 8 }}>{x.t}</h3>
+              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: 0, lineHeight: 1.5 }}>{x.d}</p>
+            </div>
+          ))}
         </div>
       </section>
     </div>
   );
 }
 
-/* ---------------- JOIN (INSTANT ONBOARDING + ENGAGEMENT) ---------------- */
+/* INSTANT ONBOARDING: ENGAGEMENT DOCUMENT */
 function JoinPage({ go, onAuth }) {
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ displayName: '', email: '', phone: '', location: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', location: '', password: '' });
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
-  const nextStep = () => {
-    setErr('');
-    if (!form.displayName.trim()) return setErr('Enter your full name.');
-    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setErr('Enter a valid email.');
-    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 9) return setErr('Enter a valid phone number.');
-    if (!form.location) return setErr('Choose your location.');
-    setStep(2);
-  };
-
   const submit = async () => {
     setErr('');
+    if (!form.name.trim()) return setErr('Please enter your full name.');
+    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setErr('Please enter a valid email.');
+    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 9) return setErr('Please enter a valid phone number.');
+    if (!form.location) return setErr('Please select your location.');
     if (!form.password || form.password.length < 6) return setErr('Password must be at least 6 characters.');
-    if (!agreed) return setErr('You must accept the engagement terms.');
-    setBusy(true);
+    if (!agreed) return setErr('You must check the agreement box to proceed.');
 
+    setBusy(true);
     try {
       // 1. Create Auth Account
       const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
       
       // 2. Generate Code
-      const agentCode = generateAgentCode(form.displayName);
+      const agentCode = generateAgentCode(form.name);
 
-      // 3. Save Agent Profile
+      // 3. Save Profile Instantly
       await db.collection(SE_AGENTS).doc(cred.user.uid).set({
         uid: cred.user.uid,
         agentCode: agentCode,
-        displayName: form.displayName.trim(),
+        displayName: form.name.trim(),
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim(),
         location: form.location,
-        status: 'active', // Instant activation
+        status: 'active',
         commissionPct: 20,
         createdAt: Date.now(),
         totals: { clicks: 0, conversions: 0, earnedZmw: 0, paidZmw: 0, pendingZmw: 0 }
       });
 
-      // 4. Log Event
-      try { db.collection(SE_EVENTS).add({ type: 'agent_joined_instantly', at: Date.now(), agentCode }); } catch (e) {}
-
-      onAuth(); // Trigger global redirect to dashboard
+      onAuth(); // Redirect to Dashboard
     } catch (e) {
-      if (e.code === 'auth/email-already-in-use') {
-        setErr('This email already has an account. Please sign in.');
-      } else {
-        setErr(e.message || 'Registration failed.');
-      }
+      if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in.');
+      else setErr(e.message || 'Registration failed.');
     } finally { setBusy(false); }
   };
 
-  if (step === 1) {
-    return (
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '56px 24px' }}>
-        <h1 className="serif" style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)', color: '#0A1F12', marginBottom: 10 }}>Get Your Referral Code</h1>
-        <p style={{ fontSize: 14, color: 'rgba(10,31,18,.65)', marginBottom: 24, lineHeight: 1.65 }}>Fill this out. On the next step you'll sign the engagement agreement and get your unique link instantly.</p>
-        
-        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '26px 24px' }}>
-          <Input label="Full Name" required value={form.displayName} onChange={v => setForm({ ...form, displayName: v })} placeholder="e.g. John Mwale" />
-          <Input label="Email" required type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} placeholder="you@example.com" />
-          <Input label="Phone / WhatsApp" required value={form.phone} onChange={v => setForm({ ...form, phone: v })} placeholder="+260..." />
-          <Select label="Location" required value={form.location} onChange={v => setForm({ ...form, location: v })} options={['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora']} />
-          
-          {err && <div style={{ background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 14, color: '#B8564F', fontSize: 12.5 }}>{err}</div>}
-          
-          <Btn onClick={nextStep} size="lg" variant="primary" style={{ width: '100%' }}>Continue to Engagement <i className="fas fa-arrow-right"></i></Btn>
-          <p style={{ textAlign: 'center', marginTop: 14, fontSize: 12, color: 'rgba(10,31,18,.6)' }}>Already have an account? <a href="#/login" style={{ color: '#E8730F', fontWeight: 700 }}>Sign In</a></p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ maxWidth: 700, margin: '0 auto', padding: '56px 24px' }}>
-      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'rgba(10,31,18,.6)', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginBottom: 20 }}>← Back to details</button>
-      
-      <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.12)', borderRadius: 12, padding: '32px 30px', boxShadow: '0 10px 30px rgba(0,0,0,.05)' }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <i className="fas fa-file-signature" style={{ fontSize: 32, color: '#E8730F', marginBottom: 12 }}></i>
-          <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', margin: 0 }}>Agent Engagement Agreement</h2>
+    <div style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <h1 className="serif" style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)', color: '#0A1F12', marginBottom: 8 }}>Agent Engagement Agreement</h1>
+          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.6)' }}>Complete the details below to sign your agreement and instantly generate your referral code.</p>
         </div>
 
-        <div style={{ fontSize: 13, lineHeight: 1.7, color: 'rgba(10,31,18,.8)', maxHeight: 300, overflowY: 'auto', background: '#F9FBFA', padding: 20, borderRadius: 8, border: '1px solid rgba(10,31,18,.06)', marginBottom: 20 }}>
-          <p><strong>1. Independent Contractor:</strong> You are joining as an independent Referral Agent. This is NOT an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits.</p>
-          <p><strong>2. Commission Only:</strong> You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions are only paid after the client pays AND the payment clears (7 days).</p>
-          <p><strong>3. Attribution:</strong> Your unique code tracks sales for 30 days. Self-referrals or fraudulent activity will result in immediate disqualification and forfeiture of earnings.</p>
-          <p><strong>4. Payouts:</strong> Minimum payout is K200. Payouts are processed to your chosen mobile money or bank account.</p>
-          <p><strong>5. Conduct:</strong> You agree not to spam, impersonate StartEasy, or make false promises to clients.</p>
+        <div className="doc-wrapper fadein">
+          <div className="doc-header">
+            <div>
+              <div className="doc-brand">Start<em>Easy</em></div>
+              <div className="doc-sub">Administrative Services Desk · Zambia</div>
+            </div>
+            <div>
+              <div className="doc-title">AGENT ENGAGEMENT</div>
+              <div className="doc-meta">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br/>Status: Pending Signature</div>
+            </div>
+          </div>
+
+          <div className="doc-body">
+            <p>This Engagement is entered into between <strong>StartEasy Zambia</strong> ("The Company") and <strong><input className="doc-input-line" placeholder="[Your Full Name]" value={form.name} onChange={e => setForm({...form, name: e.target.value})} style={{ width: 200 }} /></strong> ("The Agent").</p>
+            
+            <div className="doc-section-title">1. Nature of Engagement</div>
+            <p>The Agent is engaged as an independent contractor. This is an opportunity to earn commissions based on sales performance. It is <strong>not</strong> an employment contract, and there is no salary, no guaranteed income, and no employee benefits.</p>
+
+            <div className="doc-section-title">2. Commission & Payouts</div>
+            <p>The Agent will earn a fixed percentage commission on the StartEasy service fees of approved sales they refer. Commissions clear after 7 days and can be withdrawn to a mobile money or bank account once the balance reaches K200.</p>
+
+            <div className="doc-section-title">3. Agent Details</div>
+            <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <span>
+                <strong>Email:</strong><br/>
+                <input className="doc-input-line" type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} style={{ width: '100%' }} />
+              </span>
+              <span>
+                <strong>Phone:</strong><br/>
+                <input className="doc-input-line" placeholder="+260..." value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} style={{ width: '100%' }} />
+              </span>
+            </p>
+            <p style={{ marginTop: 8 }}>
+              <strong>Location:</strong><br/>
+              <select className="doc-input-line" value={form.location} onChange={e => setForm({...form, location: e.target.value})} style={{ width: '100%', background: 'transparent' }}>
+                <option value="">Choose location...</option>
+                {['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora'].map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+            </p>
+
+            <div className="doc-signature-block">
+              <div>
+                <div className="sig-line">StartEasy Zambia</div>
+                <div className="sig-label">For the Company</div>
+              </div>
+              <div>
+                <input className="sig-input" placeholder="Type your full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+                <div className="sig-label">For the Agent</div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 24, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
+              <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
+                <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
+                <span style={{ fontSize: 12, lineHeight: 1.5 }}>I agree to the engagement terms above and understand this is a commission-only independent contractor agreement.</span>
+              </label>
+              
+              <div style={{ marginTop: 16 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Create a password to secure your dashboard:</label>
+                <input type="password" className="doc-input-line" style={{ width: '100%', padding: 10, border: '1px solid #ccc', borderRadius: 6 }} placeholder="Min 6 characters" value={form.password} onChange={e => setForm({...form, password: e.target.value})} />
+              </div>
+            </div>
+
+            {err && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 16, fontSize: 13, fontWeight: 600 }}>{err}</div>}
+
+            <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
+              {busy ? 'Generating Code...' : 'Sign & Generate My Referral Code'}
+            </Btn>
+          </div>
         </div>
-
-        <Input label="Create a Password" required type="password" value={form.password} onChange={v => setForm({ ...form, password: v })} placeholder="Min 6 characters" autoComplete="new-password" />
-        
-        <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', fontSize: 13, color: '#0A1F12', cursor: 'pointer', marginBottom: 20 }}>
-          <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, accentColor: '#E8730F', marginTop: 2 }} />
-          <span>I agree to the <a href="#/terms" style={{ color: '#E8730F', fontWeight: 700 }}>Program Terms</a> and understand this is a commission-only independent contractor agreement.</span>
-        </label>
-
-        {err && <div style={{ background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 14, color: '#B8564F', fontSize: 12.5 }}>{err}</div>}
-
-        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%' }}>
-          {busy ? 'Creating Account...' : 'Sign & Generate My Code'}
-        </Btn>
       </div>
     </div>
   );
 }
 
-/* ---------------- LOGIN ---------------- */
 function LoginPage({ go, onAuth }) {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
@@ -643,35 +620,33 @@ function LoginPage({ go, onAuth }) {
     try {
       await auth.signInWithEmailAndPassword(email.trim(), pw);
       onAuth();
-    } catch (e) {
-      setErr(e.message || 'Sign in failed.');
-    } finally { setBusy(false); }
+    } catch (e) { setErr('Incorrect email or password.'); }
+    finally { setBusy(false); }
   };
 
   return (
-    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 20px' }}>
-      <div style={{ background: '#fff', borderRadius: 14, padding: '34px 30px', maxWidth: 400, width: '100%', boxShadow: '0 30px 80px rgba(0,0,0,.1)' }}>
+    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+      <div style={{ background: '#fff', borderRadius: 14, padding: '32px 28px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,.08)' }}>
         <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Welcome back</h1>
-        <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 22 }}>Sign in to view your dashboard.</p>
-        <Input label="Email" type="email" value={email} onChange={setEmail} />
-        <Input label="Password" type="password" value={pw} onChange={setPw} />
-        {err && <div style={{ background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#B8564F', fontSize: 12.5 }}>{err}</div>}
-        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 12 }}>{busy ? 'Signing in...' : 'Sign in'}</Btn>
-        <p style={{ fontSize: 12, textAlign: 'center', color: 'rgba(10,31,18,.55)' }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign up here</a>.</p>
+        <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>Sign in to view your dashboard.</p>
+        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
+        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Password</label>
+        <input type="password" value={pw} onChange={e => setPw(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
+        {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16 }}>{err}</div>}
+        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>{busy ? 'Signing in...' : 'Sign in'}</Btn>
+        <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign agreement here</a>.</p>
       </div>
     </div>
   );
 }
 
-/* ---------------- DASHBOARD ---------------- */
 function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [commissions, setCommissions] = useState([]);
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
-  const [tab, setTab] = useState('commissions');
-  const [showPayout, setShowPayout] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true); // Shows the "Here is your code" banner on first load
+  const [showCodeBanner, setShowCodeBanner] = useState(true);
 
   useEffect(() => {
     if (!agent) return;
@@ -682,7 +657,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     ];
     setLoading(false);
     return () => unsubs.forEach(u => u());
-  }, [agent && agent.id]);
+  }, [agent.id]);
 
   if (loading || !agent) return <Spinner label="Loading dashboard…" />;
 
@@ -694,341 +669,95 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
 
   const doCopy = async (text, label) => {
     const ok = await copyText(text);
-    setMsg(ok ? `${label} copied` : 'Copy failed');
+    setMsg(ok ? `${label} copied!` : 'Copy failed');
     setTimeout(() => setMsg(''), 2000);
   };
 
-  const requestPayout = async () => {
-    setMsg('');
-    if (available < CONFIG.minPayoutZmw) return setMsg(`Minimum payout is ${fmtZmw(CONFIG.minPayoutZmw)}`);
-    if (!agent.paymentMethod || !agent.paymentMethod.number) {
-      setMsg('Please set your payout method first (Settings tab).');
-      setTab('settings');
-      return;
-    }
-    const earnedComms = commissions.filter(c => c.status === 'earned' && Date.now() >= (c.clearAt || 0));
-    const total = earnedComms.reduce((s, c) => s + (c.commissionZmw || 0), 0);
-    if (total < CONFIG.minPayoutZmw) return setMsg(`You have ${fmtZmw(total)} available (min ${fmtZmw(CONFIG.minPayoutZmw)}).`);
-    
-    try {
-      await db.collection(SE_PAYOUTS).add({
-        agentId: agent.id, agentCode: agent.agentCode, displayName: agent.displayName,
-        amountZmw: Math.round(total * 100) / 100, commissionIds: earnedComms.map(c => c.id),
-        method: agent.paymentMethod, status: 'requested', requestedAt: Date.now(), paidAt: null, proof: null
-      });
-      setMsg('Payout request submitted. Officer will pay within 5 working days.');
-      setShowPayout(false);
-    } catch (e) { setMsg('Could not submit request. Please try again.'); }
-  };
-
-  const savePaymentMethod = async pm => {
-    try {
-      await db.collection(SE_AGENTS).doc(agent.id).update({ paymentMethod: pm });
-      setAgent({ ...agent, paymentMethod: pm });
-      setMsg('Payout method saved.');
-    } catch (e) { setMsg('Could not save.'); }
-  };
-
   return (
-    <div className="fadein" style={{ minHeight: '100vh', padding: '32px 24px 60px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 16px' }}>
         
-        {/* Welcome Banner */}
-        {showWelcome && (
-          <div style={{ background: 'linear-gradient(135deg,#FFF9E6,#FFFCF0)', border: '1.5px solid #F0E0A0', borderRadius: 12, padding: '20px 24px', marginBottom: 24, position: 'relative' }}>
-            <button onClick={() => setShowWelcome(false)} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', color: '#8A6828', cursor: 'pointer', fontSize: 14 }}>✕</button>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ flex: 1 }}>
-                <h3 className="serif" style={{ fontSize: 18, color: '#0A1F12', margin: '0 0 4px' }}>Welcome aboard, {agent.displayName.split(' ')[0]}!</h3>
-                <p style={{ fontSize: 13, color: '#8A6828', margin: 0 }}>Your account is active. Copy your unique link below and start sharing to earn.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
-          <div>
-            <span className="micro" style={{ color: '#E8730F', display: 'block', marginBottom: 8 }}>Agent Dashboard</span>
-            <h1 className="serif" style={{ fontSize: 'clamp(1.6rem,3.4vw,2.2rem)', color: '#0A1F12', lineHeight: 1.15, margin: 0 }}>{agent.displayName}</h1>
-          </div>
-          <button onClick={onSignOut} style={{ padding: '10px 16px', background: 'rgba(184,86,79,.1)', color: '#B8564F', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Sign out</button>
-        </div>
-
-        {msg && <div style={{ background: 'rgba(30,123,60,.1)', border: '1px solid rgba(30,123,60,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 16, color: '#1E7B3C', fontSize: 12.5, fontWeight: 600 }}>{msg}</div>}
-
-        {/* Link Box */}
-        <div style={{ background: '#0A1F12', borderRadius: 12, padding: '18px 20px', color: '#fff', marginBottom: 20 }}>
-          <div style={{ fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: '#F5A623', marginBottom: 12 }}>Your Referral Link</div>
-          <div style={{ fontFamily: 'Consolas,monospace', fontSize: 12, background: 'rgba(255,255,255,.06)', padding: '12px 16px', borderRadius: 8, marginBottom: 10, wordBreak: 'break-all', lineHeight: 1.4 }}>{shareLink}</div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button onClick={() => doCopy(shareLink, 'Link')} style={{ padding: '10px 14px', background: '#F5A623', color: '#0A1F12', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}><i className="fas fa-copy"></i> Copy link</button>
-            <button onClick={() => doCopy(agent.agentCode, 'Code')} style={{ padding: '10px 14px', background: 'rgba(255,255,255,.06)', color: '#fff', border: '1px solid rgba(255,255,255,.2)', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}><i className="fas fa-hashtag"></i> Copy code</button>
-            <a href={`https://wa.me/?text=${encodeURIComponent('Check out StartEasy — quality business services in Zambia. Use my link: ' + shareLink)}`} target="_blank" rel="noopener noreferrer" style={{ padding: '10px 14px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><i className="fab fa-whatsapp"></i> Share</a>
-          </div>
-        </div>
-
-        {/* KPIs */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ marginBottom: 20 }}>
-          <Kpi label="Clicks" value={fmtInt(agent.totals?.clicks)} sub="Referred link clicks" icon="fa-eye" color="#1B6CA8" />
-          <Kpi label="Conversions" value={fmtInt(agent.totals?.conversions)} sub="Approved payments" icon="fa-circle-check" color="#1E7B3C" />
-          <Kpi label="Earned" value={fmtZmw(earned)} sub={`${fmtZmw(available)} available`} icon="fa-wallet" color="#E8730F" />
-          <Kpi label="Paid out" value={fmtZmw(paid)} sub={`${fmtZmw(pending)} pending`} icon="fa-money-bill-wave" color="#0E7C7B" />
-        </div>
-
-        {/* Payout CTA */}
-        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '18px 22px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)', marginBottom: 4 }}>Available to withdraw</div>
-            <div className="serif" style={{ fontSize: 26, fontWeight: 800, color: '#0A1F12', lineHeight: 1 }}>{fmtZmw(available)}</div>
-            <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)', marginTop: 4 }}>Minimum {fmtZmw(CONFIG.minPayoutZmw)}</div>
-          </div>
-          <Btn onClick={() => setShowPayout(true)} variant="success" disabled={available < CONFIG.minPayoutZmw}><i className="fas fa-money-bill-transfer"></i> Request payout</Btn>
-        </div>
-
-        {showPayout && (
-          <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '22px 24px', marginBottom: 20 }}>
-            <h3 className="serif" style={{ fontSize: 17, color: '#0A1F12', marginBottom: 8 }}>Confirm payout request</h3>
-            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.65, marginBottom: 12 }}>Requesting <strong>{fmtZmw(available)}</strong> to <strong>{agent.paymentMethod?.label || 'your saved account'}</strong>.</p>
+        {showCodeBanner && (
+          <div style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff', borderRadius: 12, padding: '24px', marginBottom: 24, position: 'relative', boxShadow: '0 10px 30px rgba(10,31,18,.2)' }}>
+            <button onClick={() => setShowCodeBanner(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 16 }}>✕</button>
+            <h2 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 8 }}>Welcome, {agent.displayName.split(' ')[0]}! Your code is ready.</h2>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 16 }}>Copy your unique link below and share it with potential clients.</p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <Btn onClick={requestPayout} variant="success"><i className="fas fa-check"></i> Confirm request</Btn>
-              <Btn onClick={() => setShowPayout(false)} variant="ghost">Cancel</Btn>
+              <div style={{ flex: 1, minWidth: 250, background: 'rgba(255,255,255,.1)', borderRadius: 8, padding: '12px 16px', fontFamily: 'monospace', fontSize: 13, wordBreak: 'break-all' }}>{shareLink}</div>
+              <Btn variant="primary" onClick={() => doCopy(shareLink, 'Link')}><i className="fas fa-copy"></i> Copy Link</Btn>
             </div>
           </div>
         )}
 
-        {/* Tabs */}
-        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', borderBottom: '1px solid rgba(10,31,18,.06)', overflowX: 'auto' }}>
-            {[['commissions', 'Commissions', 'fa-receipt'], ['payouts', 'Payouts', 'fa-money-bill-transfer'], ['settings', 'Settings', 'fa-gear']].map(([k, l, ic]) => (
-              <button key={k} onClick={() => setTab(k)} style={{ padding: '14px 18px', background: 'none', border: 'none', borderBottom: tab === k ? '3px solid #E8730F' : '3px solid transparent', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', color: tab === k ? '#0A1F12' : 'rgba(10,31,18,.55)', display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0 }}><i className={`fas ${ic}`} style={{ fontSize: 11 }}></i> {l}</button>
-            ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+          <div>
+            <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: 0 }}>Agent Dashboard</h1>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: '4px 0 0' }}>Code: <strong>{agent.agentCode}</strong></p>
           </div>
-          <div style={{ padding: '20px 22px' }}>
-            {tab === 'commissions' && (
-              commissions.length === 0 ? <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.55)', margin: 0 }}>No commissions yet — share your link to start earning.</p> :
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
-                  <thead><tr>{['Payment ref', 'Service', 'Fee', 'Commission', 'Status', 'When'].map(h => <th key={h} style={{ textAlign: 'left', padding: '10px 12px', fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.45)', borderBottom: '1px solid rgba(10,31,18,.08)' }}>{h}</th>)}</tr></thead>
-                  <tbody>{commissions.map(c => <tr key={c.id} style={{ borderBottom: '1px dashed rgba(10,31,18,.06)' }}><td style={{ padding: '10px 12px', fontFamily: 'Consolas,monospace', fontSize: 11.5, color: '#0A1F12' }}>{c.paymentRef}</td><td style={{ padding: '10px 12px', fontSize: 12.5, color: '#0A1F12' }}>{c.serviceTitle || c.serviceCode}</td><td style={{ padding: '10px 12px', fontSize: 12.5, color: 'rgba(10,31,18,.65)' }}>{fmtZmw(c.grossZmw)}</td><td style={{ padding: '10px 12px', fontSize: 12.5, fontWeight: 700, color: '#E8730F' }}>{fmtZmw(c.commissionZmw)} <span style={{ fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>({c.commissionPct}%)</span></td><td style={{ padding: '10px 12px' }}><Badge status={c.status} /></td><td style={{ padding: '10px 12px', fontSize: 11.5, color: 'rgba(10,31,18,.55)' }}>{timeAgo(c.createdAt)}</td></tr>)}</tbody>
-                </table>
-              </div>
-            )}
-            {tab === 'payouts' && (
-              payouts.length === 0 ? <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.55)', margin: 0 }}>No payout requests yet.</p> :
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{payouts.map(p => <div key={p.id} style={{ border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}><div><div style={{ fontSize: 14, fontWeight: 700, color: '#0A1F12' }}>{fmtZmw(p.amountZmw)}</div><div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.55)', marginTop: 3 }}>Requested {timeAgo(p.requestedAt)} · {p.commissionIds?.length || 0} items</div></div><Badge status={p.status} /></div>)}</div>
-            )}
-            {tab === 'settings' && <SettingsTab agent={agent} onSave={savePaymentMethod} />}
+          <Btn onClick={onSignOut} variant="ghost" size="sm">Sign Out</Btn>
+        </div>
+
+        {msg && <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 12, borderRadius: 8, marginBottom: 16, fontWeight: 600, fontSize: 13 }}>{msg}</div>}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
+          <Kpi label="Clicks" value={fmtInt(agent.totals?.clicks)} sub="Link clicks" icon="fa-eye" color="#1B6CA8" />
+          <Kpi label="Conversions" value={fmtInt(agent.totals?.conversions)} sub="Approved payments" icon="fa-circle-check" color="#1E7B3C" />
+          <Kpi label="Earned" value={fmtZmw(earned)} sub={`${fmtZmw(available)} avail`} icon="fa-wallet" color="#E8730F" />
+          <Kpi label="Pending" value={fmtZmw(pending)} sub="Clearing (7 days)" icon="fa-clock" color="#8A6828" />
+        </div>
+
+        {/* Link Box (Always Visible) */}
+        <div style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Your Referral Link</h3>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <input type="text" readOnly value={shareLink} style={{ flex: 1, minWidth: 250, padding: 12, border: '1px solid #ccc', borderRadius: 8, fontFamily: 'monospace', fontSize: 13, background: '#F9FBFA' }} />
+            <Btn variant="primary" onClick={() => doCopy(shareLink, 'Link')}><i className="fas fa-copy"></i> Copy</Btn>
+            <a href={`https://wa.me/?text=${encodeURIComponent('Check out StartEasy — quality business services in Zambia. Use my link: ' + shareLink)}`} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share</a>
           </div>
+        </div>
+
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(10,31,18,.08)', fontWeight: 700, fontSize: 14 }}>Recent Commissions</div>
+          {commissions.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: 'rgba(10,31,18,.5)', fontSize: 13 }}>No commissions yet. Share your link to start earning.</div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+                <thead>
+                  <tr style={{ background: '#F9FBFA', borderBottom: '1px solid rgba(10,31,18,.08)' }}>
+                    {['Ref', 'Service', 'Fee', 'Commission', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: 12, fontSize: 11, textTransform: 'uppercase', color: 'rgba(10,31,18,.5)' }}>{h}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {commissions.map(c => (
+                    <tr key={c.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}>
+                      <td style={{ padding: 12, fontSize: 12, fontFamily: 'monospace' }}>{c.paymentRef}</td>
+                      <td style={{ padding: 12, fontSize: 13 }}>{c.serviceTitle}</td>
+                      <td style={{ padding: 12, fontSize: 13 }}>{fmtZmw(c.grossZmw)}</td>
+                      <td style={{ padding: 12, fontSize: 13, fontWeight: 700, color: '#E8730F' }}>{fmtZmw(c.commissionZmw)}</td>
+                      <td style={{ padding: 12 }}><Badge status={c.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function SettingsTab({ agent, onSave }) {
-  const [method, setMethod] = useState(agent.paymentMethod?.type || 'airtel');
-  const [number, setNumber] = useState(agent.paymentMethod?.number || '');
-  const [holder, setHolder] = useState(agent.paymentMethod?.holder || agent.displayName || '');
-  const [msg, setMsg] = useState('');
-
-  const save = () => {
-    setMsg('');
-    if (!number.trim() || !holder.trim()) return setMsg('Holder and account number are required.');
-    const label = method === 'airtel' ? 'Airtel Money' : method === 'mtn' ? 'MTN MoMo' : 'Bank';
-    onSave({ type: method, label, number: number.trim(), holder: holder.trim() });
-  };
-
-  return (
-    <div>
-      <p style={{ fontSize: 13, color: 'rgba(10,31,18,.65)', marginBottom: 18, lineHeight: 1.65 }}>Commissions are paid to this account. Please make sure the details match your name.</p>
-      <Select label="Payout method" value={method} onChange={setMethod} options={[{ value: 'airtel', label: 'Airtel Money' }, { value: 'mtn', label: 'MTN MoMo' }, { value: 'bank', label: 'Bank transfer' }]} />
-      <Input label="Account holder name" required value={holder} onChange={setHolder} />
-      <Input label={method === 'bank' ? 'Account number' : 'Mobile number'} required value={number} onChange={setNumber} placeholder={method === 'bank' ? '0152…' : '+260…'} />
-      {msg && <div style={{ background: 'rgba(30,123,60,.08)', border: '1px solid rgba(30,123,60,.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#1E7B3C', fontSize: 12.5 }}>{msg}</div>}
-      <Btn onClick={save} variant="primary"><i className="fas fa-check"></i> Save payout method</Btn>
-    </div>
-  );
-}
-
-/* ---------------- TERMS ---------------- */
-function TermsPage() {
-  const S = ({ children }) => <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.75)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>;
-  const H = ({ children }) => <h2 className="serif" style={{ fontSize: 18, color: '#0A1F12', marginTop: 26, marginBottom: 10 }}>{children}</h2>;
-  return (
-    <div style={{ padding: '56px 24px' }}>
-      <div style={{ maxWidth: 780, margin: '0 auto', background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '36px 32px' }}>
-        <h1 className="serif" style={{ fontSize: 'clamp(1.7rem,3.4vw,2.2rem)', color: '#0A1F12', marginBottom: 8 }}>StartEasy Referral Program — Terms</h1>
-        <p style={{ fontSize: 12, color: 'rgba(10,31,18,.5)', marginBottom: 20 }}>Last updated {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-        <S>These terms govern the StartEasy Zambia Referral Program. By creating an account, you accept these terms in full. If you do not agree, please do not register.</S>
-        <H>1. Nature of the role</H>
-        <S>You are an independent, commission-only sales agent. You are not an employee of StartEasy. There is no salary, no guaranteed income, no employee benefits, no leave and no minimum working hours. Your earnings depend solely on the volume and value of approved sales you refer.</S>
-        <H>2. Instant Registration</H>
-        <S>Registration is instant upon completion of the sign-up form and agreement. StartEasy may suspend or terminate accounts that violate these terms, attempt fraud, or misrepresent StartEasy.</S>
-        <H>3. Attribution</H>
-        <S>Your referral code is embedded in your link. When a new visitor clicks your link, the code is stored on their device for 30 days. Any qualifying payment made within that window is attributed to you, unless a later referral code overrides it after 7 days. Only one agent earns per payment.</S>
-        <H>4. Commission</H>
-        <S>Commission is calculated as a percentage of the StartEasy service fee only — <strong>not</strong> on any government, regulator or third-party cost. Rates are published on the referral landing page and may change with written notice. Commissions become <em>earned</em> only after (a) the payment is approved by a StartEasy officer, and (b) a 7-day clearing period has elapsed. Any payment that is subsequently reverted or declined will have its commission cancelled.</S>
-        <H>5. Self-referral &amp; fraud</H>
-        <S>You may not refer yourself, family members acting on your behalf, or any entity you own or control. Self-referrals are detected and rejected. Any attempt to manipulate clicks, fabricate signups, or coordinate fake payments is grounds for immediate disqualification and forfeiture of unpaid commissions.</S>
-        <H>6. Payouts</H>
-        <S>Minimum payout is K200. Request a payout from your dashboard. Payouts are processed within 5 working days to the Airtel Money, MTN MoMo or bank account you have on file. StartEasy is not responsible for payouts sent to incorrect details you supplied.</S>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- REDIRECT HANDLER #/r/:code ---------------- */
 function RedirectHandler({ code }) {
-  const [status, setStatus] = useState('loading');
   useEffect(() => {
-    if (!code || !CODE_RX.test(code)) { setStatus('invalid'); return; }
+    if (!CODE_RX.test(code)) { window.location.hash = '#/'; return; }
     logReferralClick(code);
     storeAttribution(code);
-    setStatus('redirecting');
-    setTimeout(() => { window.location.href = CONFIG.mainSiteUrl + '/?ref=' + encodeURIComponent(code); }, 800);
+    setTimeout(() => { window.location.href = CONFIG.mainSiteUrl + '/?ref=' + code; }, 500);
   }, [code]);
-
-  return (
-    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff' }}>
-      <div style={{ textAlign: 'center', maxWidth: 460 }}>
-        {status === 'invalid' ? (
-          <>
-            <i className="fas fa-circle-exclamation" style={{ fontSize: 46, color: '#F5A623', marginBottom: 16, display: 'block' }}></i>
-            <h2 className="serif" style={{ fontSize: 24, marginBottom: 12 }}>Invalid referral link</h2>
-            <Btn variant="primary" onClick={() => window.location.hash = '#/'}>Back to referral home</Btn>
-          </>
-        ) : (
-          <>
-            <Mark size={56} />
-            <h2 className="serif" style={{ fontSize: 24, marginTop: 18, marginBottom: 12 }}>Taking you to StartEasy…</h2>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,.65)', marginBottom: 20 }}>Your referral code is <strong style={{ color: '#F5A623' }}>{code}</strong>.</p>
-            <i className="fas fa-circle-notch spin" style={{ fontSize: 24, color: '#F5A623' }}></i>
-          </>
-        )}
-      </div>
-    </div>
-  );
+  return <Spinner label="Redirecting to StartEasy..." />;
 }
 
-/* ---------------- ADMIN ---------------- */
-function AdminPage({ go }) {
-  const [authed, setAuthed] = useState(false);
-  const [checking, setChecking] = useState(true);
-  const [email, setEmail] = useState('');
-  const [pw, setPw] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
-  const [tab, setTab] = useState('agents');
-  const [agents, setAgents] = useState([]);
-  const [commissions, setCommissions] = useState([]);
-  const [payouts, setPayouts] = useState([]);
-  const [msg, setMsg] = useState('');
-
-  useEffect(() => {
-    if (!fbReady || !auth) { setChecking(false); return; }
-    const unsub = auth.onAuthStateChanged(async user => {
-      if (user) {
-        try {
-          const snap = await db.collection(SE_ADMINS).doc(user.uid).get();
-          setAuthed(snap.exists);
-        } catch (e) { setAuthed(false); }
-      } else setAuthed(false);
-      setChecking(false);
-    });
-    return unsub;
-  }, []);
-
-  useEffect(() => {
-    if (!authed) return;
-    const unsubs = [
-      db.collection(SE_AGENTS).orderBy('createdAt', 'desc').limit(300).onSnapshot(s => setAgents(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
-      db.collection(SE_COMMISSIONS).orderBy('createdAt', 'desc').limit(300).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
-      db.collection(SE_PAYOUTS).orderBy('requestedAt', 'desc').limit(300).onSnapshot(s => setPayouts(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
-    ];
-    syncCommissions(); // auto-run on load
-    return () => unsubs.forEach(u => u());
-  }, [authed]);
-
-  const handleSignIn = async () => {
-    setErr(''); setBusy(true);
-    try {
-      await auth.signInWithEmailAndPassword(email.trim(), pw);
-      const check = await db.collection(SE_ADMINS).doc(auth.currentUser.uid).get();
-      if (!check.exists) { await auth.signOut(); setErr('Not an admin account.'); return; }
-      setAuthed(true);
-    } catch (e) { setErr('Incorrect email or password.'); }
-    finally { setBusy(false); }
-  };
-
-  const markPaid = async payout => {
-    if (!window.confirm(`Mark ${fmtZmw(payout.amountZmw)} to ${payout.agentCode} as paid?`)) return;
-    await markPayoutPaid(payout.id);
-    setMsg('Payout marked paid.');
-  };
-
-  if (checking) return <Spinner label="Checking admin access…" />;
-  if (!authed) return (
-    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 20px' }}>
-      <div style={{ background: '#fff', borderRadius: 14, padding: '34px 30px', maxWidth: 400, width: '100%' }}>
-        <h1 className="serif" style={{ fontSize: 22, color: '#0A1F12', marginBottom: 6 }}>Referral admin</h1>
-        <Input label="Admin email" type="email" value={email} onChange={setEmail} />
-        <Input label="Password" type="password" value={pw} onChange={setPw} />
-        {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 14 }}>{err}</div>}
-        <Btn onClick={handleSignIn} disabled={busy} variant="primary" size="lg" style={{ width: '100%' }}>{busy ? 'Signing in…' : 'Sign in'}</Btn>
-      </div>
-    </div>
-  );
-
-  const requestedPayouts = payouts.filter(p => p.status === 'requested');
-
-  return (
-    <div className="fadein" style={{ minHeight: '100vh', paddingBottom: 60 }}>
-      <section style={{ background: '#0A1F12', color: '#fff', padding: '20px 24px' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className="serif" style={{ fontSize: 20, fontWeight: 800 }}>Admin Portal</div>
-          <button onClick={() => { auth.signOut(); setAuthed(false); }} style={{ padding: '8px 14px', background: 'rgba(184,86,79,.15)', color: '#FFB4A8', border: '1px solid rgba(184,86,79,.35)', borderRadius: 8, fontSize: 12 }}>Sign out</button>
-        </div>
-      </section>
-      <section style={{ background: '#fff', borderBottom: '1px solid rgba(10,31,18,.08)' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 6, overflowX: 'auto' }}>
-          {[['agents', 'Agents', 'fa-users'], ['commissions', 'Commissions', 'fa-receipt'], ['payouts', 'Payouts', 'fa-money-bill-transfer']].map(([k, l, ic]) => (
-            <button key={k} onClick={() => setTab(k)} style={{ padding: '14px 16px', background: 'none', border: 'none', borderBottom: tab === k ? '3px solid #E8730F' : '3px solid transparent', fontSize: 13, fontWeight: 700, color: tab === k ? '#0A1F12' : 'rgba(10,31,18,.55)' }}><i className={`fas ${ic}`}></i> {l}</button>
-          ))}
-        </div>
-      </section>
-      <section style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 24px' }}>
-        {msg && <div style={{ background: 'rgba(30,123,60,.1)', border: '1px solid rgba(30,123,60,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 16, color: '#1E7B3C', fontSize: 12.5, fontWeight: 600 }}>{msg}</div>}
-        
-        {tab === 'agents' && (
-          <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 800 }}>
-              <thead><tr>{['Name', 'Email', 'Phone', 'Code', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: '12px 16px', background: '#FBFDFB', fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>{h}</th>)}</tr></thead>
-              <tbody>{agents.map(a => <tr key={a.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}><td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600 }}>{a.displayName}</td><td style={{ padding: '12px 16px', fontSize: 12 }}>{a.email}</td><td style={{ padding: '12px 16px', fontSize: 12 }}>{a.phone}</td><td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 12 }}>{a.agentCode}</td><td style={{ padding: '12px 16px' }}><Badge status={a.status} /></td></tr>)}</tbody>
-            </table>
-          </div>
-        )}
-        
-        {tab === 'commissions' && (
-          <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 800 }}>
-              <thead><tr>{['Agent', 'Payment Ref', 'Fee', 'Comm', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: '12px 16px', background: '#FBFDFB', fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>{h}</th>)}</tr></thead>
-              <tbody>{commissions.map(c => <tr key={c.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}><td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 12 }}>{c.agentCode}</td><td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 12 }}>{c.paymentRef}</td><td style={{ padding: '12px 16px', fontSize: 12 }}>{fmtZmw(c.grossZmw)}</td><td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: '#E8730F' }}>{fmtZmw(c.commissionZmw)}</td><td style={{ padding: '12px 16px' }}><Badge status={c.status} /></td></tr>)}</tbody>
-            </table>
-          </div>
-        )}
-
-        {tab === 'payouts' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {payouts.length === 0 && <div style={{ background: '#fff', padding: 40, textAlign: 'center', borderRadius: 12 }}>No payouts yet.</div>}
-            {payouts.map(p => <div key={p.id} style={{ background: '#fff', padding: '16px 20px', borderRadius: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}><div><div style={{ fontSize: 14, fontWeight: 800 }}>{p.displayName} ({p.agentCode})</div><div style={{ fontSize: 12, color: 'rgba(10,31,18,.6)' }}>{p.method?.type} {p.method?.number} · {timeAgo(p.requestedAt)}</div></div><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div className="serif" style={{ fontSize: 18, fontWeight: 800 }}>{fmtZmw(p.amountZmw)}</div><Badge status={p.status} />{p.status === 'requested' && <Btn size="sm" variant="success" onClick={() => markPaid(p)}>Mark Paid</Btn>}</div></div>)}
-          </div>
-        )}
-      </section>
-    </div>
-  );
-}
-
-/* ---------------- ROUTER ---------------- */
 function App() {
   const [hash, setHash] = useState(window.location.hash || '#/');
   const [agent, setAgent] = useState(null);
@@ -1040,22 +769,17 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const loadAgent = async (user) => {
-    if (!user) { setAgent(null); setBootChecked(true); return; }
-    try {
-      let snap = await db.collection(SE_AGENTS).doc(user.uid).get();
-      if (snap.exists) {
-        setAgent({ id: user.uid, ...snap.data() });
-      } else {
-        setAgent(null);
-      }
-    } catch (e) { setAgent(null); }
-    setBootChecked(true);
-  };
-
   useEffect(() => {
-    if (!fbReady || !auth) { setBootChecked(true); return; }
-    const unsub = auth.onAuthStateChanged(loadAgent);
+    if (!fbReady) { setBootChecked(true); return; }
+    const unsub = auth.onAuthStateChanged(async user => {
+      if (!user) { setAgent(null); setBootChecked(true); return; }
+      try {
+        const snap = await db.collection(SE_AGENTS).doc(user.uid).get();
+        if (snap.exists) setAgent({ id: user.uid, ...snap.data() });
+        else setAgent(null);
+      } catch (e) { setAgent(null); }
+      setBootChecked(true);
+    });
     return unsub;
   }, []);
 
@@ -1064,17 +788,12 @@ function App() {
   const route = parts[0] || '';
   const routeArg = parts[1] || '';
 
-  const go = useCallback((r, arg) => {
-    window.location.hash = '#/' + r + (arg ? '/' + arg : '');
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }, []);
-
+  const go = useCallback((r) => { window.location.hash = '#/' + r; window.scrollTo(0, 0); }, []);
   const onSignOut = async () => { await auth.signOut(); setAgent(null); go(''); };
-  const onAuth = () => { loadAgent(auth.currentUser); go('dashboard'); };
+  const onAuth = () => { go('dashboard'); };
 
-  if (!bootChecked) return <Spinner label="Loading…" />;
+  if (!bootChecked) return <Spinner />;
   if (route === 'r' && routeArg) return <RedirectHandler code={routeArg.toUpperCase()} />;
-  if (route === 'admin') return <AdminPage go={go} />;
 
   let page = <Landing go={go} />;
   if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
@@ -1083,10 +802,9 @@ function App() {
     if (!agent) page = <LoginPage go={go} onAuth={onAuth} />;
     else page = <Dashboard go={go} onSignOut={onSignOut} agent={agent} setAgent={setAgent} />;
   }
-  else if (route === 'terms') page = <TermsPage />;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Nav route={route} go={go} agent={agent} onSignOut={onSignOut} />
       <main style={{ flex: 1 }}>{page}</main>
     </div>
