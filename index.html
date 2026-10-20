@@ -97,6 +97,7 @@ try {
   db = firebase.firestore();
   auth = firebase.auth();
   fbReady = true;
+  auth.signInAnonymously().catch(e => console.warn('[Referral] anon auth:', e && e.message));
 } catch (e) {
   console.error('[Referral] Firebase init failed:', e);
 }
