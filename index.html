@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>StartEasy Referral Program — Earn on Every Sale</title>
-<meta name="description" content="Join StartEasy Zambia's Commission-Based Sales & Customer Acquisition Team. Get a unique referral code, share your link, earn commission on every approved sale.">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,17 +23,12 @@ html, body { margin: 0; padding: 0; }
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: var(--light);
-  color: var(--forest);
-  overflow-x: hidden;
+  background: var(--light); color: var(--forest); overflow-x: hidden;
 }
 h1, h2, h3, h4, h5, h6, p, span, div, button, a, li { overflow-wrap: break-word; }
 button, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .serif { font-family: 'Playfair Display', Georgia, serif; }
-.micro {
-  font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
-  font-weight: 700;
-}
+.micro { font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; }
 input, select, textarea { font-family: inherit; }
 input:focus, select:focus, textarea:focus { outline: none; }
 .fadein { animation: fi .5s cubic-bezier(.22,.61,.36,1) both; }
@@ -42,7 +36,6 @@ input:focus, select:focus, textarea:focus { outline: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 1s linear infinite; display: inline-block; }
 ::selection { background: var(--orange-2); color: var(--forest); }
-.fadein-mobile-off { animation: none !important; opacity: 1 !important; transform: none !important; }
 @media (max-width: 768px) { .fadein { animation: none !important; opacity: 1 !important; transform: none !important; } }
 </style>
 </head>
@@ -53,7 +46,7 @@ input:focus, select:focus, textarea:focus { outline: none; }
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 <script type="text/babel" data-presets="react">
 /* ================================================================
-   STARTEASY REFERRAL PROGRAM — STANDALONE APP
+   STARTEASY REFERRAL PROGRAM — STANDALONE APP (INSTANT ONBOARDING)
    ================================================================ */
 const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
@@ -65,8 +58,7 @@ const CONFIG = {
     projectId: "starteasy-zambia",
     storageBucket: "starteasy-zambia.firebasestorage.app",
     messagingSenderId: "54136399237",
-    appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec",
-    measurementId: "G-R622H7H5LJ"
+    appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
   },
   mainSiteUrl: 'https://starteasyzambia.com',
   adminWhatsapp: '260762499581',
@@ -97,6 +89,7 @@ try {
   db = firebase.firestore();
   auth = firebase.auth();
   fbReady = true;
+  // Ensure anonymous auth for pre-checks
   auth.signInAnonymously().catch(e => console.warn('[Referral] anon auth:', e && e.message));
 } catch (e) {
   console.error('[Referral] Firebase init failed:', e);
@@ -152,7 +145,7 @@ const resolveServiceType = payment => {
   return 'standard';
 };
 const calcCommission = (type, gross) => {
-  const pct = CONFIG.commissionTable[type] || 25;
+  const pct = CONFIG.commissionTable[type] || 20;
   return { pct, amount: Math.round(gross * pct) / 100 };
 };
 
@@ -180,12 +173,8 @@ const logReferralClick = async code => {
   if (!fbReady) return;
   try {
     await db.collection(SE_EVENTS).add({
-      type: 'referral_click',
-      agentCode: code,
-      at: Date.now(),
-      route: 'redirect'
+      type: 'referral_click', agentCode: code, at: Date.now(), route: 'redirect'
     });
-    // Bump click counter on agent (best-effort, non-blocking)
     const q = await db.collection(SE_AGENTS).where('agentCode', '==', code).limit(1).get();
     if (!q.empty) {
       const ref = q.docs[0].ref;
@@ -196,47 +185,34 @@ const logReferralClick = async code => {
         t.update(ref, { 'totals.clicks': (tot.clicks || 0) + 1 });
       });
     }
-  } catch (e) { console.warn('[Referral] logClick failed:', e); }
+  } catch (e) {}
 };
 
 /* ---------------- COMMISSION ENGINE ---------------- */
 const createCommissionForPayment = async (payment, agent) => {
-  if (!fbReady) return { ok: false, error: 'Firebase not ready' };
-  if (!payment || !payment.ref) return { ok: false, error: 'No payment ref' };
-  if (!agent || !agent.id || !agent.agentCode) return { ok: false, error: 'No agent' };
-
-  // Idempotency
+  if (!fbReady || !payment.ref || !agent) return { ok: false };
   const existing = await db.collection(SE_COMMISSIONS)
     .where('paymentRef', '==', payment.ref).limit(1).get();
-  if (!existing.empty) {
-    return { ok: true, commission: { id: existing.docs[0].id, ...existing.docs[0].data() }, skipped: true };
-  }
+  if (!existing.empty) return { ok: true, skipped: true };
 
   const gross = parseFloat(String(payment.amount || '0').replace(/[^\d.]/g, '')) || 0;
-  if (gross <= 0) return { ok: false, error: 'Invalid amount' };
+  if (gross <= 0) return { ok: false };
 
   const serviceType = resolveServiceType(payment);
   const { pct, amount } = calcCommission(serviceType, gross);
 
   const commission = {
     agentId: agent.id, agentCode: agent.agentCode,
-    paymentRef: payment.ref,
-    serviceCode: payment.serviceCode || '',
-    serviceTitle: payment.serviceTitle || '',
-    serviceType,
-    grossZmw: gross,
-    commissionPct: pct,
-    commissionZmw: amount,
-    status: 'pending',
-    createdAt: Date.now(),
-    approvedAt: Date.now(),
+    paymentRef: payment.ref, serviceCode: payment.serviceCode || '',
+    serviceTitle: payment.serviceTitle || '', serviceType,
+    grossZmw: gross, commissionPct: pct, commissionZmw: amount,
+    status: 'pending', createdAt: Date.now(), approvedAt: Date.now(),
     clearAt: Date.now() + CONFIG.clearingDays * 24 * 3600 * 1000,
     paidAt: null, payoutId: null, reversedAt: null
   };
 
   const added = await db.collection(SE_COMMISSIONS).add(commission);
 
-  // Bump agent totals (transaction)
   const agentRef = db.collection(SE_AGENTS).doc(agent.id);
   await db.runTransaction(async t => {
     const s = await t.get(agentRef);
@@ -254,12 +230,11 @@ const createCommissionForPayment = async (payment, agent) => {
 const cancelCommissionForPayment = async paymentRef => {
   if (!fbReady || !paymentRef) return { ok: false };
   try {
-    const snap = await db.collection(SE_COMMISSIONS)
-      .where('paymentRef', '==', paymentRef).limit(1).get();
+    const snap = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', paymentRef).limit(1).get();
     if (snap.empty) return { ok: true, skipped: true };
     const doc = snap.docs[0];
     const c = doc.data();
-    if (c.status === 'paid') return { ok: false, error: 'Already paid' };
+    if (c.status === 'paid') return { ok: false };
     await doc.ref.update({ status: 'cancelled', reversedAt: Date.now() });
     const agentRef = db.collection(SE_AGENTS).doc(c.agentId);
     await db.runTransaction(async t => {
@@ -272,7 +247,7 @@ const cancelCommissionForPayment = async paymentRef => {
       });
     });
     return { ok: true };
-  } catch (e) { return { ok: false, error: e && e.message }; }
+  } catch (e) { return { ok: false }; }
 };
 
 const markPayoutPaid = async payoutId => {
@@ -280,16 +255,14 @@ const markPayoutPaid = async payoutId => {
   try {
     const ref = db.collection(SE_PAYOUTS).doc(payoutId);
     const snap = await ref.get();
-    if (!snap.exists) return { ok: false, error: 'Not found' };
+    if (!snap.exists) return { ok: false };
     const po = snap.data();
-    if (po.status === 'paid') return { ok: true, skipped: true };
+    if (po.status === 'paid') return { ok: true };
 
     const batch = db.batch();
     batch.update(ref, { status: 'paid', paidAt: Date.now() });
     (po.commissionIds || []).forEach(cid => {
-      batch.update(db.collection(SE_COMMISSIONS).doc(cid), {
-        status: 'paid', paidAt: Date.now(), payoutId
-      });
+      batch.update(db.collection(SE_COMMISSIONS).doc(cid), { status: 'paid', paidAt: Date.now(), payoutId });
     });
     await batch.commit();
 
@@ -305,48 +278,34 @@ const markPayoutPaid = async payoutId => {
       });
     });
     return { ok: true };
-  } catch (e) { return { ok: false, error: e && e.message }; }
+  } catch (e) { return { ok: false }; }
 };
 
-/* Sync: scan recent approved payments with referralCode and create missing commissions */
 const syncCommissions = async () => {
   if (!fbReady) return { created: 0, cancelled: 0 };
   let created = 0, cancelled = 0;
   try {
-    // 1. Find approved payments with referralCode in last 500
-    const paysSnap = await db.collection(SE_PAYMENTS)
-      .where('status', '==', 'approved')
-      .orderBy('submittedAt', 'desc').limit(500).get();
+    const paysSnap = await db.collection(SE_PAYMENTS).where('status', '==', 'approved').orderBy('submittedAt', 'desc').limit(500).get();
     const withRef = paysSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.referralCode);
 
     for (const pay of withRef) {
-      const exists = await db.collection(SE_COMMISSIONS)
-        .where('paymentRef', '==', pay.ref).limit(1).get();
+      const exists = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', pay.ref).limit(1).get();
       if (!exists.empty) continue;
-
-      const q = await db.collection(SE_AGENTS)
-        .where('agentCode', '==', pay.referralCode).limit(1).get();
+      const q = await db.collection(SE_AGENTS).where('agentCode', '==', pay.referralCode).limit(1).get();
       if (q.empty) continue;
       const agent = { id: q.docs[0].id, ...q.docs[0].data() };
       if (agent.status !== 'active') continue;
-
-      // Self-referral guard
       if (pay.clientEmail && agent.email && pay.clientEmail.toLowerCase() === agent.email.toLowerCase()) continue;
       if (pay.clientPhone && agent.phone && pay.clientPhone.replace(/\D/g, '') === agent.phone.replace(/\D/g, '')) continue;
-
       const r = await createCommissionForPayment(pay, agent);
       if (r.ok && !r.skipped) created++;
     }
 
-    // 2. Cancel commissions whose payment was reverted/declined
-    const cancellingSnap = await db.collection(SE_PAYMENTS)
-      .where('status', 'in', ['reverted', 'declined'])
-      .orderBy('submittedAt', 'desc').limit(200).get();
+    const cancellingSnap = await db.collection(SE_PAYMENTS).where('status', 'in', ['reverted', 'declined']).orderBy('submittedAt', 'desc').limit(200).get();
     for (const d of cancellingSnap.docs) {
       const p = d.data();
       if (!p.ref) continue;
-      const cSnap = await db.collection(SE_COMMISSIONS)
-        .where('paymentRef', '==', p.ref).limit(1).get();
+      const cSnap = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', p.ref).limit(1).get();
       if (cSnap.empty) continue;
       const c = cSnap.docs[0].data();
       if (c.status === 'pending' || c.status === 'earned') {
@@ -354,49 +313,23 @@ const syncCommissions = async () => {
         if (r.ok) cancelled++;
       }
     }
-  } catch (e) { console.warn('[Referral] sync failed:', e); }
+  } catch (e) {}
   return { created, cancelled };
 };
 
-/* ---------------- STATUS META ---------------- */
-const STATUS = {
-  pending:   { label: 'Pending',   color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
-  active:    { label: 'Active',    color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
-  suspended: { label: 'Suspended', color: '#7A4FA3', bg: '#F2EDF7', icon: 'fa-pause' },
-  rejected:  { label: 'Rejected',  color: '#B8564F', bg: '#FFE8E5', icon: 'fa-circle-xmark' },
-  earned:    { label: 'Earned',    color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
-  paid:      { label: 'Paid',      color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' },
-  cancelled: { label: 'Cancelled', color: '#B8564F', bg: '#FFE8E5', icon: 'fa-circle-xmark' },
-  requested: { label: 'Requested', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
-  approved:  { label: 'Approved',  color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' }
-};
-
 /* ---------------- UI PRIMITIVES ---------------- */
-function Mark({ size = 36 }) {
-  return (
-    <span style={{
-      width: size, height: size, borderRadius: '50%', overflow: 'hidden',
-      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg,#E8730F,#F5A623)',
-      boxShadow: '0 4px 12px -4px rgba(10,31,18,.5)',
-      color: '#fff', fontFamily: "'Playfair Display',serif", fontWeight: 800,
-      fontSize: size * 0.5, flexShrink: 0
-    }}>S</span>
-  );
-}
+const Mark = ({ size = 36 }) => (
+  <span style={{
+    width: size, height: size, borderRadius: '50%', display: 'inline-flex',
+    alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#E8730F,#F5A623)',
+    boxShadow: '0 4px 12px -4px rgba(10,31,18,.5)', color: '#fff',
+    fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: size * 0.5, flexShrink: 0
+  }}>S</span>
+);
 
-function Btn({ children, onClick, variant = 'primary', size = 'md', disabled, style, type = 'button' }) {
-  const base = {
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-    border: 'none', borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer',
-    fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s',
-    opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap'
-  };
-  const sizes = {
-    sm: { padding: '9px 14px', fontSize: 12 },
-    md: { padding: '12px 20px', fontSize: 13.5 },
-    lg: { padding: '15px 28px', fontSize: 14.5 }
-  };
+const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style, type = 'button' }) => {
+  const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9, border: 'none', borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
+  const sizes = { sm: { padding: '9px 14px', fontSize: 12 }, md: { padding: '12px 20px', fontSize: 13.5 }, lg: { padding: '15px 28px', fontSize: 14.5 } };
   const variants = {
     primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' },
     dark: { background: '#0A1F12', color: '#fff' },
@@ -405,421 +338,168 @@ function Btn({ children, onClick, variant = 'primary', size = 'md', disabled, st
     whatsapp: { background: '#25D366', color: '#fff' },
     success: { background: '#1E7B3C', color: '#fff' },
     danger: { background: '#B8564F', color: '#fff' },
-    warning: { background: '#F5A623', color: '#0A1F12' },
-    purple: { background: '#7A4FA3', color: '#fff' }
+    warning: { background: '#F5A623', color: '#0A1F12' }
   };
-  return (
-    <button type={type} onClick={onClick} disabled={disabled}
-      style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>
-      {children}
-    </button>
-  );
-}
+  return <button type={type} onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
+};
 
-function Input({ value, onChange, placeholder, type = 'text', label, required, error, hint, autoComplete }) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      {label && (
-        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#0A1F12', marginBottom: 6 }}>
-          {label}{required && ' *'}
-        </label>
-      )}
-      <input type={type} value={value || ''} onChange={e => onChange(e.target.value)}
-        placeholder={placeholder} autoComplete={autoComplete}
-        style={{
-          width: '100%', background: '#fff',
-          border: `2px solid ${error ? '#B8564F' : 'rgba(10,31,18,.12)'}`,
-          borderRadius: 10, padding: '12px 16px', fontSize: 14,
-          color: '#0A1F12', fontFamily: 'inherit'
-        }} />
-      {hint && !error && <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)', marginTop: 5 }}>{hint}</div>}
-      {error && <div style={{ fontSize: 11.5, color: '#B8564F', marginTop: 5 }}>{error}</div>}
+const Input = ({ value, onChange, placeholder, type = 'text', label, required, error, hint, autoComplete }) => (
+  <div style={{ marginBottom: 14 }}>
+    {label && <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#0A1F12', marginBottom: 6 }}>{label}{required && ' *'}</label>}
+    <input type={type} value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} autoComplete={autoComplete}
+      style={{ width: '100%', background: '#fff', border: `2px solid ${error ? '#B8564F' : 'rgba(10,31,18,.12)'}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: '#0A1F12', fontFamily: 'inherit' }} />
+    {hint && !error && <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)', marginTop: 5 }}>{hint}</div>}
+    {error && <div style={{ fontSize: 11.5, color: '#B8564F', marginTop: 5 }}>{error}</div>}
+  </div>
+);
+
+const Select = ({ value, onChange, options, label, required }) => (
+  <div style={{ marginBottom: 14 }}>
+    {label && <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#0A1F12', marginBottom: 6 }}>{label}{required && ' *'}</label>}
+    <select value={value || ''} onChange={e => onChange(e.target.value)}
+      style={{ width: '100%', background: '#fff', border: '2px solid rgba(10,31,18,.12)', borderRadius: 10, padding: '12px 16px', fontSize: 14, color: '#0A1F12', fontFamily: 'inherit', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235E7A67' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }}>
+      <option value="">— Choose —</option>
+      {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
+    </select>
+  </div>
+);
+
+const Badge = ({ status }) => {
+  const m = {
+    pending: { label: 'Pending', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
+    active: { label: 'Active', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
+    suspended: { label: 'Suspended', color: '#7A4FA3', bg: '#F2EDF7', icon: 'fa-pause' },
+    rejected: { label: 'Rejected', color: '#B8564F', bg: '#FFE8E5', icon: 'fa-circle-xmark' },
+    earned: { label: 'Earned', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
+    paid: { label: 'Paid', color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' },
+    cancelled: { label: 'Cancelled', color: '#B8564F', bg: '#FFE8E5', icon: 'fa-circle-xmark' },
+    requested: { label: 'Requested', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' }
+  }[status] || { label: status || '—', color: '#666', bg: '#eee', icon: 'fa-circle' };
+  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 99, fontSize: 10.5, fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase', background: m.bg, color: m.color, border: `1px solid ${m.color}44` }}><i className={`fas ${m.icon}`} style={{ fontSize: 9 }}></i>{m.label}</span>;
+};
+
+const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
+  <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '18px 20px', borderTopWidth: 3, borderTopColor: color }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+      <span style={{ fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)' }}>{label}</span>
+      {icon && <span style={{ width: 28, height: 28, borderRadius: 8, background: color + '1a', color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><i className={`fas ${icon}`} style={{ fontSize: 11 }}></i></span>}
     </div>
-  );
-}
+    <div className="serif" style={{ fontSize: 26, fontWeight: 800, color: '#0A1F12', lineHeight: 1.05, marginBottom: 4 }}>{value}</div>
+    {sub && <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)' }}>{sub}</div>}
+  </div>
+);
 
-function Select({ value, onChange, options, label, required }) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      {label && (
-        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#0A1F12', marginBottom: 6 }}>
-          {label}{required && ' *'}
-        </label>
-      )}
-      <select value={value || ''} onChange={e => onChange(e.target.value)}
-        style={{
-          width: '100%', background: '#fff',
-          border: '2px solid rgba(10,31,18,.12)', borderRadius: 10,
-          padding: '12px 16px', fontSize: 14, color: '#0A1F12',
-          fontFamily: 'inherit', appearance: 'none',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%235E7A67' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center'
-        }}>
-        <option value="">— Choose —</option>
-        {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
-      </select>
-    </div>
-  );
-}
+const Spinner = ({ label }) => (
+  <div style={{ padding: 80, textAlign: 'center' }}>
+    <i className="fas fa-circle-notch spin" style={{ fontSize: 28, color: '#E8730F' }}></i>
+    {label && <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{label}</p>}
+  </div>
+);
 
-function TextArea({ value, onChange, placeholder, rows = 4, label, required }) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      {label && (
-        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#0A1F12', marginBottom: 6 }}>
-          {label}{required && ' *'}
-        </label>
-      )}
-      <textarea value={value || ''} onChange={e => onChange(e.target.value)} rows={rows}
-        placeholder={placeholder}
-        style={{
-          width: '100%', background: '#fff',
-          border: '2px solid rgba(10,31,18,.12)', borderRadius: 10,
-          padding: '12px 16px', fontSize: 14, color: '#0A1F12',
-          fontFamily: 'inherit', resize: 'vertical', lineHeight: 1.55
-        }} />
-    </div>
-  );
-}
-
-function Badge({ status }) {
-  const m = STATUS[status] || { label: status || '—', color: '#666', bg: '#eee', icon: 'fa-circle' };
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '5px 12px', borderRadius: 99, fontSize: 10.5,
-      fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase',
-      background: m.bg, color: m.color, border: `1px solid ${m.color}44`
-    }}>
-      <i className={`fas ${m.icon}`} style={{ fontSize: 9 }}></i>{m.label}
-    </span>
-  );
-}
-
-function Kpi({ label, value, sub, color = '#E8730F', icon }) {
-  return (
-    <div style={{
-      background: '#fff', border: '1px solid rgba(10,31,18,.08)',
-      borderRadius: 12, padding: '18px 20px',
-      borderTopWidth: 3, borderTopColor: color
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-        <span style={{
-          fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase',
-          fontWeight: 800, color: 'rgba(10,31,18,.5)'
-        }}>{label}</span>
-        {icon && (
-          <span style={{
-            width: 28, height: 28, borderRadius: 8,
-            background: color + '1a', color,
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
-            <i className={`fas ${icon}`} style={{ fontSize: 11 }}></i>
-          </span>
-        )}
-      </div>
-      <div className="serif" style={{ fontSize: 26, fontWeight: 800, color: '#0A1F12', lineHeight: 1.05, marginBottom: 4 }}>
-        {value}
-      </div>
-      {sub && <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)' }}>{sub}</div>}
-    </div>
-  );
-}
-
-function Field({ label, value, mono }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '10px 0', borderBottom: '1px dashed rgba(10,31,18,.06)' }}>
-      <span style={{ fontSize: 12, color: 'rgba(10,31,18,.5)', fontWeight: 600 }}>{label}</span>
-      <span style={{
-        fontSize: 13, color: '#0A1F12', fontWeight: 700, textAlign: 'right',
-        fontFamily: mono ? 'Consolas,monospace' : 'inherit', wordBreak: 'break-word'
-      }}>{value}</span>
-    </div>
-  );
-}
-
-function Spinner({ label }) {
-  return (
-    <div style={{ padding: 80, textAlign: 'center' }}>
-      <i className="fas fa-circle-notch spin" style={{ fontSize: 28, color: '#E8730F' }}></i>
-      {label && <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{label}</p>}
-    </div>
-  );
-}
-
-/* Error boundary */
-class ErrorBoundary extends React.Component {
-  constructor(p) { super(p); this.state = { err: null }; }
-  static getDerivedStateFromError(err) { return { err }; }
-  componentDidCatch(err, info) { console.error('[Referral] UI error:', err, info); }
-  render() {
-    if (this.state.err) return (
-      <div style={{ padding: 80, textAlign: 'center' }}>
-        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 10 }}>Something went wrong</h2>
-        <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 20 }}>Please refresh the page.</p>
-        <Btn onClick={() => window.location.reload()}>Refresh</Btn>
-      </div>
-    );
-    return this.props.children;
-  }
-}
-
-/* ---------------- NAV ---------------- */
+/* ---------------- NAV (FIXED) ---------------- */
 function Nav({ route, go, agent, onSignOut }) {
   const [open, setOpen] = useState(false);
-  const links = [
-    ['', 'Home'],
-    ['apply', 'Apply'],
-    ['terms', 'Terms']
-  ];
+  const links = [['', 'Home'], ['join', 'Join Program'], ['terms', 'Terms']];
+
   return (
-    <header style={{
-      position: 'sticky', top: 0, zIndex: 50,
-      background: '#0A1F12', borderBottom: '1px solid rgba(245,166,35,.1)'
-    }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 24px' }}>
+    <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#0A1F12', borderBottom: '1px solid rgba(245,166,35,.1)' }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64 }}>
-          <button onClick={() => go('')} style={{
-            display: 'flex', alignItems: 'center', gap: 12,
-            background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit'
-          }}>
+          
+          {/* Logo */}
+          <button onClick={() => go('')} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
             <Mark size={34} />
             <span style={{ textAlign: 'left', lineHeight: 1 }}>
-              <span style={{
-                display: 'block', fontSize: 9, letterSpacing: '.16em',
-                textTransform: 'uppercase', fontWeight: 700,
-                color: 'rgba(255,255,255,.35)', marginBottom: 3
-              }}>StartEasy Referral</span>
-              <span style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#fff' }}>
-                Start<em style={{ fontStyle: 'normal', color: '#F5A623' }}>Easy</em>
-              </span>
+              <span style={{ display: 'block', fontSize: 9, letterSpacing: '.16em', textTransform: 'uppercase', fontWeight: 700, color: 'rgba(255,255,255,.35)', marginBottom: 3 }}>Referral Program</span>
+              <span style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#fff' }}>Start<em style={{ fontStyle: 'normal', color: '#F5A623' }}>Easy</em></span>
             </span>
           </button>
-          <nav style={{ display: 'flex', gap: 18 }} className="hidden md:flex">
+
+          {/* Desktop Nav */}
+          <nav style={{ display: 'none', gap: 20 }} className="md:flex">
             {links.map(([r, l]) => (
-              <button key={r} onClick={() => go(r)} style={{
-                fontSize: 12.5, padding: '4px 0', position: 'relative',
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontFamily: 'inherit',
-                color: route === r ? '#F5A623' : 'rgba(255,255,255,.55)'
-              }}>
+              <button key={r} onClick={() => go(r)} style={{ fontSize: 13, padding: '4px 0', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: route === r ? '#F5A623' : 'rgba(255,255,255,.6)' }}>
                 {l}
-                {route === r && (
-                  <span style={{
-                    position: 'absolute', bottom: -2, left: 0, right: 0,
-                    height: 2, background: '#F5A623', borderRadius: 99
-                  }} />
-                )}
+                {route === r && <span style={{ position: 'absolute', bottom: -2, left: 0, right: 0, height: 2, background: '#F5A623', borderRadius: 99 }} />}
               </button>
             ))}
           </nav>
+
+          {/* Right Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {agent ? (
               <>
-                <button onClick={() => go('dashboard')} style={{
-                  padding: '8px 16px', background: 'linear-gradient(135deg,#E8730F,#F5A623)',
-                  color: '#fff', border: 'none', borderRadius: 8, fontSize: 12,
-                  fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit'
-                }}>
-                  <i className="fas fa-gauge-high" style={{ marginRight: 6 }}></i>
-                  {agent.displayName.split(' ')[0]}
+                <button onClick={() => go('dashboard')} style={{ padding: '8px 14px', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <i className="fas fa-gauge-high"></i> Dashboard
                 </button>
-                <button onClick={onSignOut} style={{
-                  padding: '8px 12px', background: 'none',
-                  border: '1px solid rgba(255,255,255,.2)', color: 'rgba(255,255,255,.7)',
-                  borderRadius: 8, fontSize: 11.5, fontWeight: 600,
-                  cursor: 'pointer', fontFamily: 'inherit'
-                }}>
-                  Sign out
-                </button>
+                <button onClick={onSignOut} style={{ padding: '8px 12px', background: 'none', border: '1px solid rgba(255,255,255,.2)', color: 'rgba(255,255,255,.7)', borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }} className="hidden sm:block">Sign out</button>
               </>
             ) : (
-              <button onClick={() => go('login')} style={{
-                padding: '9px 18px', background: 'linear-gradient(135deg,#E8730F,#F5A623)',
-                color: '#fff', border: 'none', borderRadius: 8, fontSize: 12.5,
-                fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit'
-              }}>
-                Sign in
+              <button onClick={() => go('join')} style={{ padding: '9px 18px', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                Sign Up
               </button>
             )}
-            <button onClick={() => setOpen(!open)} className="md:hidden" aria-label="Menu"
-              style={{
-                width: 36, height: 36, display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: 5,
-                background: 'none', border: 'none', cursor: 'pointer'
-              }}>
-              <span style={{ width: 20, height: 2, background: '#fff', borderRadius: 99 }} />
-              <span style={{ width: 20, height: 2, background: '#fff', borderRadius: 99 }} />
-              <span style={{ width: 20, height: 2, background: '#fff', borderRadius: 99 }} />
+            <button onClick={() => setOpen(!open)} className="md:hidden" style={{ width: 34, height: 34, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer' }}>
+              <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 99 }} />
+              <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 99 }} />
+              <span style={{ width: 18, height: 2, background: '#fff', borderRadius: 99 }} />
             </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden" style={{
-          borderTop: '1px solid rgba(255,255,255,.1)',
-          background: '#0A1F12', padding: '12px 24px'
-        }}>
+        <div className="md:hidden" style={{ borderTop: '1px solid rgba(255,255,255,.1)', background: '#0A1F12', padding: '12px 16px' }}>
           {links.map(([r, l]) => (
-            <button key={r} onClick={() => { setOpen(false); go(r); }} style={{
-              width: '100%', display: 'block', padding: '12px 0',
-              borderBottom: '1px solid rgba(255,255,255,.05)',
-              textAlign: 'left', background: 'none', border: 'none',
-              cursor: 'pointer', fontFamily: 'inherit',
-              color: route === r ? '#F5A623' : 'rgba(255,255,255,.7)',
-              fontSize: 14
-            }}>{l}</button>
+            <button key={r} onClick={() => { setOpen(false); go(r); }} style={{ width: '100%', display: 'block', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,.05)', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: route === r ? '#F5A623' : 'rgba(255,255,255,.7)', fontSize: 14 }}>{l}</button>
           ))}
+          {agent && (
+            <button onClick={() => { setOpen(false); onSignOut(); }} style={{ width: '100%', display: 'block', padding: '12px 0', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', color: '#B8564F', fontSize: 14 }}>Sign out</button>
+          )}
         </div>
       )}
     </header>
   );
 }
 
-function Footer() {
-  return (
-    <footer style={{ background: '#0A1F12', color: '#fff', borderTop: '1px solid rgba(245,166,35,.1)', padding: '40px 24px' }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        <div style={{ maxWidth: 360 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <Mark size={32} />
-            <span style={{ fontSize: 15, fontWeight: 700 }}>
-              Start<em style={{ fontStyle: 'normal', color: '#F5A623' }}>Easy</em> Referral
-            </span>
-          </div>
-          <p style={{ fontSize: 12.5, lineHeight: 1.65, color: 'rgba(255,255,255,.5)', margin: 0 }}>
-            Commission-based sales program for StartEasy Zambia. No salary, no guaranteed income. Earnings depend on approved and cleared sales.
-          </p>
-        </div>
-        <div>
-          <div className="micro" style={{ color: '#F5A623', marginBottom: 14 }}>Contact</div>
-          <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.55)', lineHeight: 1.8 }}>
-            <div>{CONFIG.contactEmail}</div>
-            <div>+260 762499581</div>
-            <div>Lusaka, Zambia</div>
-          </div>
-        </div>
-        <div>
-          <div className="micro" style={{ color: '#F5A623', marginBottom: 14 }}>Legal</div>
-          <a href="#/terms" style={{ display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,.55)', textDecoration: 'none', marginBottom: 6 }}>Program terms</a>
-          <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,.55)', textDecoration: 'none' }}>Main site</a>
-        </div>
-      </div>
-      <div style={{ maxWidth: 1240, margin: '24px auto 0', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,.08)', fontSize: 11, color: 'rgba(255,255,255,.3)' }}>
-        © {new Date().getFullYear()} StartEasy Zambia. All rights reserved.
-      </div>
-    </footer>
-  );
-}
-
-/* ---------------- PAGE: LANDING ---------------- */
+/* ---------------- LANDING ---------------- */
 function Landing({ go }) {
-  useEffect(() => {
-    if (fbReady) db.collection(SE_EVENTS).add({ type: 'page_view', route: 'referral-landing', at: Date.now() }).catch(() => {});
-  }, []);
-
-  const rows = [
-    { tier: 'Micro · Wizard (Name / Structure)', fee: 'K25', pct: '40%', earn: 'K10' },
-    { tier: 'Basic', fee: 'K250', pct: '30%', earn: 'K75' },
-    { tier: 'Standard', fee: 'K400', pct: '25%', earn: 'K100' },
-    { tier: 'Complex · Company Incorporation', fee: 'K750', pct: '22%', earn: 'K165' },
-    { tier: 'Compliance Check-Up', fee: 'K750', pct: '22%', earn: 'K165' },
-    { tier: 'Regularisation', fee: 'from K1,500', pct: '18%', earn: 'from K270' },
-    { tier: 'Ongoing · Filing (month 1)', fee: 'K250', pct: '20%', earn: 'K50' },
-    { tier: 'Ongoing · Standard (month 1)', fee: 'K500', pct: '20%', earn: 'K100' },
-    { tier: 'Ongoing · Managed (month 1)', fee: 'K1,200', pct: '15%', earn: 'K180' },
-    { tier: 'Venture services (Business Plan, Brand, etc.)', fee: 'K600 – K1,200', pct: '20%', earn: 'K120 – K240' }
-  ];
-
-  const steps = [
-    { n: '01', t: 'Apply', d: 'Fill a short form. We review every application manually within 2 working days.' },
-    { n: '02', t: 'Get your code', d: 'Approved agents receive a unique referral code and a ready-to-share link.' },
-    { n: '03', t: 'Share', d: 'Share your link on WhatsApp, social, email, or in person. Your code is tracked for 30 days.' },
-    { n: '04', t: 'Earn', d: 'When someone you referred completes a StartEasy engagement and pays, we credit your account.' },
-    { n: '05', t: 'Get paid', d: 'Request payout to Airtel Money, MTN MoMo, or bank once your balance reaches K200.' }
-  ];
-
-  const faqs = [
-    { q: 'Is there a joining fee?', a: 'No. There is no fee, no subscription, no product to buy. You join, share your code, and earn on sales.' },
-    { q: 'How much can I realistically earn?', a: 'It depends entirely on how many people you refer and how many of them complete an engagement. Top performers in comparable programs have reached cumulative earnings of K50,000+ — but that comes from sustained, high-volume selling over months. There is no fixed salary and no guaranteed income.' },
-    { q: 'When do I get paid?', a: 'When a payment you referred is approved by a StartEasy officer, your commission is logged as pending. After a 7-day clearing window it becomes earned. You can request payout once your balance reaches K200.' },
-    { q: 'How does StartEasy know the customer came from me?', a: 'Your referral code is baked into every link you share. When someone clicks it, we store the code on their device for 30 days. If they pay within that window, it is attributed to you.' },
-    { q: 'What happens if a payment is refunded or declined?', a: 'The commission on that payment is cancelled and no longer counts toward your balance.' },
-    { q: 'Can I refer myself?', a: 'No. Self-referrals are automatically blocked by matching name, email, or phone against the payer.' },
-    { q: 'Do I need to be in Zambia?', a: 'No. We work with agents in Zambia and the diaspora. Payouts are to Zambian mobile money or bank accounts.' }
-  ];
-
   return (
     <div className="fadein">
-      {/* HERO */}
-      <section style={{
-        background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)',
-        color: '#fff', padding: 'clamp(56px,8vw,96px) 24px',
-        position: 'relative', overflow: 'hidden'
-      }}>
-        <div style={{
-          position: 'absolute', top: -120, right: -80, width: 500, height: 500,
-          background: 'radial-gradient(circle,rgba(232,115,15,.18),transparent 65%)',
-          pointerEvents: 'none'
-        }} />
+      <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: 'clamp(56px,8vw,96px) 24px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <span className="micro" style={{ color: '#F5A623', display: 'block', marginBottom: 16 }}>
-            StartEasy Referral Program · Zambia
-          </span>
-          <h1 className="serif" style={{
-            fontSize: 'clamp(2rem,5vw,3.2rem)', lineHeight: 1.08,
-            marginBottom: 20, maxWidth: '46rem'
-          }}>
+          <span className="micro" style={{ color: '#F5A623', display: 'block', marginBottom: 16 }}>StartEasy Referral Program · Zambia</span>
+          <h1 className="serif" style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', lineHeight: 1.08, marginBottom: 20, maxWidth: '46rem' }}>
             Share StartEasy. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Earn on every sale.</em>
           </h1>
-          <p style={{
-            fontSize: 15.5, lineHeight: 1.7, color: 'rgba(255,255,255,.72)',
-            maxWidth: '44rem', marginBottom: 28
-          }}>
-            Get a unique referral code and link. Share it with your network. When someone you referred completes a StartEasy engagement and pays, you earn a commission on the service fee. Uncapped. Transparent. Paid monthly to your mobile money or bank.
+          <p style={{ fontSize: 15.5, lineHeight: 1.7, color: 'rgba(255,255,255,.72)', maxWidth: '44rem', marginBottom: 28 }}>
+            Sign up in 60 seconds. Get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement and pays, you earn a commission on the service fee.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Btn size="lg" variant="primary" onClick={() => go('apply')}>
-              Apply to become an agent <i className="fas fa-arrow-right" style={{ fontSize: 11 }}></i>
-            </Btn>
-            <Btn size="lg" variant="ghostLt" onClick={() => go('login')}>
-              I already have an account
-            </Btn>
+            <Btn size="lg" variant="primary" onClick={() => go('join')}>Get My Referral Code <i className="fas fa-arrow-right" style={{ fontSize: 11 }}></i></Btn>
           </div>
-          <p style={{
-            fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 22,
-            maxWidth: '44rem', lineHeight: 1.6, fontStyle: 'italic'
-          }}>
-            Commission-only role. No salary, no guaranteed income. Commissions only on approved and cleared payments. Full <a href="#/terms" style={{ color: '#F5A623', fontWeight: 700 }}>program terms</a>.
-          </p>
         </div>
       </section>
 
-      {/* COMMISSION TABLE */}
       <section style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 24px' }}>
-        <h2 className="serif" style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', color: '#0A1F12', marginBottom: 12 }}>
-          What you earn per service
-        </h2>
-        <p style={{ fontSize: 14, color: 'rgba(10,31,18,.65)', marginBottom: 24, maxWidth: '44rem' }}>
-          Commission is calculated on the StartEasy service fee only — not on any government or regulator fee. Rates are fixed and published.
-        </p>
+        <h2 className="serif" style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', color: '#0A1F12', marginBottom: 12 }}>What you earn per service</h2>
+        <p style={{ fontSize: 14, color: 'rgba(10,31,18,.65)', marginBottom: 24, maxWidth: '44rem' }}>Commission is calculated on the StartEasy service fee only — not on any government fee. Rates are fixed and published.</p>
         <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
               <thead>
-                <tr>
-                  {['Service tier', 'Service fee', 'Commission', 'You earn'].map(h => (
-                    <th key={h} style={{
-                      textAlign: 'left', padding: '14px 18px',
-                      background: '#0A1F12', fontSize: 10.5, letterSpacing: '.14em',
-                      textTransform: 'uppercase', fontWeight: 800,
-                      color: 'rgba(255,255,255,.7)'
-                    }}>{h}</th>
-                  ))}
-                </tr>
+                <tr>{['Service tier', 'Service fee', 'Commission', 'You earn'].map(h => <th key={h} style={{ textAlign: 'left', padding: '14px 18px', background: '#0A1F12', fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(255,255,255,.7)' }}>{h}</th>)}</tr>
               </thead>
               <tbody>
-                {rows.map((r, i) => (
+                {[
+                  { tier: 'Micro · Wizard', fee: 'K25', pct: '40%', earn: 'K10' },
+                  { tier: 'Basic', fee: 'K250', pct: '30%', earn: 'K75' },
+                  { tier: 'Standard', fee: 'K400', pct: '25%', earn: 'K100' },
+                  { tier: 'Complex · Company Inc.', fee: 'K750', pct: '22%', earn: 'K165' },
+                  { tier: 'Compliance Check-Up', fee: 'K750', pct: '22%', earn: 'K165' },
+                  { tier: 'Regularisation', fee: 'from K1,500', pct: '18%', earn: 'from K270' }
+                ].map((r, i) => (
                   <tr key={i} style={{ borderBottom: '1px solid rgba(10,31,18,.06)' }}>
                     <td style={{ padding: '14px 18px', fontSize: 13, color: '#0A1F12', fontWeight: 600 }}>{r.tier}</td>
                     <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.fee}</td>
@@ -831,389 +511,159 @@ function Landing({ go }) {
             </table>
           </div>
         </div>
-        <p style={{
-          fontSize: 12, color: 'rgba(10,31,18,.5)', marginTop: 14,
-          fontStyle: 'italic', maxWidth: '44rem', lineHeight: 1.65
-        }}>
-          Figures are illustrative. Actual earnings depend on the services your referrals purchase and whether their payments are approved and cleared.
-        </p>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section style={{ background: '#fff', padding: '56px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <h2 className="serif" style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', color: '#0A1F12', marginBottom: 28 }}>
-            How it works
-          </h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {steps.map((s, i) => (
-              <div key={i} style={{
-                background: '#F5FAF6', border: '1px solid rgba(10,31,18,.06)',
-                borderRadius: 12, padding: '22px 20px',
-                borderTopWidth: 4, borderTopColor: '#E8730F'
-              }}>
-                <div className="serif" style={{ fontSize: 13, color: '#E8730F', fontWeight: 800, marginBottom: 10 }}>{s.n}</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0A1F12', marginBottom: 8 }}>{s.t}</div>
-                <div style={{ fontSize: 12.5, color: 'rgba(10,31,18,.65)', lineHeight: 1.6 }}>{s.d}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '56px 24px' }}>
-        <h2 className="serif" style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', color: '#0A1F12', marginBottom: 20 }}>
-          Frequently asked
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {faqs.map((f, i) => (
-            <details key={i} style={{
-              background: '#fff', border: '1px solid rgba(10,31,18,.08)',
-              borderRadius: 10, padding: '14px 18px'
-            }}>
-              <summary style={{
-                cursor: 'pointer', fontSize: 13.5, fontWeight: 700,
-                color: '#0A1F12', lineHeight: 1.5
-              }}>{f.q}</summary>
-              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.7, marginTop: 10, marginBottom: 0 }}>
-                {f.a}
-              </p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section style={{ background: '#0A1F12', color: '#fff', padding: '56px 24px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
-          <h2 className="serif" style={{ fontSize: 'clamp(1.6rem,3.4vw,2.2rem)', lineHeight: 1.15, marginBottom: 18 }}>
-            Ready to start earning?
-          </h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,.7)', marginBottom: 26, lineHeight: 1.7 }}>
-            Apply now and our team will review your application within 2 working days.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Btn size="lg" variant="primary" onClick={() => go('apply')}>
-              Apply now <i className="fas fa-arrow-right" style={{ fontSize: 11 }}></i>
-            </Btn>
-            <a href={waUrl('Hello StartEasy — I have a question about the Referral Program.')} target="_blank" rel="noopener noreferrer"
-              style={{
-                padding: '15px 28px', background: '#25D366', color: '#fff',
-                borderRadius: 10, fontSize: 14.5, fontWeight: 700,
-                textDecoration: 'none', display: 'inline-flex',
-                alignItems: 'center', gap: 9
-              }}>
-              <i className="fab fa-whatsapp"></i> Ask on WhatsApp
-            </a>
-          </div>
-        </div>
       </section>
     </div>
   );
 }
 
-/* ---------------- PAGE: APPLY ---------------- */
-function ApplyPage({ go }) {
-  const [form, setForm] = useState({
-    displayName: '', email: '', phone: '', location: '',
-    experience: '', motivation: '', consent: false
-  });
+/* ---------------- JOIN (INSTANT ONBOARDING + ENGAGEMENT) ---------------- */
+function JoinPage({ go, onAuth }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ displayName: '', email: '', phone: '', location: '', password: '' });
+  const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
   const [err, setErr] = useState('');
 
-  const submit = async () => {
+  const nextStep = () => {
     setErr('');
-    if (!form.displayName.trim()) return setErr('Please enter your full name.');
+    if (!form.displayName.trim()) return setErr('Enter your full name.');
     if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setErr('Enter a valid email.');
     if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 9) return setErr('Enter a valid phone number.');
     if (!form.location) return setErr('Choose your location.');
-    if (!form.motivation.trim() || form.motivation.trim().length < 20) return setErr('Please describe (20+ chars) how you plan to find customers.');
-    if (!form.consent) return setErr('Please accept the program terms.');
-    if (!fbReady) return setErr('Service unavailable. Please refresh.');
+    setStep(2);
+  };
 
+  const submit = async () => {
+    setErr('');
+    if (!form.password || form.password.length < 6) return setErr('Password must be at least 6 characters.');
+    if (!agreed) return setErr('You must accept the engagement terms.');
     setBusy(true);
-    try {
-      // Prevent duplicate pending applications by email
-      const existing = await db.collection(SE_AGENTS)
-        .where('email', '==', form.email.trim().toLowerCase()).limit(1).get();
-      if (!existing.empty) {
-        const s = existing.docs[0].data().status;
-        if (s === 'active') return setErr('This email already has an active account. Try signing in instead.');
-        if (s === 'pending') return setErr('An application for this email is already under review.');
-        // rejected — allow re-apply by creating a new doc
-      }
 
-      await db.collection(SE_AGENTS).add({
-        uid: '',
-        agentCode: '',
+    try {
+      // 1. Create Auth Account
+      const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
+      
+      // 2. Generate Code
+      const agentCode = generateAgentCode(form.displayName);
+
+      // 3. Save Agent Profile
+      await db.collection(SE_AGENTS).doc(cred.user.uid).set({
+        uid: cred.user.uid,
+        agentCode: agentCode,
         displayName: form.displayName.trim(),
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim(),
         location: form.location,
-        experience: form.experience.trim(),
-        motivation: form.motivation.trim(),
-        status: 'pending',
-        commissionPct: 0,
-        paymentMethod: null,
+        status: 'active', // Instant activation
+        commissionPct: 20,
         createdAt: Date.now(),
-        approvedAt: null,
-        approvedBy: null,
         totals: { clicks: 0, conversions: 0, earnedZmw: 0, paidZmw: 0, pendingZmw: 0 }
       });
-      try { db.collection(SE_EVENTS).add({ type: 'agent_applied', at: Date.now(), location: form.location }); } catch (e) {}
-      setDone(true);
+
+      // 4. Log Event
+      try { db.collection(SE_EVENTS).add({ type: 'agent_joined_instantly', at: Date.now(), agentCode }); } catch (e) {}
+
+      onAuth(); // Trigger global redirect to dashboard
     } catch (e) {
-      setErr('Could not submit. Please try again or message us on WhatsApp.');
+      if (e.code === 'auth/email-already-in-use') {
+        setErr('This email already has an account. Please sign in.');
+      } else {
+        setErr(e.message || 'Registration failed.');
+      }
     } finally { setBusy(false); }
   };
 
-  if (done) {
+  if (step === 1) {
     return (
-      <div style={{ maxWidth: 640, margin: '60px auto', padding: '0 24px' }}>
-        <div style={{
-          background: '#EAF7EE', border: '2px solid #1E7B3C',
-          borderRadius: 14, padding: '34px 28px', textAlign: 'center'
-        }}>
-          <i className="fas fa-check-circle" style={{ fontSize: 46, color: '#1E7B3C', marginBottom: 14, display: 'block' }}></i>
-          <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 10 }}>
-            Application received
-          </h2>
-          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', marginBottom: 18, lineHeight: 1.65 }}>
-            Thank you, {form.displayName.split(' ')[0]}. Our team will review your application and contact you on WhatsApp within <strong>2 working days</strong>.
-          </p>
-          <a href={waUrl(`Hello StartEasy — I just applied to join the Referral Program. My name is ${form.displayName}.`)}
-            target="_blank" rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 9,
-              padding: '12px 22px', background: '#25D366', color: '#fff',
-              borderRadius: 9, fontSize: 13.5, fontWeight: 700,
-              textDecoration: 'none', marginBottom: 12
-            }}>
-            <i className="fab fa-whatsapp"></i> Message us to speed things up
-          </a>
-          <div>
-            <button onClick={() => go('')} style={{
-              padding: '11px 20px', background: '#fff',
-              border: '1px solid rgba(10,31,18,.15)', borderRadius: 8,
-              fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              fontFamily: 'inherit', color: '#0A1F12'
-            }}>Back to home</button>
-          </div>
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '56px 24px' }}>
+        <h1 className="serif" style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)', color: '#0A1F12', marginBottom: 10 }}>Get Your Referral Code</h1>
+        <p style={{ fontSize: 14, color: 'rgba(10,31,18,.65)', marginBottom: 24, lineHeight: 1.65 }}>Fill this out. On the next step you'll sign the engagement agreement and get your unique link instantly.</p>
+        
+        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '26px 24px' }}>
+          <Input label="Full Name" required value={form.displayName} onChange={v => setForm({ ...form, displayName: v })} placeholder="e.g. John Mwale" />
+          <Input label="Email" required type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} placeholder="you@example.com" />
+          <Input label="Phone / WhatsApp" required value={form.phone} onChange={v => setForm({ ...form, phone: v })} placeholder="+260..." />
+          <Select label="Location" required value={form.location} onChange={v => setForm({ ...form, location: v })} options={['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora']} />
+          
+          {err && <div style={{ background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 14, color: '#B8564F', fontSize: 12.5 }}>{err}</div>}
+          
+          <Btn onClick={nextStep} size="lg" variant="primary" style={{ width: '100%' }}>Continue to Engagement <i className="fas fa-arrow-right"></i></Btn>
+          <p style={{ textAlign: 'center', marginTop: 14, fontSize: 12, color: 'rgba(10,31,18,.6)' }}>Already have an account? <a href="#/login" style={{ color: '#E8730F', fontWeight: 700 }}>Sign In</a></p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto', padding: '56px 24px' }}>
-      <button onClick={() => go('')} style={{
-        background: 'none', border: 'none', color: 'rgba(10,31,18,.6)',
-        fontSize: 11.5, letterSpacing: '.14em', textTransform: 'uppercase',
-        fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-        marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 8
-      }}>
-        <i className="fas fa-arrow-left"></i> Back to referral home
-      </button>
-      <h1 className="serif" style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)', color: '#0A1F12', marginBottom: 10 }}>
-        Apply to become an agent
-      </h1>
-      <p style={{ fontSize: 14, color: 'rgba(10,31,18,.65)', marginBottom: 24, lineHeight: 1.65 }}>
-        No joining fee. No upfront cost. We review every application manually.
-      </p>
-      <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '26px 24px' }}>
-        <Input label="Full name" required value={form.displayName} onChange={v => setForm({ ...form, displayName: v })} placeholder="e.g. John Mwale" />
-        <Input label="Email" required type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} placeholder="you@example.com" />
-        <Input label="Phone / WhatsApp" required value={form.phone} onChange={v => setForm({ ...form, phone: v })} placeholder="+260 ..." />
-        <Select label="Location" required value={form.location} onChange={v => setForm({ ...form, location: v })}
-          options={['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora']} />
-        <TextArea label="Relevant experience (optional)" value={form.experience} onChange={v => setForm({ ...form, experience: v })}
-          placeholder="e.g. 2 years selling insurance, 500 WhatsApp contacts, run a business group…" rows={3} />
-        <TextArea label="Why do you want to join? How will you find customers?" required value={form.motivation} onChange={v => setForm({ ...form, motivation: v })}
-          placeholder="A few sentences — this helps us understand your plan." rows={4} />
-        <label style={{
-          display: 'flex', gap: 12, alignItems: 'flex-start',
-          fontSize: 12.5, color: 'rgba(10,31,18,.8)', cursor: 'pointer',
-          lineHeight: 1.6, marginBottom: 14
-        }}>
-          <input type="checkbox" checked={form.consent} onChange={e => setForm({ ...form, consent: e.target.checked })}
-            style={{ width: 18, height: 18, accentColor: '#E8730F', flexShrink: 0, marginTop: 2, cursor: 'pointer' }} />
-          <span>
-            I have read and agree to the <a href="#/terms" style={{ color: '#E8730F', fontWeight: 700 }}>program terms</a>. I understand this is a <strong>commission-only role</strong> — no salary, no guaranteed income, and commissions only on approved and cleared payments.
-          </span>
+    <div style={{ maxWidth: 700, margin: '0 auto', padding: '56px 24px' }}>
+      <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: 'rgba(10,31,18,.6)', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginBottom: 20 }}>← Back to details</button>
+      
+      <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.12)', borderRadius: 12, padding: '32px 30px', boxShadow: '0 10px 30px rgba(0,0,0,.05)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <i className="fas fa-file-signature" style={{ fontSize: 32, color: '#E8730F', marginBottom: 12 }}></i>
+          <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', margin: 0 }}>Agent Engagement Agreement</h2>
+        </div>
+
+        <div style={{ fontSize: 13, lineHeight: 1.7, color: 'rgba(10,31,18,.8)', maxHeight: 300, overflowY: 'auto', background: '#F9FBFA', padding: 20, borderRadius: 8, border: '1px solid rgba(10,31,18,.06)', marginBottom: 20 }}>
+          <p><strong>1. Independent Contractor:</strong> You are joining as an independent Referral Agent. This is NOT an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits.</p>
+          <p><strong>2. Commission Only:</strong> You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions are only paid after the client pays AND the payment clears (7 days).</p>
+          <p><strong>3. Attribution:</strong> Your unique code tracks sales for 30 days. Self-referrals or fraudulent activity will result in immediate disqualification and forfeiture of earnings.</p>
+          <p><strong>4. Payouts:</strong> Minimum payout is K200. Payouts are processed to your chosen mobile money or bank account.</p>
+          <p><strong>5. Conduct:</strong> You agree not to spam, impersonate StartEasy, or make false promises to clients.</p>
+        </div>
+
+        <Input label="Create a Password" required type="password" value={form.password} onChange={v => setForm({ ...form, password: v })} placeholder="Min 6 characters" autoComplete="new-password" />
+        
+        <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', fontSize: 13, color: '#0A1F12', cursor: 'pointer', marginBottom: 20 }}>
+          <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, accentColor: '#E8730F', marginTop: 2 }} />
+          <span>I agree to the <a href="#/terms" style={{ color: '#E8730F', fontWeight: 700 }}>Program Terms</a> and understand this is a commission-only independent contractor agreement.</span>
         </label>
-        {err && (
-          <div style={{
-            background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)',
-            borderRadius: 8, padding: '11px 14px', marginBottom: 14,
-            color: '#B8564F', fontSize: 12.5,
-            display: 'flex', gap: 8, alignItems: 'flex-start'
-          }}>
-            <i className="fas fa-circle-exclamation" style={{ marginTop: 2 }}></i>
-            <span>{err}</span>
-          </div>
-        )}
+
+        {err && <div style={{ background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 14, color: '#B8564F', fontSize: 12.5 }}>{err}</div>}
+
         <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%' }}>
-          {busy ? <><i className="fas fa-circle-notch spin"></i> Submitting…</> : <><i className="fas fa-paper-plane"></i> Submit application</>}
+          {busy ? 'Creating Account...' : 'Sign & Generate My Code'}
         </Btn>
       </div>
     </div>
   );
 }
 
-/* ---------------- PAGE: LOGIN + SIGNUP ---------------- */
+/* ---------------- LOGIN ---------------- */
 function LoginPage({ go, onAuth }) {
-  const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
-  const [pw2, setPw2] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
-  const [info, setInfo] = useState('');
 
-  const doSignIn = async () => {
-    setErr(''); setInfo('');
+  const submit = async () => {
+    setErr('');
     if (!email.trim() || !pw) return setErr('Enter your email and password.');
     setBusy(true);
     try {
       await auth.signInWithEmailAndPassword(email.trim(), pw);
-      const user = auth.currentUser;
-      const snap = await db.collection(SE_AGENTS).doc(user.uid).get();
-      if (!snap.exists) {
-        // Try by email
-        const q = await db.collection(SE_AGENTS)
-          .where('email', '==', (user.email || '').toLowerCase()).limit(1).get();
-        if (q.empty) {
-          await auth.signOut();
-          return setErr('No application found with this email. Please apply first.');
-        }
-        await q.docs[0].ref.update({ uid: user.uid });
-      }
       onAuth();
     } catch (e) {
-      const c = e && e.code;
-      if (c === 'auth/wrong-password' || c === 'auth/invalid-credential') setErr('Incorrect email or password.');
-      else if (c === 'auth/user-not-found') setErr('No account found. Click "Create account" if you have been approved.');
-      else if (c === 'auth/too-many-requests') setErr('Too many attempts. Wait a few minutes.');
-      else setErr(e && e.message ? e.message : 'Sign in failed.');
-    } finally { setBusy(false); }
-  };
-
-  const doSignUp = async () => {
-    setErr(''); setInfo('');
-    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return setErr('Enter a valid email.');
-    if (!pw || pw.length < 6) return setErr('Password must be at least 6 characters.');
-    if (pw !== pw2) return setErr('Passwords do not match.');
-    setBusy(true);
-
-    // First check for an existing application BEFORE creating the auth account
-    try {
-      const q = await db.collection(SE_AGENTS)
-        .where('email', '==', email.trim().toLowerCase()).limit(1).get();
-      if (q.empty) {
-        setBusy(false);
-        return setErr('No application found with this email. Please apply first.');
-      }
-      const st = q.docs[0].data().status;
-      if (st === 'rejected') {
-        setBusy(false);
-        return setErr('Your application was not approved. Please contact us.');
-      }
-
-      // Create the auth account
-      const cred = await auth.createUserWithEmailAndPassword(email.trim(), pw);
-
-      // Link uid to the pending/active doc
-      await q.docs[0].ref.update({ uid: cred.user.uid });
-
-      if (st === 'pending') {
-        setInfo('Account created. Your application is still under review — we will activate your code shortly.');
-        // stay signed in; dashboard will show "under review"
-        onAuth();
-      } else if (st === 'active') {
-        onAuth();
-      } else if (st === 'suspended') {
-        setInfo('Your account is currently suspended. Please contact us.');
-        onAuth();
-      }
-    } catch (e) {
-      const c = e && e.code;
-      if (c === 'auth/email-already-in-use') setErr('This email already has an account. Try signing in instead.');
-      else if (c === 'auth/weak-password') setErr('Password must be at least 6 characters.');
-      else setErr(e && e.message ? e.message : 'Sign up failed.');
+      setErr(e.message || 'Sign in failed.');
     } finally { setBusy(false); }
   };
 
   return (
-    <div style={{
-      minHeight: '70vh',
-      background: 'linear-gradient(135deg,#0A1F12,#123A1F)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '48px 20px'
-    }}>
-      <div style={{ background: '#fff', borderRadius: 14, padding: '34px 30px', maxWidth: 440, width: '100%', boxShadow: '0 30px 80px rgba(0,0,0,.3)' }}>
-        <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>
-          {mode === 'signin' ? 'Agent sign in' : 'Create your account'}
-        </h1>
-        <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 22, lineHeight: 1.6 }}>
-          {mode === 'signin'
-            ? 'Sign in with the email and password you set up.'
-            : 'First time here? Set a password for the email you applied with.'}
-        </p>
-
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20, background: 'rgba(10,31,18,.05)', padding: 4, borderRadius: 10 }}>
-          {[['signin', 'Sign in'], ['signup', 'Create account']].map(([k, l]) => (
-            <button key={k} onClick={() => { setMode(k); setErr(''); setInfo(''); }}
-              style={{
-                flex: 1, padding: '10px', border: 'none', borderRadius: 8,
-                background: mode === k ? '#0A1F12' : 'transparent',
-                color: mode === k ? '#fff' : 'rgba(10,31,18,.6)',
-                fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
-                fontFamily: 'inherit'
-              }}>{l}</button>
-          ))}
-        </div>
-
-        <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" />
-        <Input label="Password" type="password" value={pw} onChange={setPw} placeholder="••••••••" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} />
-        {mode === 'signup' && (
-          <Input label="Confirm password" type="password" value={pw2} onChange={setPw2} placeholder="••••••••" autoComplete="new-password" />
-        )}
-
-        {err && (
-          <div style={{
-            background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)',
-            borderRadius: 8, padding: '10px 14px', marginBottom: 14,
-            color: '#B8564F', fontSize: 12.5, lineHeight: 1.5
-          }}>{err}</div>
-        )}
-        {info && (
-          <div style={{
-            background: 'rgba(30,123,60,.08)', border: '1px solid rgba(30,123,60,.3)',
-            borderRadius: 8, padding: '10px 14px', marginBottom: 14,
-            color: '#1E7B3C', fontSize: 12.5, lineHeight: 1.5
-          }}>{info}</div>
-        )}
-
-        <Btn onClick={mode === 'signin' ? doSignIn : doSignUp} disabled={busy} size="lg" variant="primary" style={{ width: '100%' }}>
-          {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
-        </Btn>
-
-        <p style={{ fontSize: 12, color: 'rgba(10,31,18,.55)', textAlign: 'center', marginTop: 16, lineHeight: 1.65 }}>
-          Not registered yet?{' '}
-          <button onClick={() => go('apply')} style={{
-            background: 'none', border: 'none', color: '#E8730F',
-            fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-            fontSize: 12, textDecoration: 'underline'
-          }}>Apply to become an agent</button>.
-        </p>
+    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 20px' }}>
+      <div style={{ background: '#fff', borderRadius: 14, padding: '34px 30px', maxWidth: 400, width: '100%', boxShadow: '0 30px 80px rgba(0,0,0,.1)' }}>
+        <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Welcome back</h1>
+        <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 22 }}>Sign in to view your dashboard.</p>
+        <Input label="Email" type="email" value={email} onChange={setEmail} />
+        <Input label="Password" type="password" value={pw} onChange={setPw} />
+        {err && <div style={{ background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#B8564F', fontSize: 12.5 }}>{err}</div>}
+        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 12 }}>{busy ? 'Signing in...' : 'Sign in'}</Btn>
+        <p style={{ fontSize: 12, textAlign: 'center', color: 'rgba(10,31,18,.55)' }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign up here</a>.</p>
       </div>
     </div>
   );
 }
 
-/* ---------------- PAGE: DASHBOARD ---------------- */
+/* ---------------- DASHBOARD ---------------- */
 function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [commissions, setCommissions] = useState([]);
   const [payouts, setPayouts] = useState([]);
@@ -1221,121 +671,22 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [msg, setMsg] = useState('');
   const [tab, setTab] = useState('commissions');
   const [showPayout, setShowPayout] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true); // Shows the "Here is your code" banner on first load
 
   useEffect(() => {
     if (!agent) return;
-    const unsubs = [];
-
-    // Live agent doc
-    unsubs.push(db.collection(SE_AGENTS).doc(agent.id).onSnapshot(s => {
-      if (s.exists) setAgent({ id: s.id, ...s.data() });
-    }));
-
-    // Live commissions
-    unsubs.push(db.collection(SE_COMMISSIONS)
-      .where('agentId', '==', agent.id)
-      .orderBy('createdAt', 'desc').limit(100)
-      .onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}));
-
-    // Live payouts
-    unsubs.push(db.collection(SE_PAYOUTS)
-      .where('agentId', '==', agent.id)
-      .orderBy('requestedAt', 'desc').limit(50)
-      .onSnapshot(s => setPayouts(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}));
-
+    const unsubs = [
+      db.collection(SE_AGENTS).doc(agent.id).onSnapshot(s => { if (s.exists) setAgent({ id: s.id, ...s.data() }); }),
+      db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).orderBy('createdAt', 'desc').limit(100).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
+      db.collection(SE_PAYOUTS).where('agentId', '==', agent.id).orderBy('requestedAt', 'desc').limit(50).onSnapshot(s => setPayouts(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+    ];
     setLoading(false);
     return () => unsubs.forEach(u => u());
   }, [agent && agent.id]);
 
-  if (loading) return <Spinner label="Loading dashboard…" />;
+  if (loading || !agent) return <Spinner label="Loading dashboard…" />;
 
-  if (!agent) {
-    return (
-      <div style={{ maxWidth: 600, margin: '60px auto', padding: '0 24px' }}>
-        <div style={{
-          background: '#FFF4E5', border: '1px solid #F0E0A0',
-          borderRadius: 12, padding: '28px 24px', textAlign: 'center'
-        }}>
-          <i className="fas fa-hourglass-half" style={{ fontSize: 40, color: '#E8730F', marginBottom: 12, display: 'block' }}></i>
-          <h2 className="serif" style={{ fontSize: 20, color: '#0A1F12', marginBottom: 8 }}>
-            Your application is under review
-          </h2>
-          <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.65, marginBottom: 16 }}>
-            Once approved, you will receive a unique referral code by email and WhatsApp.
-          </p>
-          <a href={waUrl('Hello StartEasy — I am checking on my Referral Program application.')}
-            target="_blank" rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '11px 18px', background: '#25D366', color: '#fff',
-              borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none'
-            }}>
-            <i className="fab fa-whatsapp"></i> Message us
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (agent.status === 'rejected') {
-    return (
-      <div style={{ maxWidth: 600, margin: '60px auto', padding: '0 24px' }}>
-        <div style={{
-          background: '#FFE8E5', border: '1px solid #B8564F',
-          borderRadius: 12, padding: '28px 24px', textAlign: 'center'
-        }}>
-          <i className="fas fa-circle-xmark" style={{ fontSize: 40, color: '#B8564F', marginBottom: 12, display: 'block' }}></i>
-          <h2 className="serif" style={{ fontSize: 20, color: '#0A1F12', marginBottom: 8 }}>
-            Application not approved
-          </h2>
-          <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.65, marginBottom: 16 }}>
-            Please contact us if you believe this was in error.
-          </p>
-          <a href={waUrl('Hello StartEasy — I would like to discuss my Referral Program application.')}
-            target="_blank" rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '11px 18px', background: '#0A1F12', color: '#fff',
-              borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none'
-            }}>
-            <i className="fab fa-whatsapp"></i> Message us
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (agent.status === 'suspended') {
-    return (
-      <div style={{ maxWidth: 600, margin: '60px auto', padding: '0 24px' }}>
-        <div style={{
-          background: '#F2EDF7', border: '1px solid #7A4FA3',
-          borderRadius: 12, padding: '28px 24px', textAlign: 'center'
-        }}>
-          <i className="fas fa-pause" style={{ fontSize: 40, color: '#7A4FA3', marginBottom: 12, display: 'block' }}></i>
-          <h2 className="serif" style={{ fontSize: 20, color: '#0A1F12', marginBottom: 8 }}>
-            Account suspended
-          </h2>
-          <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.65, marginBottom: 16 }}>
-            Please contact us to resolve this.
-          </p>
-          <a href={waUrl('Hello StartEasy — my referral account is suspended.')}
-            target="_blank" rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '11px 18px', background: '#0A1F12', color: '#fff',
-              borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none'
-            }}>
-            <i className="fab fa-whatsapp"></i> Message us
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  // Active agent
   const shareLink = baseUrl() + '#/r/' + agent.agentCode;
-  const directLink = CONFIG.mainSiteUrl + '/?ref=' + agent.agentCode;
   const earned = agent.totals?.earnedZmw || 0;
   const paid = agent.totals?.paidZmw || 0;
   const pending = agent.totals?.pendingZmw || 0;
@@ -1343,45 +694,31 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
 
   const doCopy = async (text, label) => {
     const ok = await copyText(text);
-    setMsg(ok ? `${label} copied` : 'Copy failed — please select and copy manually.');
+    setMsg(ok ? `${label} copied` : 'Copy failed');
     setTimeout(() => setMsg(''), 2000);
   };
 
   const requestPayout = async () => {
     setMsg('');
-    if (available < CONFIG.minPayoutZmw) {
-      return setMsg(`Minimum payout is ${fmtZmw(CONFIG.minPayoutZmw)}`);
-    }
+    if (available < CONFIG.minPayoutZmw) return setMsg(`Minimum payout is ${fmtZmw(CONFIG.minPayoutZmw)}`);
     if (!agent.paymentMethod || !agent.paymentMethod.number) {
       setMsg('Please set your payout method first (Settings tab).');
       setTab('settings');
       return;
     }
-    const earnedComms = commissions.filter(c =>
-      c.status === 'earned' && Date.now() >= (c.clearAt || 0)
-    );
+    const earnedComms = commissions.filter(c => c.status === 'earned' && Date.now() >= (c.clearAt || 0));
     const total = earnedComms.reduce((s, c) => s + (c.commissionZmw || 0), 0);
-    if (total < CONFIG.minPayoutZmw) {
-      return setMsg(`You have ${fmtZmw(total)} available to withdraw (min ${fmtZmw(CONFIG.minPayoutZmw)}).`);
-    }
+    if (total < CONFIG.minPayoutZmw) return setMsg(`You have ${fmtZmw(total)} available (min ${fmtZmw(CONFIG.minPayoutZmw)}).`);
+    
     try {
       await db.collection(SE_PAYOUTS).add({
-        agentId: agent.id,
-        agentCode: agent.agentCode,
-        displayName: agent.displayName,
-        amountZmw: Math.round(total * 100) / 100,
-        commissionIds: earnedComms.map(c => c.id),
-        method: agent.paymentMethod,
-        status: 'requested',
-        requestedAt: Date.now(),
-        paidAt: null,
-        proof: null
+        agentId: agent.id, agentCode: agent.agentCode, displayName: agent.displayName,
+        amountZmw: Math.round(total * 100) / 100, commissionIds: earnedComms.map(c => c.id),
+        method: agent.paymentMethod, status: 'requested', requestedAt: Date.now(), paidAt: null, proof: null
       });
       setMsg('Payout request submitted. Officer will pay within 5 working days.');
       setShowPayout(false);
-    } catch (e) {
-      setMsg('Could not submit request. Please try again.');
-    }
+    } catch (e) { setMsg('Could not submit request. Please try again.'); }
   };
 
   const savePaymentMethod = async pm => {
@@ -1395,82 +732,38 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   return (
     <div className="fadein" style={{ minHeight: '100vh', padding: '32px 24px 60px' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        
+        {/* Welcome Banner */}
+        {showWelcome && (
+          <div style={{ background: 'linear-gradient(135deg,#FFF9E6,#FFFCF0)', border: '1.5px solid #F0E0A0', borderRadius: 12, padding: '20px 24px', marginBottom: 24, position: 'relative' }}>
+            <button onClick={() => setShowWelcome(false)} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', color: '#8A6828', cursor: 'pointer', fontSize: 14 }}>✕</button>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1 }}>
+                <h3 className="serif" style={{ fontSize: 18, color: '#0A1F12', margin: '0 0 4px' }}>Welcome aboard, {agent.displayName.split(' ')[0]}!</h3>
+                <p style={{ fontSize: 13, color: '#8A6828', margin: 0 }}>Your account is active. Copy your unique link below and start sharing to earn.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
           <div>
             <span className="micro" style={{ color: '#E8730F', display: 'block', marginBottom: 8 }}>Agent Dashboard</span>
-            <h1 className="serif" style={{ fontSize: 'clamp(1.6rem,3.4vw,2.2rem)', color: '#0A1F12', lineHeight: 1.15, margin: 0 }}>
-              Welcome back, {agent.displayName.split(' ')[0]}
-            </h1>
-            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginTop: 6 }}>
-              Code: <strong style={{ fontFamily: 'Consolas,monospace', color: '#0A1F12' }}>{agent.agentCode}</strong> · <Badge status={agent.status} />
-            </p>
+            <h1 className="serif" style={{ fontSize: 'clamp(1.6rem,3.4vw,2.2rem)', color: '#0A1F12', lineHeight: 1.15, margin: 0 }}>{agent.displayName}</h1>
           </div>
-          <button onClick={onSignOut} style={{
-            padding: '10px 16px', background: 'rgba(184,86,79,.1)',
-            color: '#B8564F', border: '1px solid rgba(184,86,79,.3)',
-            borderRadius: 8, fontSize: 12.5, fontWeight: 700,
-            cursor: 'pointer', fontFamily: 'inherit'
-          }}>
-            <i className="fas fa-right-from-bracket"></i> Sign out
-          </button>
+          <button onClick={onSignOut} style={{ padding: '10px 16px', background: 'rgba(184,86,79,.1)', color: '#B8564F', border: '1px solid rgba(184,86,79,.3)', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Sign out</button>
         </div>
 
-        {msg && (
-          <div style={{
-            background: 'rgba(30,123,60,.1)', border: '1px solid rgba(30,123,60,.3)',
-            borderRadius: 8, padding: '11px 14px', marginBottom: 16,
-            color: '#1E7B3C', fontSize: 12.5, fontWeight: 600
-          }}>{msg}</div>
-        )}
+        {msg && <div style={{ background: 'rgba(30,123,60,.1)', border: '1px solid rgba(30,123,60,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 16, color: '#1E7B3C', fontSize: 12.5, fontWeight: 600 }}>{msg}</div>}
 
-        {/* LINK BOX */}
-        <div style={{
-          background: '#0A1F12', borderRadius: 12, padding: '18px 20px',
-          color: '#fff', marginBottom: 20
-        }}>
-          <div style={{
-            fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase',
-            fontWeight: 800, color: '#F5A623', marginBottom: 12
-          }}>
-            Your referral link
-          </div>
-          <div style={{
-            fontFamily: 'Consolas,monospace', fontSize: 12,
-            background: 'rgba(255,255,255,.06)', padding: '12px 16px',
-            borderRadius: 8, marginBottom: 10, wordBreak: 'break-all',
-            lineHeight: 1.4
-          }}>
-            {shareLink}
-          </div>
+        {/* Link Box */}
+        <div style={{ background: '#0A1F12', borderRadius: 12, padding: '18px 20px', color: '#fff', marginBottom: 20 }}>
+          <div style={{ fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: '#F5A623', marginBottom: 12 }}>Your Referral Link</div>
+          <div style={{ fontFamily: 'Consolas,monospace', fontSize: 12, background: 'rgba(255,255,255,.06)', padding: '12px 16px', borderRadius: 8, marginBottom: 10, wordBreak: 'break-all', lineHeight: 1.4 }}>{shareLink}</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button onClick={() => doCopy(shareLink, 'Link')} style={{
-              padding: '10px 14px', background: '#F5A623', color: '#0A1F12',
-              border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700,
-              cursor: 'pointer', fontFamily: 'inherit'
-            }}>
-              <i className="fas fa-copy"></i> Copy link
-            </button>
-            <button onClick={() => doCopy(agent.agentCode, 'Code')} style={{
-              padding: '10px 14px', background: 'rgba(255,255,255,.06)', color: '#fff',
-              border: '1px solid rgba(255,255,255,.2)', borderRadius: 8,
-              fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit'
-            }}>
-              <i className="fas fa-hashtag"></i> Copy code
-            </button>
-            <a href={`https://wa.me/?text=${encodeURIComponent('Check out StartEasy — quality business services in Zambia. Use my link: ' + shareLink)}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{
-                padding: '10px 14px', background: '#25D366', color: '#fff',
-                borderRadius: 8, fontSize: 12, fontWeight: 700,
-                textDecoration: 'none', display: 'inline-flex',
-                alignItems: 'center', gap: 6
-              }}>
-              <i className="fab fa-whatsapp"></i> Share
-            </a>
-          </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.5)', marginTop: 12, lineHeight: 1.5 }}>
-            <i className="fas fa-info-circle" style={{ color: '#F5A623', marginRight: 6 }}></i>
-            The share link is tracked. Direct link is also available: <code style={{ color: '#F5A623' }}>{directLink}</code>
+            <button onClick={() => doCopy(shareLink, 'Link')} style={{ padding: '10px 14px', background: '#F5A623', color: '#0A1F12', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}><i className="fas fa-copy"></i> Copy link</button>
+            <button onClick={() => doCopy(agent.agentCode, 'Code')} style={{ padding: '10px 14px', background: 'rgba(255,255,255,.06)', color: '#fff', border: '1px solid rgba(255,255,255,.2)', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}><i className="fas fa-hashtag"></i> Copy code</button>
+            <a href={`https://wa.me/?text=${encodeURIComponent('Check out StartEasy — quality business services in Zambia. Use my link: ' + shareLink)}`} target="_blank" rel="noopener noreferrer" style={{ padding: '10px 14px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><i className="fab fa-whatsapp"></i> Share</a>
           </div>
         </div>
 
@@ -1482,41 +775,20 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           <Kpi label="Paid out" value={fmtZmw(paid)} sub={`${fmtZmw(pending)} pending`} icon="fa-money-bill-wave" color="#0E7C7B" />
         </div>
 
-        {/* PAYOUT CTA */}
-        <div style={{
-          background: '#fff', border: '1px solid rgba(10,31,18,.08)',
-          borderRadius: 12, padding: '18px 22px', marginBottom: 20,
-          display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center', gap: 16, flexWrap: 'wrap'
-        }}>
+        {/* Payout CTA */}
+        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '18px 22px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <div style={{
-              fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase',
-              fontWeight: 800, color: 'rgba(10,31,18,.5)', marginBottom: 4
-            }}>Available to withdraw</div>
-            <div className="serif" style={{ fontSize: 26, fontWeight: 800, color: '#0A1F12', lineHeight: 1 }}>
-              {fmtZmw(available)}
-            </div>
-            <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)', marginTop: 4 }}>
-              Minimum {fmtZmw(CONFIG.minPayoutZmw)} · paid within 5 working days
-            </div>
+            <div style={{ fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)', marginBottom: 4 }}>Available to withdraw</div>
+            <div className="serif" style={{ fontSize: 26, fontWeight: 800, color: '#0A1F12', lineHeight: 1 }}>{fmtZmw(available)}</div>
+            <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.5)', marginTop: 4 }}>Minimum {fmtZmw(CONFIG.minPayoutZmw)}</div>
           </div>
-          <Btn onClick={() => setShowPayout(true)} variant="success" disabled={available < CONFIG.minPayoutZmw}>
-            <i className="fas fa-money-bill-transfer"></i> Request payout
-          </Btn>
+          <Btn onClick={() => setShowPayout(true)} variant="success" disabled={available < CONFIG.minPayoutZmw}><i className="fas fa-money-bill-transfer"></i> Request payout</Btn>
         </div>
 
         {showPayout && (
-          <div style={{
-            background: '#fff', border: '1px solid rgba(10,31,18,.08)',
-            borderRadius: 12, padding: '22px 24px', marginBottom: 20
-          }}>
-            <h3 className="serif" style={{ fontSize: 17, color: '#0A1F12', marginBottom: 8 }}>
-              Confirm payout request
-            </h3>
-            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.65, marginBottom: 12 }}>
-              You are requesting <strong>{fmtZmw(available)}</strong> to <strong>{agent.paymentMethod?.label || 'your saved account'}</strong>. Only <em>earned</em> commissions cleared for 7+ days are included.
-            </p>
+          <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '22px 24px', marginBottom: 20 }}>
+            <h3 className="serif" style={{ fontSize: 17, color: '#0A1F12', marginBottom: 8 }}>Confirm payout request</h3>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.65, marginBottom: 12 }}>Requesting <strong>{fmtZmw(available)}</strong> to <strong>{agent.paymentMethod?.label || 'your saved account'}</strong>.</p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <Btn onClick={requestPayout} variant="success"><i className="fas fa-check"></i> Confirm request</Btn>
               <Btn onClick={() => setShowPayout(false)} variant="ghost">Cancel</Btn>
@@ -1524,93 +796,28 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           </div>
         )}
 
-        {/* TABS */}
-        <div style={{
-          background: '#fff', border: '1px solid rgba(10,31,18,.08)',
-          borderRadius: 12, overflow: 'hidden'
-        }}>
+        {/* Tabs */}
+        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(10,31,18,.06)', overflowX: 'auto' }}>
             {[['commissions', 'Commissions', 'fa-receipt'], ['payouts', 'Payouts', 'fa-money-bill-transfer'], ['settings', 'Settings', 'fa-gear']].map(([k, l, ic]) => (
-              <button key={k} onClick={() => setTab(k)}
-                style={{
-                  padding: '14px 18px', background: 'none', border: 'none',
-                  borderBottom: tab === k ? '3px solid #E8730F' : '3px solid transparent',
-                  fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  color: tab === k ? '#0A1F12' : 'rgba(10,31,18,.55)',
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  flexShrink: 0
-                }}>
-                <i className={`fas ${ic}`} style={{ fontSize: 11 }}></i> {l}
-              </button>
+              <button key={k} onClick={() => setTab(k)} style={{ padding: '14px 18px', background: 'none', border: 'none', borderBottom: tab === k ? '3px solid #E8730F' : '3px solid transparent', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', color: tab === k ? '#0A1F12' : 'rgba(10,31,18,.55)', display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0 }}><i className={`fas ${ic}`} style={{ fontSize: 11 }}></i> {l}</button>
             ))}
           </div>
           <div style={{ padding: '20px 22px' }}>
             {tab === 'commissions' && (
-              commissions.length === 0
-                ? <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.55)', margin: 0 }}>
-                    No commissions yet — share your link to start earning.
-                  </p>
-                : <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
-                      <thead>
-                        <tr>
-                          {['Payment ref', 'Service', 'Fee', 'Commission', 'Status', 'When'].map(h => (
-                            <th key={h} style={{
-                              textAlign: 'left', padding: '10px 12px',
-                              fontSize: 10, letterSpacing: '.14em',
-                              textTransform: 'uppercase', fontWeight: 800,
-                              color: 'rgba(10,31,18,.45)',
-                              borderBottom: '1px solid rgba(10,31,18,.08)'
-                            }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {commissions.map(c => (
-                          <tr key={c.id} style={{ borderBottom: '1px dashed rgba(10,31,18,.06)' }}>
-                            <td style={{ padding: '10px 12px', fontFamily: 'Consolas,monospace', fontSize: 11.5, color: '#0A1F12' }}>{c.paymentRef}</td>
-                            <td style={{ padding: '10px 12px', fontSize: 12.5, color: '#0A1F12' }}>{c.serviceTitle || c.serviceCode}</td>
-                            <td style={{ padding: '10px 12px', fontSize: 12.5, color: 'rgba(10,31,18,.65)' }}>{fmtZmw(c.grossZmw)}</td>
-                            <td style={{ padding: '10px 12px', fontSize: 12.5, fontWeight: 700, color: '#E8730F' }}>
-                              {fmtZmw(c.commissionZmw)}{' '}
-                              <span style={{ fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>({c.commissionPct}%)</span>
-                            </td>
-                            <td style={{ padding: '10px 12px' }}><Badge status={c.status} /></td>
-                            <td style={{ padding: '10px 12px', fontSize: 11.5, color: 'rgba(10,31,18,.55)' }}>{timeAgo(c.createdAt)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+              commissions.length === 0 ? <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.55)', margin: 0 }}>No commissions yet — share your link to start earning.</p> :
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
+                  <thead><tr>{['Payment ref', 'Service', 'Fee', 'Commission', 'Status', 'When'].map(h => <th key={h} style={{ textAlign: 'left', padding: '10px 12px', fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.45)', borderBottom: '1px solid rgba(10,31,18,.08)' }}>{h}</th>)}</tr></thead>
+                  <tbody>{commissions.map(c => <tr key={c.id} style={{ borderBottom: '1px dashed rgba(10,31,18,.06)' }}><td style={{ padding: '10px 12px', fontFamily: 'Consolas,monospace', fontSize: 11.5, color: '#0A1F12' }}>{c.paymentRef}</td><td style={{ padding: '10px 12px', fontSize: 12.5, color: '#0A1F12' }}>{c.serviceTitle || c.serviceCode}</td><td style={{ padding: '10px 12px', fontSize: 12.5, color: 'rgba(10,31,18,.65)' }}>{fmtZmw(c.grossZmw)}</td><td style={{ padding: '10px 12px', fontSize: 12.5, fontWeight: 700, color: '#E8730F' }}>{fmtZmw(c.commissionZmw)} <span style={{ fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>({c.commissionPct}%)</span></td><td style={{ padding: '10px 12px' }}><Badge status={c.status} /></td><td style={{ padding: '10px 12px', fontSize: 11.5, color: 'rgba(10,31,18,.55)' }}>{timeAgo(c.createdAt)}</td></tr>)}</tbody>
+                </table>
+              </div>
             )}
-
             {tab === 'payouts' && (
-              payouts.length === 0
-                ? <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.55)', margin: 0 }}>No payout requests yet.</p>
-                : <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {payouts.map(p => (
-                      <div key={p.id} style={{
-                        border: '1px solid rgba(10,31,18,.08)', borderRadius: 10,
-                        padding: '14px 16px', display: 'flex',
-                        justifyContent: 'space-between', gap: 14,
-                        flexWrap: 'wrap', alignItems: 'center'
-                      }}>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#0A1F12' }}>{fmtZmw(p.amountZmw)}</div>
-                          <div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.55)', marginTop: 3 }}>
-                            Requested {timeAgo(p.requestedAt)} · {p.commissionIds?.length || 0} commission(s)
-                          </div>
-                        </div>
-                        <Badge status={p.status} />
-                      </div>
-                    ))}
-                  </div>
+              payouts.length === 0 ? <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.55)', margin: 0 }}>No payout requests yet.</p> :
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{payouts.map(p => <div key={p.id} style={{ border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}><div><div style={{ fontSize: 14, fontWeight: 700, color: '#0A1F12' }}>{fmtZmw(p.amountZmw)}</div><div style={{ fontSize: 11.5, color: 'rgba(10,31,18,.55)', marginTop: 3 }}>Requested {timeAgo(p.requestedAt)} · {p.commissionIds?.length || 0} items</div></div><Badge status={p.status} /></div>)}</div>
             )}
-
-            {tab === 'settings' && (
-              <SettingsTab agent={agent} onSave={savePaymentMethod} />
-            )}
+            {tab === 'settings' && <SettingsTab agent={agent} onSave={savePaymentMethod} />}
           </div>
         </div>
       </div>
@@ -1626,156 +833,76 @@ function SettingsTab({ agent, onSave }) {
 
   const save = () => {
     setMsg('');
-    if (!number.trim() || !holder.trim()) {
-      setMsg('Holder and account number are required.');
-      return;
-    }
+    if (!number.trim() || !holder.trim()) return setMsg('Holder and account number are required.');
     const label = method === 'airtel' ? 'Airtel Money' : method === 'mtn' ? 'MTN MoMo' : 'Bank';
     onSave({ type: method, label, number: number.trim(), holder: holder.trim() });
   };
 
   return (
     <div>
-      <p style={{ fontSize: 13, color: 'rgba(10,31,18,.65)', marginBottom: 18, lineHeight: 1.65 }}>
-        Commissions are paid to this account. Please make sure the details match your name.
-      </p>
-      <Select label="Payout method" value={method} onChange={setMethod}
-        options={[
-          { value: 'airtel', label: 'Airtel Money' },
-          { value: 'mtn', label: 'MTN MoMo' },
-          { value: 'bank', label: 'Bank transfer' }
-        ]} />
+      <p style={{ fontSize: 13, color: 'rgba(10,31,18,.65)', marginBottom: 18, lineHeight: 1.65 }}>Commissions are paid to this account. Please make sure the details match your name.</p>
+      <Select label="Payout method" value={method} onChange={setMethod} options={[{ value: 'airtel', label: 'Airtel Money' }, { value: 'mtn', label: 'MTN MoMo' }, { value: 'bank', label: 'Bank transfer' }]} />
       <Input label="Account holder name" required value={holder} onChange={setHolder} />
-      <Input label={method === 'bank' ? 'Account number' : 'Mobile number'} required
-        value={number} onChange={setNumber}
-        placeholder={method === 'bank' ? '0152…' : '+260…'} />
-      {msg && (
-        <div style={{
-          background: 'rgba(30,123,60,.08)', border: '1px solid rgba(30,123,60,.3)',
-          borderRadius: 8, padding: '10px 14px', marginBottom: 14,
-          color: '#1E7B3C', fontSize: 12.5
-        }}>{msg}</div>
-      )}
+      <Input label={method === 'bank' ? 'Account number' : 'Mobile number'} required value={number} onChange={setNumber} placeholder={method === 'bank' ? '0152…' : '+260…'} />
+      {msg && <div style={{ background: 'rgba(30,123,60,.08)', border: '1px solid rgba(30,123,60,.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#1E7B3C', fontSize: 12.5 }}>{msg}</div>}
       <Btn onClick={save} variant="primary"><i className="fas fa-check"></i> Save payout method</Btn>
     </div>
   );
 }
 
-/* ---------------- PAGE: TERMS ---------------- */
+/* ---------------- TERMS ---------------- */
 function TermsPage() {
-  const S = ({ children }) => (
-    <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.75)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>
-  );
-  const H = ({ children }) => (
-    <h2 className="serif" style={{ fontSize: 18, color: '#0A1F12', marginTop: 26, marginBottom: 10 }}>{children}</h2>
-  );
-
+  const S = ({ children }) => <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.75)', lineHeight: 1.75, marginBottom: 14 }}>{children}</p>;
+  const H = ({ children }) => <h2 className="serif" style={{ fontSize: 18, color: '#0A1F12', marginTop: 26, marginBottom: 10 }}>{children}</h2>;
   return (
     <div style={{ padding: '56px 24px' }}>
       <div style={{ maxWidth: 780, margin: '0 auto', background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '36px 32px' }}>
-        <h1 className="serif" style={{ fontSize: 'clamp(1.7rem,3.4vw,2.2rem)', color: '#0A1F12', marginBottom: 8 }}>
-          StartEasy Referral Program — Terms
-        </h1>
-        <p style={{ fontSize: 12, color: 'rgba(10,31,18,.5)', marginBottom: 20 }}>
-          Last updated {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
-        </p>
-
-        <S>These terms govern the StartEasy Zambia Referral Program. By submitting an application you accept these terms in full. If you do not agree, please do not apply.</S>
-
+        <h1 className="serif" style={{ fontSize: 'clamp(1.7rem,3.4vw,2.2rem)', color: '#0A1F12', marginBottom: 8 }}>StartEasy Referral Program — Terms</h1>
+        <p style={{ fontSize: 12, color: 'rgba(10,31,18,.5)', marginBottom: 20 }}>Last updated {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+        <S>These terms govern the StartEasy Zambia Referral Program. By creating an account, you accept these terms in full. If you do not agree, please do not register.</S>
         <H>1. Nature of the role</H>
         <S>You are an independent, commission-only sales agent. You are not an employee of StartEasy. There is no salary, no guaranteed income, no employee benefits, no leave and no minimum working hours. Your earnings depend solely on the volume and value of approved sales you refer.</S>
-
-        <H>2. Approval</H>
-        <S>All applications are reviewed manually. StartEasy may approve, reject or request more information at its discretion. Approval grants you a unique referral code and access to the agent dashboard. Attempting to earn through multiple accounts, false identities, or misrepresentation of StartEasy is a breach of these terms.</S>
-
+        <H>2. Instant Registration</H>
+        <S>Registration is instant upon completion of the sign-up form and agreement. StartEasy may suspend or terminate accounts that violate these terms, attempt fraud, or misrepresent StartEasy.</S>
         <H>3. Attribution</H>
         <S>Your referral code is embedded in your link. When a new visitor clicks your link, the code is stored on their device for 30 days. Any qualifying payment made within that window is attributed to you, unless a later referral code overrides it after 7 days. Only one agent earns per payment.</S>
-
         <H>4. Commission</H>
         <S>Commission is calculated as a percentage of the StartEasy service fee only — <strong>not</strong> on any government, regulator or third-party cost. Rates are published on the referral landing page and may change with written notice. Commissions become <em>earned</em> only after (a) the payment is approved by a StartEasy officer, and (b) a 7-day clearing period has elapsed. Any payment that is subsequently reverted or declined will have its commission cancelled.</S>
-
         <H>5. Self-referral &amp; fraud</H>
         <S>You may not refer yourself, family members acting on your behalf, or any entity you own or control. Self-referrals are detected and rejected. Any attempt to manipulate clicks, fabricate signups, or coordinate fake payments is grounds for immediate disqualification and forfeiture of unpaid commissions.</S>
-
         <H>6. Payouts</H>
         <S>Minimum payout is K200. Request a payout from your dashboard. Payouts are processed within 5 working days to the Airtel Money, MTN MoMo or bank account you have on file. StartEasy is not responsible for payouts sent to incorrect details you supplied.</S>
-
-        <H>7. Conduct</H>
-        <S>You may share your referral link anywhere it is welcome. You may not: (a) send unsolicited bulk messages; (b) use paid ads to impersonate StartEasy; (c) misrepresent the price or nature of any StartEasy service; (d) make promises on StartEasy's behalf about approval, timing, or outcome; (e) create websites or social accounts that mimic StartEasy branding.</S>
-
-        <H>8. Privacy</H>
-        <S>We collect only what we need to run the program (name, email, phone, location, and payment details) and the interaction data of people who use your link (aggregated, no personal information). We do not sell your data.</S>
-
-        <H>9. Changes and termination</H>
-        <S>StartEasy may modify these terms, the commission table, or discontinue the program at any time with reasonable notice. Your account may be suspended or terminated for a breach of these terms, or if we detect fraudulent activity. On termination, commissions that are still in <em>pending</em> state, or that have not met the K200 minimum, may be forfeited.</S>
-
-        <H>10. Governing law</H>
-        <S>These terms are governed by the laws of the Republic of Zambia. Any dispute will first be attempted to be resolved amicably by written notice; unresolved disputes shall be subject to the exclusive jurisdiction of the Zambian courts.</S>
-
-        <div style={{
-          marginTop: 28, paddingTop: 18,
-          borderTop: '1px solid rgba(10,31,18,.08)',
-          fontSize: 12, color: 'rgba(10,31,18,.55)'
-        }}>
-          Questions? Email <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: '#E8730F', fontWeight: 700 }}>{CONFIG.contactEmail}</a> or message us on WhatsApp at +260 762499581.
-        </div>
       </div>
     </div>
   );
 }
 
-/* ---------------- PAGE: REDIRECT HANDLER #/r/:code ---------------- */
-function RedirectHandler({ code, navigate }) {
+/* ---------------- REDIRECT HANDLER #/r/:code ---------------- */
+function RedirectHandler({ code }) {
   const [status, setStatus] = useState('loading');
-
   useEffect(() => {
-    if (!code || !CODE_RX.test(code)) {
-      setStatus('invalid');
-      return;
-    }
-    // Log click, store attribution, redirect to main site
+    if (!code || !CODE_RX.test(code)) { setStatus('invalid'); return; }
     logReferralClick(code);
     storeAttribution(code);
     setStatus('redirecting');
-    const t = setTimeout(() => {
-      const target = CONFIG.mainSiteUrl + '/?ref=' + encodeURIComponent(code);
-      window.location.href = target;
-    }, 800);
-    return () => clearTimeout(t);
+    setTimeout(() => { window.location.href = CONFIG.mainSiteUrl + '/?ref=' + encodeURIComponent(code); }, 800);
   }, [code]);
 
   return (
-    <div style={{
-      minHeight: '70vh', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', padding: '40px 24px',
-      background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff'
-    }}>
+    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff' }}>
       <div style={{ textAlign: 'center', maxWidth: 460 }}>
         {status === 'invalid' ? (
           <>
             <i className="fas fa-circle-exclamation" style={{ fontSize: 46, color: '#F5A623', marginBottom: 16, display: 'block' }}></i>
             <h2 className="serif" style={{ fontSize: 24, marginBottom: 12 }}>Invalid referral link</h2>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 20, lineHeight: 1.65 }}>
-              This referral link looks incorrect. Please ask the agent for a fresh link.
-            </p>
-            <Btn variant="primary" onClick={() => navigate('#/')}>Back to referral home</Btn>
+            <Btn variant="primary" onClick={() => window.location.hash = '#/'}>Back to referral home</Btn>
           </>
         ) : (
           <>
             <Mark size={56} />
-            <h2 className="serif" style={{ fontSize: 24, marginTop: 18, marginBottom: 12 }}>
-              Taking you to StartEasy…
-            </h2>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,.65)', marginBottom: 20, lineHeight: 1.65 }}>
-              Your referral code is <strong style={{ fontFamily: 'Consolas,monospace', color: '#F5A623' }}>{code}</strong>. Redirecting you now.
-            </p>
+            <h2 className="serif" style={{ fontSize: 24, marginTop: 18, marginBottom: 12 }}>Taking you to StartEasy…</h2>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,.65)', marginBottom: 20 }}>Your referral code is <strong style={{ color: '#F5A623' }}>{code}</strong>.</p>
             <i className="fas fa-circle-notch spin" style={{ fontSize: 24, color: '#F5A623' }}></i>
-            <div style={{ marginTop: 20 }}>
-              <a href={CONFIG.mainSiteUrl + '/?ref=' + encodeURIComponent(code)}
-                style={{ color: '#F5A623', fontSize: 12.5, fontWeight: 700, textDecoration: 'underline' }}>
-                Not redirected? Click here
-              </a>
-            </div>
           </>
         )}
       </div>
@@ -1783,7 +910,7 @@ function RedirectHandler({ code, navigate }) {
   );
 }
 
-/* ---------------- PAGE: ADMIN ---------------- */
+/* ---------------- ADMIN ---------------- */
 function AdminPage({ go }) {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -1795,11 +922,8 @@ function AdminPage({ go }) {
   const [agents, setAgents] = useState([]);
   const [commissions, setCommissions] = useState([]);
   const [payouts, setPayouts] = useState([]);
-  const [review, setReview] = useState(null);
   const [msg, setMsg] = useState('');
-  const [syncing, setSyncing] = useState(false);
 
-  // Auth check
   useEffect(() => {
     if (!fbReady || !auth) { setChecking(false); return; }
     const unsub = auth.onAuthStateChanged(async user => {
@@ -1814,24 +938,14 @@ function AdminPage({ go }) {
     return unsub;
   }, []);
 
-  // Data listeners + auto-sync
   useEffect(() => {
     if (!authed) return;
     const unsubs = [
-      db.collection(SE_AGENTS).orderBy('createdAt', 'desc').limit(300)
-        .onSnapshot(s => setAgents(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
-      db.collection(SE_COMMISSIONS).orderBy('createdAt', 'desc').limit(300)
-        .onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
-      db.collection(SE_PAYOUTS).orderBy('requestedAt', 'desc').limit(300)
-        .onSnapshot(s => setPayouts(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+      db.collection(SE_AGENTS).orderBy('createdAt', 'desc').limit(300).onSnapshot(s => setAgents(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
+      db.collection(SE_COMMISSIONS).orderBy('createdAt', 'desc').limit(300).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
+      db.collection(SE_PAYOUTS).orderBy('requestedAt', 'desc').limit(300).onSnapshot(s => setPayouts(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
     ];
-    // Auto-sync on load
-    (async () => {
-      setSyncing(true);
-      const r = await syncCommissions();
-      if (r.created || r.cancelled) setMsg(`Auto-synced: ${r.created} new commission(s), ${r.cancelled} cancelled.`);
-      setSyncing(false);
-    })();
+    syncCommissions(); // auto-run on load
     return () => unsubs.forEach(u => u());
   }, [authed]);
 
@@ -1839,407 +953,77 @@ function AdminPage({ go }) {
     setErr(''); setBusy(true);
     try {
       await auth.signInWithEmailAndPassword(email.trim(), pw);
-      const user = auth.currentUser;
-      const check = await db.collection(SE_ADMINS).doc(user.uid).get();
+      const check = await db.collection(SE_ADMINS).doc(auth.currentUser.uid).get();
       if (!check.exists) { await auth.signOut(); setErr('Not an admin account.'); return; }
       setAuthed(true);
-    } catch (e) {
-      const c = e && e.code;
-      if (c === 'auth/wrong-password' || c === 'auth/invalid-credential') setErr('Incorrect email or password.');
-      else setErr(e && e.message ? e.message : 'Sign-in failed.');
-    } finally { setBusy(false); }
-  };
-
-  const approveAgent = async (agent, code, pct) => {
-    setMsg('');
-    const c = (code || '').toUpperCase().trim();
-    if (!CODE_RX.test(c)) return setMsg('Code must match format SE-NAME-XXXX.');
-    const dup = await db.collection(SE_AGENTS).where('agentCode', '==', c).limit(1).get();
-    if (!dup.empty) return setMsg('That code is already taken.');
-    await db.collection(SE_AGENTS).doc(agent.id).update({
-      agentCode: c,
-      status: 'active',
-      commissionPct: Number(pct) || 25,
-      approvedAt: Date.now(),
-      approvedBy: auth.currentUser ? auth.currentUser.uid : ''
-    });
-    setMsg(`Agent approved: ${c}. Tell them to sign up at #/login → "Create account" using ${agent.email}.`);
-    setReview(null);
-  };
-
-  const rejectAgent = async agent => {
-    const reason = window.prompt('Reason (visible only to admin):', '') || '';
-    await db.collection(SE_AGENTS).doc(agent.id).update({
-      status: 'rejected', rejectionReason: reason, reviewedAt: Date.now()
-    });
-    setMsg('Agent rejected.');
-    setReview(null);
-  };
-
-  const suspendAgent = async agent => {
-    if (!window.confirm('Suspend this agent?')) return;
-    await db.collection(SE_AGENTS).doc(agent.id).update({ status: 'suspended' });
-    setMsg('Agent suspended.');
-  };
-
-  const unsuspendAgent = async agent => {
-    await db.collection(SE_AGENTS).doc(agent.id).update({ status: 'active' });
-    setMsg('Agent reactivated.');
+    } catch (e) { setErr('Incorrect email or password.'); }
+    finally { setBusy(false); }
   };
 
   const markPaid = async payout => {
-    if (!window.confirm(`Mark ${fmtZmw(payout.amountZmw)} to ${payout.agentCode} as paid? Confirm you have sent the money.`)) return;
-    const r = await markPayoutPaid(payout.id);
-    setMsg(r.ok ? 'Payout marked paid.' : 'Failed: ' + (r.error || 'unknown'));
-  };
-
-  const manualSync = async () => {
-    setSyncing(true);
-    const r = await syncCommissions();
-    setMsg(`Sync complete: ${r.created} created, ${r.cancelled} cancelled.`);
-    setSyncing(false);
+    if (!window.confirm(`Mark ${fmtZmw(payout.amountZmw)} to ${payout.agentCode} as paid?`)) return;
+    await markPayoutPaid(payout.id);
+    setMsg('Payout marked paid.');
   };
 
   if (checking) return <Spinner label="Checking admin access…" />;
-
-  if (!authed) {
-    return (
-      <div style={{
-        minHeight: '70vh', background: 'linear-gradient(135deg,#0A1F12,#123A1F)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 20px'
-      }}>
-        <div style={{ background: '#fff', borderRadius: 14, padding: '34px 30px', maxWidth: 420, width: '100%' }}>
-          <h1 className="serif" style={{ fontSize: 22, color: '#0A1F12', marginBottom: 6 }}>Referral admin</h1>
-          <p style={{ fontSize: 12.5, color: 'rgba(10,31,18,.6)', marginBottom: 20 }}>
-            Sign in with your StartEasy admin account.
-          </p>
-          <Input label="Admin email" type="email" value={email} onChange={setEmail} />
-          <Input label="Password" type="password" value={pw} onChange={setPw} />
-          {err && (
-            <div style={{
-              background: 'rgba(184,86,79,.08)', border: '1px solid rgba(184,86,79,.3)',
-              borderRadius: 8, padding: '10px 14px', marginBottom: 14,
-              color: '#B8564F', fontSize: 12.5
-            }}>{err}</div>
-          )}
-          <Btn onClick={handleSignIn} disabled={busy} variant="primary" size="lg" style={{ width: '100%' }}>
-            {busy ? 'Signing in…' : 'Sign in'}
-          </Btn>
-        </div>
+  if (!authed) return (
+    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 20px' }}>
+      <div style={{ background: '#fff', borderRadius: 14, padding: '34px 30px', maxWidth: 400, width: '100%' }}>
+        <h1 className="serif" style={{ fontSize: 22, color: '#0A1F12', marginBottom: 6 }}>Referral admin</h1>
+        <Input label="Admin email" type="email" value={email} onChange={setEmail} />
+        <Input label="Password" type="password" value={pw} onChange={setPw} />
+        {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 14 }}>{err}</div>}
+        <Btn onClick={handleSignIn} disabled={busy} variant="primary" size="lg" style={{ width: '100%' }}>{busy ? 'Signing in…' : 'Sign in'}</Btn>
       </div>
-    );
-  }
+    </div>
+  );
 
-  const pendingAgents = agents.filter(a => a.status === 'pending');
-  const activeAgents = agents.filter(a => a.status === 'active');
   const requestedPayouts = payouts.filter(p => p.status === 'requested');
 
   return (
-    <div className="fadein" style={{ minHeight: '100vh' }}>
+    <div className="fadein" style={{ minHeight: '100vh', paddingBottom: 60 }}>
       <section style={{ background: '#0A1F12', color: '#fff', padding: '20px 24px' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ fontSize: 9, letterSpacing: '.18em', textTransform: 'uppercase', fontWeight: 700, color: 'rgba(255,255,255,.4)' }}>
-              Referral Program
-            </div>
-            <div className="serif" style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>
-              Admin Portal
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <button onClick={manualSync} disabled={syncing} style={{
-              padding: '9px 16px', background: syncing ? 'rgba(255,255,255,.05)' : 'rgba(245,166,35,.15)',
-              color: '#F5A623', border: '1px solid rgba(245,166,35,.4)',
-              borderRadius: 8, fontSize: 12, fontWeight: 700,
-              cursor: syncing ? 'wait' : 'pointer', fontFamily: 'inherit'
-            }}>
-              <i className={`fas ${syncing ? 'fa-circle-notch spin' : 'fa-sync'}`}></i> {syncing ? 'Syncing…' : 'Sync commissions'}
-            </button>
-            <button onClick={() => go('')} style={{
-              padding: '9px 16px', background: 'rgba(255,255,255,.06)',
-              color: '#fff', border: '1px solid rgba(255,255,255,.2)',
-              borderRadius: 8, fontSize: 12, fontWeight: 700,
-              cursor: 'pointer', fontFamily: 'inherit'
-            }}>← Site</button>
-            <button onClick={() => { auth.signOut(); setAuthed(false); }} style={{
-              padding: '9px 16px', background: 'rgba(184,86,79,.15)',
-              color: '#FFB4A8', border: '1px solid rgba(184,86,79,.35)',
-              borderRadius: 8, fontSize: 12, fontWeight: 700,
-              cursor: 'pointer', fontFamily: 'inherit'
-            }}>Sign out</button>
-          </div>
+        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="serif" style={{ fontSize: 20, fontWeight: 800 }}>Admin Portal</div>
+          <button onClick={() => { auth.signOut(); setAuthed(false); }} style={{ padding: '8px 14px', background: 'rgba(184,86,79,.15)', color: '#FFB4A8', border: '1px solid rgba(184,86,79,.35)', borderRadius: 8, fontSize: 12 }}>Sign out</button>
         </div>
       </section>
-
       <section style={{ background: '#fff', borderBottom: '1px solid rgba(10,31,18,.08)' }}>
         <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 6, overflowX: 'auto' }}>
-          {[
-            ['agents', 'Agents', 'fa-users', pendingAgents.length],
-            ['commissions', 'Commissions', 'fa-receipt', commissions.length],
-            ['payouts', 'Payouts', 'fa-money-bill-transfer', requestedPayouts.length]
-          ].map(([k, l, ic, n]) => (
-            <button key={k} onClick={() => setTab(k)}
-              style={{
-                padding: '14px 16px', background: 'none', border: 'none',
-                borderBottom: tab === k ? '3px solid #E8730F' : '3px solid transparent',
-                fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                fontFamily: 'inherit',
-                color: tab === k ? '#0A1F12' : 'rgba(10,31,18,.55)',
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                flexShrink: 0
-              }}>
-              <i className={`fas ${ic}`} style={{ fontSize: 11 }}></i> {l}
-              {n > 0 && (
-                <span style={{
-                  background: k === 'payouts' ? '#E8730F' : 'rgba(10,31,18,.1)',
-                  color: k === 'payouts' ? '#fff' : '#0A1F12',
-                  fontSize: 10, padding: '2px 7px', borderRadius: 99, fontWeight: 800
-                }}>{n}</span>
-              )}
-            </button>
+          {[['agents', 'Agents', 'fa-users'], ['commissions', 'Commissions', 'fa-receipt'], ['payouts', 'Payouts', 'fa-money-bill-transfer']].map(([k, l, ic]) => (
+            <button key={k} onClick={() => setTab(k)} style={{ padding: '14px 16px', background: 'none', border: 'none', borderBottom: tab === k ? '3px solid #E8730F' : '3px solid transparent', fontSize: 13, fontWeight: 700, color: tab === k ? '#0A1F12' : 'rgba(10,31,18,.55)' }}><i className={`fas ${ic}`}></i> {l}</button>
           ))}
         </div>
       </section>
-
-      <section style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 24px 60px' }}>
-        {msg && (
-          <div style={{
-            background: 'rgba(30,123,60,.1)', border: '1px solid rgba(30,123,60,.3)',
-            borderRadius: 8, padding: '11px 14px', marginBottom: 16,
-            color: '#1E7B3C', fontSize: 12.5, fontWeight: 600, lineHeight: 1.55
-          }}>{msg}</div>
-        )}
-
+      <section style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 24px' }}>
+        {msg && <div style={{ background: 'rgba(30,123,60,.1)', border: '1px solid rgba(30,123,60,.3)', borderRadius: 8, padding: '11px 14px', marginBottom: 16, color: '#1E7B3C', fontSize: 12.5, fontWeight: 600 }}>{msg}</div>}
+        
         {tab === 'agents' && (
-          <div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" style={{ marginBottom: 20 }}>
-              <Kpi label="Total agents" value={agents.length} icon="fa-users" />
-              <Kpi label="Pending" value={pendingAgents.length} icon="fa-hourglass-half" color="#F5A623" />
-              <Kpi label="Active" value={activeAgents.length} icon="fa-circle-check" color="#1E7B3C" />
-              <Kpi label="Suspended" value={agents.filter(a => a.status === 'suspended').length} icon="fa-pause" color="#7A4FA3" />
-            </div>
-
-            <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden' }}>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 820 }}>
-                  <thead>
-                    <tr>
-                      {['Name', 'Contact', 'Code', '%', 'Status', ''].map(h => (
-                        <th key={h} style={{
-                          textAlign: 'left', padding: '12px 16px',
-                          background: '#FBFDFB', borderBottom: '1px solid rgba(10,31,18,.08)',
-                          fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase',
-                          fontWeight: 800, color: 'rgba(10,31,18,.5)'
-                        }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {agents.map(a => (
-                      <tr key={a.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}>
-                        <td style={{ padding: '12px 16px', fontSize: 13, color: '#0A1F12', fontWeight: 600 }}>
-                          {a.displayName}
-                        </td>
-                        <td style={{ padding: '12px 16px', fontSize: 11.5, color: 'rgba(10,31,18,.65)' }}>
-                          {a.email}<br />{a.phone}
-                        </td>
-                        <td style={{ padding: '12px 16px', fontFamily: 'Consolas,monospace', fontSize: 11.5 }}>
-                          {a.agentCode || '—'}
-                        </td>
-                        <td style={{ padding: '12px 16px', fontSize: 12 }}>{a.commissionPct || '—'}%</td>
-                        <td style={{ padding: '12px 16px' }}><Badge status={a.status} /></td>
-                        <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
-                          <button onClick={() => setReview(a)} style={{
-                            padding: '6px 12px', background: '#0A1F12', color: '#fff',
-                            border: 'none', borderRadius: 6, fontSize: 11.5,
-                            fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit'
-                          }}>Open</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 800 }}>
+              <thead><tr>{['Name', 'Email', 'Phone', 'Code', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: '12px 16px', background: '#FBFDFB', fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>{h}</th>)}</tr></thead>
+              <tbody>{agents.map(a => <tr key={a.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}><td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600 }}>{a.displayName}</td><td style={{ padding: '12px 16px', fontSize: 12 }}>{a.email}</td><td style={{ padding: '12px 16px', fontSize: 12 }}>{a.phone}</td><td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 12 }}>{a.agentCode}</td><td style={{ padding: '12px 16px' }}><Badge status={a.status} /></td></tr>)}</tbody>
+            </table>
           </div>
         )}
-
+        
         {tab === 'commissions' && (
-          <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
-                <thead>
-                  <tr>
-                    {['Agent', 'Payment ref', 'Service', 'Fee', 'Commission', 'Status', 'When'].map(h => (
-                      <th key={h} style={{
-                        textAlign: 'left', padding: '12px 16px',
-                        background: '#FBFDFB', borderBottom: '1px solid rgba(10,31,18,.08)',
-                        fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase',
-                        fontWeight: 800, color: 'rgba(10,31,18,.5)'
-                      }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {commissions.map(c => (
-                    <tr key={c.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}>
-                      <td style={{ padding: '12px 16px', fontFamily: 'Consolas,monospace', fontSize: 11.5 }}>{c.agentCode}</td>
-                      <td style={{ padding: '12px 16px', fontFamily: 'Consolas,monospace', fontSize: 11.5 }}>{c.paymentRef}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12.5 }}>{c.serviceTitle}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12.5 }}>{fmtZmw(c.grossZmw)}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12.5, fontWeight: 700, color: '#E8730F' }}>
-                        {fmtZmw(c.commissionZmw)}{' '}
-                        <span style={{ fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>({c.commissionPct}%)</span>
-                      </td>
-                      <td style={{ padding: '12px 16px' }}><Badge status={c.status} /></td>
-                      <td style={{ padding: '12px 16px', fontSize: 11.5, color: 'rgba(10,31,18,.55)', whiteSpace: 'nowrap' }}>{timeAgo(c.createdAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 800 }}>
+              <thead><tr>{['Agent', 'Payment Ref', 'Fee', 'Comm', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: '12px 16px', background: '#FBFDFB', fontSize: 10.5, color: 'rgba(10,31,18,.5)' }}>{h}</th>)}</tr></thead>
+              <tbody>{commissions.map(c => <tr key={c.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}><td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 12 }}>{c.agentCode}</td><td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 12 }}>{c.paymentRef}</td><td style={{ padding: '12px 16px', fontSize: 12 }}>{fmtZmw(c.grossZmw)}</td><td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: '#E8730F' }}>{fmtZmw(c.commissionZmw)}</td><td style={{ padding: '12px 16px' }}><Badge status={c.status} /></td></tr>)}</tbody>
+            </table>
           </div>
         )}
 
         {tab === 'payouts' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {payouts.length === 0 && (
-              <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: 40, textAlign: 'center' }}>
-                <p style={{ fontSize: 13, color: 'rgba(10,31,18,.55)', margin: 0 }}>No payout requests yet.</p>
-              </div>
-            )}
-            {payouts.map(p => (
-              <div key={p.id} style={{
-                background: '#fff', border: '1px solid rgba(10,31,18,.08)',
-                borderRadius: 12, padding: '16px 20px', display: 'flex',
-                justifyContent: 'space-between', gap: 16,
-                flexWrap: 'wrap', alignItems: 'center'
-              }}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0A1F12' }}>
-                    {p.displayName}{' '}
-                    <span style={{ fontFamily: 'Consolas,monospace', fontSize: 11.5, color: 'rgba(10,31,18,.55)', marginLeft: 6 }}>
-                      ({p.agentCode})
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', marginTop: 4 }}>
-                    Requested {timeAgo(p.requestedAt)} · {p.method?.type} {p.method?.number} · {p.method?.holder} · {p.commissionIds?.length || 0} items
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  <div className="serif" style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12' }}>
-                    {fmtZmw(p.amountZmw)}
-                  </div>
-                  <Badge status={p.status} />
-                  {p.status === 'requested' && (
-                    <Btn size="sm" variant="success" onClick={() => markPaid(p)}>
-                      <i className="fas fa-check"></i> Mark paid
-                    </Btn>
-                  )}
-                </div>
-              </div>
-            ))}
+            {payouts.length === 0 && <div style={{ background: '#fff', padding: 40, textAlign: 'center', borderRadius: 12 }}>No payouts yet.</div>}
+            {payouts.map(p => <div key={p.id} style={{ background: '#fff', padding: '16px 20px', borderRadius: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}><div><div style={{ fontSize: 14, fontWeight: 800 }}>{p.displayName} ({p.agentCode})</div><div style={{ fontSize: 12, color: 'rgba(10,31,18,.6)' }}>{p.method?.type} {p.method?.number} · {timeAgo(p.requestedAt)}</div></div><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div className="serif" style={{ fontSize: 18, fontWeight: 800 }}>{fmtZmw(p.amountZmw)}</div><Badge status={p.status} />{p.status === 'requested' && <Btn size="sm" variant="success" onClick={() => markPaid(p)}>Mark Paid</Btn>}</div></div>)}
           </div>
         )}
       </section>
-
-      {/* APPROVAL MODAL */}
-      {review && <AgentReviewModal agent={review} onClose={() => setReview(null)}
-        onApprove={approveAgent} onReject={rejectAgent}
-        onSuspend={suspendAgent} onUnsuspend={unsuspendAgent} />}
-    </div>
-  );
-}
-
-function AgentReviewModal({ agent, onClose, onApprove, onReject, onSuspend, onUnsuspend }) {
-  const [code, setCode] = useState(agent.agentCode || generateAgentCode(agent.displayName));
-  const [pct, setPct] = useState(agent.commissionPct || 25);
-
-  return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 200,
-      background: 'rgba(10,31,18,.88)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 16
-    }} onClick={onClose}>
-      <div style={{
-        background: '#fff', borderRadius: 14, maxWidth: 620,
-        width: '100%', maxHeight: '92vh', overflowY: 'auto'
-      }} onClick={e => e.stopPropagation()}>
-        <div style={{
-          background: '#0A1F12', color: '#fff',
-          padding: '18px 24px', display: 'flex',
-          justifyContent: 'space-between', alignItems: 'center',
-          position: 'sticky', top: 0, zIndex: 2
-        }}>
-          <div className="serif" style={{ fontSize: 18, fontWeight: 700 }}>{agent.displayName}</div>
-          <button onClick={onClose} style={{
-            background: 'none', border: 'none', color: '#fff',
-            fontSize: 18, cursor: 'pointer'
-          }}>✕</button>
-        </div>
-        <div style={{ padding: '24px 26px' }}>
-          <Field label="Email" value={agent.email} />
-          <Field label="Phone" value={agent.phone} />
-          <Field label="Location" value={agent.location} />
-          <Field label="Status" value={<Badge status={agent.status} />} />
-          <Field label="Applied" value={timeAgo(agent.createdAt)} />
-          {agent.experience && (
-            <div style={{ marginTop: 12 }}>
-              <div className="micro" style={{ color: 'rgba(10,31,18,.5)', marginBottom: 6 }}>Experience</div>
-              <div style={{ fontSize: 13, color: 'rgba(10,31,18,.75)', lineHeight: 1.6 }}>{agent.experience}</div>
-            </div>
-          )}
-          {agent.motivation && (
-            <div style={{ marginTop: 12 }}>
-              <div className="micro" style={{ color: 'rgba(10,31,18,.5)', marginBottom: 6 }}>Motivation</div>
-              <div style={{ fontSize: 13, color: 'rgba(10,31,18,.75)', lineHeight: 1.6 }}>{agent.motivation}</div>
-            </div>
-          )}
-
-          <div style={{
-            marginTop: 24, paddingTop: 20,
-            borderTop: '1px dashed rgba(10,31,18,.1)'
-          }}>
-            <div className="micro" style={{ color: '#8A6828', marginBottom: 12 }}>Manage agent</div>
-            <Input label="Referral code (unique)" required value={code} onChange={v => setCode(v.toUpperCase())}
-              hint="Format SE-NAME-XXXX. Must not exist already." />
-            <Input label="Commission %" type="number" value={pct} onChange={v => setPct(v)}
-              hint="Default 25%. Higher % for top performers, lower for volume agents." />
-
-            {agent.status === 'pending' && (
-              <div style={{
-                background: '#FFF4E5', border: '1px solid #F0E0A0',
-                borderRadius: 8, padding: '12px 14px', marginBottom: 14,
-                fontSize: 11.5, color: '#7A5C10', lineHeight: 1.6
-              }}>
-                <strong>Next step after approval:</strong> The agent must go to <code>#/login → Create account</code> and sign up with <strong>{agent.email}</strong>. Their auth account will auto-link to this record.
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <Btn onClick={() => onApprove(agent, code, pct)} variant="success">
-                <i className="fas fa-check"></i> {agent.status === 'pending' ? 'Approve agent' : 'Save changes'}
-              </Btn>
-              {agent.status === 'active' && (
-                <Btn onClick={() => onSuspend(agent)} variant="warning">
-                  <i className="fas fa-pause"></i> Suspend
-                </Btn>
-              )}
-              {agent.status === 'suspended' && (
-                <Btn onClick={() => onUnsuspend(agent)} variant="primary">
-                  <i className="fas fa-play"></i> Unsuspend
-                </Btn>
-              )}
-              {agent.status === 'pending' && (
-                <Btn onClick={() => onReject(agent)} variant="danger">
-                  <i className="fas fa-xmark"></i> Reject
-                </Btn>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -2256,34 +1040,25 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  // On load, load current agent (if signed in)
+  const loadAgent = async (user) => {
+    if (!user) { setAgent(null); setBootChecked(true); return; }
+    try {
+      let snap = await db.collection(SE_AGENTS).doc(user.uid).get();
+      if (snap.exists) {
+        setAgent({ id: user.uid, ...snap.data() });
+      } else {
+        setAgent(null);
+      }
+    } catch (e) { setAgent(null); }
+    setBootChecked(true);
+  };
+
   useEffect(() => {
     if (!fbReady || !auth) { setBootChecked(true); return; }
-    const unsub = auth.onAuthStateChanged(async user => {
-      if (user) {
-        try {
-          let snap = await db.collection(SE_AGENTS).doc(user.uid).get();
-          if (snap.exists) {
-            setAgent({ id: user.uid, ...snap.data() });
-          } else {
-            // Try by email
-            const q = await db.collection(SE_AGENTS)
-              .where('email', '==', (user.email || '').toLowerCase()).limit(1).get();
-            if (!q.empty) {
-              setAgent({ id: q.docs[0].id, ...q.docs[0].data() });
-              if (!q.docs[0].data().uid) {
-                await q.docs[0].ref.update({ uid: user.uid }).catch(() => {});
-              }
-            } else setAgent(null);
-          }
-        } catch (e) { setAgent(null); }
-      } else setAgent(null);
-      setBootChecked(true);
-    });
+    const unsub = auth.onAuthStateChanged(loadAgent);
     return unsub;
   }, []);
 
-  // Parse route
   const raw = (hash || '#/').replace(/^#\/?/, '');
   const parts = raw.split('/').filter(Boolean);
   const route = parts[0] || '';
@@ -2294,60 +1069,31 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
-  const onSignOut = async () => {
-    try { await auth.signOut(); } catch (e) {}
-    setAgent(null);
-    go('');
-  };
-
-  const onAuth = () => {
-    // Force reload agent from Firestore
-    if (!auth.currentUser) return;
-    (async () => {
-      const u = auth.currentUser;
-      let snap = await db.collection(SE_AGENTS).doc(u.uid).get();
-      if (snap.exists) { setAgent({ id: u.uid, ...snap.data() }); go('dashboard'); return; }
-      const q = await db.collection(SE_AGENTS)
-        .where('email', '==', (u.email || '').toLowerCase()).limit(1).get();
-      if (!q.empty) {
-        setAgent({ id: q.docs[0].id, ...q.docs[0].data() });
-        go('dashboard');
-      }
-    })();
-  };
+  const onSignOut = async () => { await auth.signOut(); setAgent(null); go(''); };
+  const onAuth = () => { loadAgent(auth.currentUser); go('dashboard'); };
 
   if (!bootChecked) return <Spinner label="Loading…" />;
+  if (route === 'r' && routeArg) return <RedirectHandler code={routeArg.toUpperCase()} />;
+  if (route === 'admin') return <AdminPage go={go} />;
 
-  // Redirect handler does NOT render chrome
-  if (route === 'r' && routeArg) {
-    return <RedirectHandler code={routeArg.toUpperCase()} navigate={h => { window.location.hash = h; }} />;
-  }
-  if (route === 'admin') {
-    return <AdminPage go={go} />;
-  }
-
-  let page;
-  if (route === 'apply') page = <ApplyPage go={go} />;
+  let page = <Landing go={go} />;
+  if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
   else if (route === 'login') page = <LoginPage go={go} onAuth={onAuth} />;
   else if (route === 'dashboard') {
     if (!agent) page = <LoginPage go={go} onAuth={onAuth} />;
     else page = <Dashboard go={go} onSignOut={onSignOut} agent={agent} setAgent={setAgent} />;
   }
   else if (route === 'terms') page = <TermsPage />;
-  else page = <Landing go={go} />;
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Nav route={route} go={go} agent={agent} onSignOut={onSignOut} />
       <main style={{ flex: 1 }}>{page}</main>
-      <Footer />
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <ErrorBoundary><App /></ErrorBoundary>
-);
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
 </body>
 </html>
