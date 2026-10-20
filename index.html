@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StartEasy Agent Opportunity</title>
+<title>StartEasy Agent Engagement</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -64,14 +64,12 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
   content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px;
   background: var(--orange-2); border-radius: 99px;
 }
-
 .header-btn {
   background: linear-gradient(135deg,var(--orange),var(--orange-2));
   color: #fff; border: none; border-radius: 8px; padding: 8px 16px;
   font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
   white-space: nowrap;
 }
-
 .header-mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 8px; }
 
 @media (max-width: 768px) {
@@ -85,55 +83,47 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
   .header-mobile-menu .header-link { font-size: 15px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
 }
 
-/* ENGAGEMENT DOCUMENT STYLES */
-.doc-wrapper {
-  background: #fff; border: 1px solid #D0D0D0; border-radius: 8px;
-  padding: 32px; max-width: 760px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,.05);
+/* EXACT MAIN PLATFORM ENGAGEMENT LETTER CSS */
+.el{
+  background:#fff; border:1px solid #D0D0D0; border-radius:8px;
+  padding:34px 42px; font-size:13px; line-height:1.65; color:#222;
+  box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 800px; margin: 0 auto;
 }
-.doc-header {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  padding-bottom: 18px; border-bottom: 3px solid var(--forest); margin-bottom: 24px;
-}
-.doc-brand { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--forest); letter-spacing: 1px; }
-.doc-brand em { font-style: normal; color: var(--orange); }
-.doc-sub { font-size: 9.5px; color: #8A6828; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-top: 4px; }
-.doc-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 800; color: var(--orange); letter-spacing: 1.2px; text-align: right; }
-.doc-meta { font-size: 11px; color: #666; text-align: right; margin-top: 6px; }
-
-.doc-body { font-size: 13px; line-height: 1.7; color: #333; }
-.doc-body p { margin: 0 0 16px; }
-.doc-body strong { color: var(--forest); }
-.doc-section-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--forest); font-weight: 700; margin: 24px 0 12px; }
+.el .eh{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:3px solid #0A1F12;margin-bottom:22px;flex-wrap:wrap}
+.el .eh .brand{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:800;color:#0A1F12;letter-spacing:1px}
+.el .eh .brand em{font-style:normal;color:#E8730F}
+.el .eh .sub{font-size:9.5px;color:#8A6828;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
+.el .eh .dt{font-family:'Playfair Display',Georgia,serif;font-size:14px;font-weight:800;color:#E8730F;letter-spacing:1.2px;text-align:right}
+.el .eh .mt{font-size:11px;color:#666;text-align:right;margin-top:6px}
+.el h4{font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#0A1F12;font-weight:700;margin:22px 0 10px}
+.el h4:first-of-type{margin-top:0}
+.el p{margin:0 0 12px}
+.el ul{margin:0 0 14px;padding-left:22px}
+.el li{margin-bottom:6px;font-size:12.5px}
+.el .total{margin-top:8px;padding-top:14px;border-top:2px solid #0A1F12;display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.el .total .tl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#8A6828}
+.el .total .tv{font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:800;color:#E8730F}
+.el .sign{margin-top:26px;padding-top:20px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.el .sign .sigval{font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding-bottom:8px;border-bottom:1px solid #333;margin-bottom:10px;min-height:38px}
+.el .sign .siginput{width:100%;font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding:0 0 8px;border:none;border-bottom:1px solid #333;background:transparent;outline:none;margin-bottom:10px;min-height:38px;transition:border-color .2s}
+.el .sign .siginput:focus{border-bottom-color:#E8730F}
+.el .sign .siginput::placeholder{font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:500;font-style:normal;letter-spacing:normal;color:rgba(10,31,18,.4)}
+.el .sign .lbl{font-size:10.5px;color:#666;font-weight:600}
+.el .ft{margin-top:22px;padding-top:16px;border-top:2px solid #0A1F12;font-size:10.5px;color:#666;line-height:1.6}
 
 .doc-input-line {
-  display: inline-block; border-bottom: 1px dashed #999; min-width: 150px;
-  padding: 0 6px; font-family: inherit; font-size: 13px; color: var(--forest);
-  background: #F9FBFA; border-top: none; border-left: none; border-right: none;
+  border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size: 13px;
+  color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none;
+  width: 100%; margin-top: 4px; padding: 6px;
 }
 .doc-input-line:focus { background: #fff; border-bottom: 1px solid var(--orange); }
 
-.doc-signature-block {
-  margin-top: 32px; padding-top: 24px; border-top: 1px solid #E0E0E0;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-}
 @media (max-width: 600px) {
-  .doc-wrapper { padding: 20px; }
-  .doc-signature-block { grid-template-columns: 1fr; gap: 20px; }
-  .doc-header { flex-direction: column; gap: 10px; }
-  .doc-title, .doc-meta { text-align: left; }
+  .el { padding: 20px; }
+  .el .sign { grid-template-columns: 1fr; gap: 20px; }
+  .el .eh { flex-direction: column; gap: 10px; }
+  .el .eh .dt, .el .eh .mt { text-align: left; }
 }
-.sig-line {
-  font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic;
-  color: var(--forest); border-bottom: 1px solid #333; padding-bottom: 8px;
-  margin-bottom: 8px; min-height: 38px;
-}
-.sig-input {
-  width: 100%; font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic;
-  color: var(--forest); border: none; border-bottom: 1px solid #333; background: transparent;
-  padding-bottom: 8px; margin-bottom: 8px; min-height: 38px;
-}
-.sig-input:focus { border-bottom-color: var(--orange); }
-.sig-label { font-size: 10.5px; color: #666; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -227,14 +217,6 @@ const calcCommission = (type, gross) => {
 };
 
 /* ---------------- ATTRIBUTION ---------------- */
-const readAttribution = () => {
-  try {
-    const raw = JSON.parse(localStorage.getItem(REF_KEY) || 'null');
-    if (!raw || !raw.code) return null;
-    if (Date.now() - raw.at > CONFIG.attributionDays * 24 * 3600 * 1000) return null;
-    return raw;
-  } catch (e) { return null; }
-};
 const storeAttribution = code => {
   try {
     const c = String(code).toUpperCase().trim();
@@ -256,88 +238,6 @@ const logReferralClick = async code => {
         if (!s.exists) return;
         t.update(ref, { 'totals.clicks': ((s.data().totals || {}).clicks || 0) + 1 });
       });
-    }
-  } catch (e) {}
-};
-
-/* ---------------- COMMISSION ENGINE ---------------- */
-const createCommissionForPayment = async (payment, agent) => {
-  if (!fbReady || !payment.ref || !agent) return { ok: false };
-  const existing = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', payment.ref).limit(1).get();
-  if (!existing.empty) return { ok: true, skipped: true };
-
-  const gross = parseFloat(String(payment.amount || '0').replace(/[^\d.]/g, '')) || 0;
-  if (gross <= 0) return { ok: false };
-
-  const serviceType = resolveServiceType(payment);
-  const { pct, amount } = calcCommission(serviceType, gross);
-
-  const commission = {
-    agentId: agent.id, agentCode: agent.agentCode, paymentRef: payment.ref,
-    serviceCode: payment.serviceCode || '', serviceTitle: payment.serviceTitle || '',
-    serviceType, grossZmw: gross, commissionPct: pct, commissionZmw: amount,
-    status: 'pending', createdAt: Date.now(), approvedAt: Date.now(),
-    clearAt: Date.now() + CONFIG.clearingDays * 24 * 3600 * 1000, paidAt: null, payoutId: null
-  };
-
-  const added = await db.collection(SE_COMMISSIONS).add(commission);
-  await db.runTransaction(async t => {
-    const ref = db.collection(SE_AGENTS).doc(agent.id);
-    const s = await t.get(ref);
-    if (!s.exists) return;
-    const tot = s.data().totals || {};
-    t.update(ref, {
-      'totals.conversions': (tot.conversions || 0) + 1,
-      'totals.pendingZmw': (tot.pendingZmw || 0) + amount
-    });
-  });
-  return { ok: true, commission: { id: added.id, ...commission } };
-};
-
-const cancelCommissionForPayment = async paymentRef => {
-  if (!fbReady || !paymentRef) return { ok: false };
-  try {
-    const snap = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', paymentRef).limit(1).get();
-    if (snap.empty) return { ok: true };
-    const doc = snap.docs[0]; const c = doc.data();
-    if (c.status === 'paid') return { ok: false };
-    await doc.ref.update({ status: 'cancelled', reversedAt: Date.now() });
-    await db.runTransaction(async t => {
-      const ref = db.collection(SE_AGENTS).doc(c.agentId);
-      const s = await t.get(ref);
-      if (!s.exists) return;
-      const tot = s.data().totals || {};
-      t.update(ref, {
-        'totals.pendingZmw': Math.max(0, (tot.pendingZmw || 0) - c.commissionZmw),
-        'totals.conversions': Math.max(0, (tot.conversions || 0) - 1)
-      });
-    });
-    return { ok: true };
-  } catch (e) { return { ok: false }; }
-};
-
-const syncCommissions = async () => {
-  if (!fbReady) return;
-  try {
-    const paysSnap = await db.collection(SE_PAYMENTS).where('status', '==', 'approved').orderBy('submittedAt', 'desc').limit(500).get();
-    for (const d of paysSnap.docs) {
-      const pay = d.data();
-      if (!pay.referralCode) continue;
-      const cSnap = await db.collection(SE_COMMISSIONS).where('paymentRef', '==', pay.ref).limit(1).get();
-      if (!cSnap.empty) continue;
-      const q = await db.collection(SE_AGENTS).where('agentCode', '==', pay.referralCode).limit(1).get();
-      if (q.empty) continue;
-      const agent = { id: q.docs[0].id, ...q.docs[0].data() };
-      if (agent.status !== 'active') continue;
-      if (pay.clientEmail && agent.email && pay.clientEmail.toLowerCase() === agent.email.toLowerCase()) continue;
-      if (pay.clientPhone && agent.phone && pay.clientPhone.replace(/\D/g, '') === agent.phone.replace(/\D/g, '')) continue;
-      await createCommissionForPayment({ ...pay, id: d.id }, agent);
-    }
-    
-    const cancelSnap = await db.collection(SE_PAYMENTS).where('status', 'in', ['reverted', 'declined']).orderBy('submittedAt', 'desc').limit(200).get();
-    for (const d of cancelSnap.docs) {
-      const pay = d.data();
-      if (pay.ref) await cancelCommissionForPayment(pay.ref);
     }
   } catch (e) {}
 };
@@ -372,8 +272,7 @@ const Badge = ({ status }) => {
     active: { label: 'Active', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
     pending: { label: 'Pending', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
     earned: { label: 'Earned', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
-    paid: { label: 'Paid', color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' },
-    requested: { label: 'Requested', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' }
+    paid: { label: 'Paid', color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' }
   }[status] || { label: status, color: '#666', bg: '#eee', icon: 'fa-circle' };
   return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 99, fontSize: 10.5, fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase', background: m.bg, color: m.color, border: `1px solid ${m.color}33` }}><i className={`fas ${m.icon}`}></i> {m.label}</span>;
 };
@@ -389,7 +288,7 @@ const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
   </div>
 );
 
-/* ---------------- NAV (BULLETPROOF) ---------------- */
+/* ---------------- NAV ---------------- */
 function Nav({ route, go, agent, onSignOut }) {
   const [open, setOpen] = useState(false);
   return (
@@ -454,32 +353,16 @@ function Landing({ go }) {
             Share StartEasy. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Earn on every sale.</em>
           </h1>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
-            Sign your engagement agreement to get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement, you earn a commission.
+            Sign your opportunity engagement agreement to get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement, you earn a commission.
           </p>
-          <Btn size="lg" variant="primary" onClick={() => go('join')}>Sign & Generate Code <i className="fas fa-arrow-right"></i></Btn>
-        </div>
-      </section>
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '56px 24px' }}>
-        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 20 }}>How it works</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
-          {[
-            { t: '1. Sign', d: 'Fill out the engagement form. Takes 2 minutes.' },
-            { t: '2. Get Code', d: 'Your unique referral link is generated instantly.' },
-            { t: '3. Share', d: 'Share it with clients, on WhatsApp, or social media.' },
-            { t: '4. Earn', d: 'Get paid commission on every approved sale.' }
-          ].map((x, i) => (
-            <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)' }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, color: '#0A1F12', marginBottom: 8 }}>{x.t}</h3>
-              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: 0, lineHeight: 1.5 }}>{x.d}</p>
-            </div>
-          ))}
+          <Btn size="lg" variant="primary" onClick={() => go('join')}>View Agreement & Get Code <i className="fas fa-arrow-right"></i></Btn>
         </div>
       </section>
     </div>
   );
 }
 
-/* INSTANT ONBOARDING: ENGAGEMENT DOCUMENT */
+/* INSTANT ONBOARDING: OFFICIAL AGREEMENT */
 function JoinPage({ go, onAuth }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '', location: '', password: '' });
   const [agreed, setAgreed] = useState(false);
@@ -488,7 +371,7 @@ function JoinPage({ go, onAuth }) {
 
   const submit = async () => {
     setErr('');
-    if (!form.name.trim()) return setErr('Please enter your full name.');
+    if (!form.name.trim()) return setErr('Please type your full name on the signature line.');
     if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setErr('Please enter a valid email.');
     if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 9) return setErr('Please enter a valid phone number.');
     if (!form.location) return setErr('Please select your location.');
@@ -526,81 +409,87 @@ function JoinPage({ go, onAuth }) {
 
   return (
     <div style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <h1 className="serif" style={{ fontSize: 'clamp(1.8rem,4vw,2.4rem)', color: '#0A1F12', marginBottom: 8 }}>Agent Engagement Agreement</h1>
-          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.6)' }}>Complete the details below to sign your agreement and instantly generate your referral code.</p>
+      
+      {/* EXACT MAIN PLATFORM LETTER STYLE */}
+      <div className="el fadein printable">
+        <div className="eh">
+          <div>
+            <div className="brand">Start<em>Easy</em></div>
+            <div className="sub">Administrative Services Desk · Zambia</div>
+          </div>
+          <div>
+            <div className="dt">OPPORTUNITY ENGAGEMENT</div>
+            <div className="mt">
+              {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br/>
+              Ref: SE-AGT-{new Date().getFullYear()}-{String(Math.floor(Math.random()*9000)+1000)}
+            </div>
+          </div>
         </div>
 
-        <div className="doc-wrapper fadein">
-          <div className="doc-header">
-            <div>
-              <div className="doc-brand">Start<em>Easy</em></div>
-              <div className="doc-sub">Administrative Services Desk · Zambia</div>
-            </div>
-            <div>
-              <div className="doc-title">AGENT ENGAGEMENT</div>
-              <div className="doc-meta">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br/>Status: Pending Signature</div>
-            </div>
+        <p><strong>Dear Agent,</strong></p>
+        <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
+
+        <h4>1. Nature of Engagement</h4>
+        <p>You are joining as an independent Referral Agent. This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
+
+        <h4>2. Commission & Payouts</h4>
+        <p>You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions clear after a 7-day period and can be withdrawn to your mobile money or bank account once your balance reaches K200.</p>
+
+        <h4>3. Agent Details</h4>
+        <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
+          <span>
+            <strong>Email Address:</strong><br/>
+            <input className="doc-input-line" type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+          </span>
+          <span>
+            <strong>Phone / WhatsApp:</strong><br/>
+            <input className="doc-input-line" placeholder="+260..." value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+          </span>
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong>Location:</strong><br/>
+          <select className="doc-input-line" value={form.location} onChange={e => setForm({...form, location: e.target.value})}>
+            <option value="">Choose location...</option>
+            {['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora'].map(l => <option key={l} value={l}>{l}</option>)}
+          </select>
+        </p>
+
+        <h4>4. Acceptance</h4>
+        <p>To proceed, create a password for your dashboard, confirm your agreement below, and sign on the right.</p>
+        
+        <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
+          <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
+            <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
+            <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand this is a commission-only independent contractor agreement.</span>
+          </label>
+          
+          <div style={{ marginTop: 16 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '.05em' }}>Create Dashboard Password:</label>
+            <input type="password" className="doc-input-line" placeholder="Min 6 characters" value={form.password} onChange={e => setForm({...form, password: e.target.value})} />
           </div>
+        </div>
 
-          <div className="doc-body">
-            <p>This Engagement is entered into between <strong>StartEasy Zambia</strong> ("The Company") and <strong><input className="doc-input-line" placeholder="[Your Full Name]" value={form.name} onChange={e => setForm({...form, name: e.target.value})} style={{ width: 200 }} /></strong> ("The Agent").</p>
-            
-            <div className="doc-section-title">1. Nature of Engagement</div>
-            <p>The Agent is engaged as an independent contractor. This is an opportunity to earn commissions based on sales performance. It is <strong>not</strong> an employment contract, and there is no salary, no guaranteed income, and no employee benefits.</p>
-
-            <div className="doc-section-title">2. Commission & Payouts</div>
-            <p>The Agent will earn a fixed percentage commission on the StartEasy service fees of approved sales they refer. Commissions clear after 7 days and can be withdrawn to a mobile money or bank account once the balance reaches K200.</p>
-
-            <div className="doc-section-title">3. Agent Details</div>
-            <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <span>
-                <strong>Email:</strong><br/>
-                <input className="doc-input-line" type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} style={{ width: '100%' }} />
-              </span>
-              <span>
-                <strong>Phone:</strong><br/>
-                <input className="doc-input-line" placeholder="+260..." value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} style={{ width: '100%' }} />
-              </span>
-            </p>
-            <p style={{ marginTop: 8 }}>
-              <strong>Location:</strong><br/>
-              <select className="doc-input-line" value={form.location} onChange={e => setForm({...form, location: e.target.value})} style={{ width: '100%', background: 'transparent' }}>
-                <option value="">Choose location...</option>
-                {['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora'].map(l => <option key={l} value={l}>{l}</option>)}
-              </select>
-            </p>
-
-            <div className="doc-signature-block">
-              <div>
-                <div className="sig-line">StartEasy Zambia</div>
-                <div className="sig-label">For the Company</div>
-              </div>
-              <div>
-                <input className="sig-input" placeholder="Type your full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-                <div className="sig-label">For the Agent</div>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 24, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
-              <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-                <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
-                <span style={{ fontSize: 12, lineHeight: 1.5 }}>I agree to the engagement terms above and understand this is a commission-only independent contractor agreement.</span>
-              </label>
-              
-              <div style={{ marginTop: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Create a password to secure your dashboard:</label>
-                <input type="password" className="doc-input-line" style={{ width: '100%', padding: 10, border: '1px solid #ccc', borderRadius: 6 }} placeholder="Min 6 characters" value={form.password} onChange={e => setForm({...form, password: e.target.value})} />
-              </div>
-            </div>
-
-            {err && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 16, fontSize: 13, fontWeight: 600 }}>{err}</div>}
-
-            <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
-              {busy ? 'Generating Code...' : 'Sign & Generate My Referral Code'}
-            </Btn>
+        {/* THE SIGNATURES */}
+        <div className="sign">
+          <div>
+            {/* MWABA LEWIS IS ALREADY SIGNED HERE */}
+            <div className="sigval">MWABA LEWIS</div>
+            <div className="lbl">For StartEasy</div>
           </div>
+          <div>
+            <input className="siginput" placeholder="Type your full name to sign" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+            <div className="lbl">For the Agent</div>
+          </div>
+        </div>
+
+        {err && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{err}</div>}
+
+        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
+          {busy ? 'Generating Code...' : 'Sign & Generate My Referral Code'}
+        </Btn>
+
+        <div className="ft">
+          <strong>StartEasy</strong> · Lusaka, Zambia · referrals@starteasyzambia.com · +260 762499581
         </div>
       </div>
     </div>
