@@ -57,7 +57,7 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 .header-link {
   background: none; border: none; cursor: pointer; font-family: inherit;
   font-size: 13px; font-weight: 500; color: rgba(255,255,255,.6);
-  padding: 6px 0; position: relative; text-decoration: none;
+  padding: 6px 0; position: relative; text-decoration: none; white-space: nowrap;
 }
 .header-link.active { color: var(--orange-2); font-weight: 700; }
 .header-link.active::after {
@@ -72,15 +72,18 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 }
 .header-mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 8px; }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .header-nav { display: none; }
   .header-btn { display: none; }
   .header-mobile-toggle { display: block; }
   .header-mobile-menu {
-    background: #0A1F12; padding: 16px; border-top: 1px solid rgba(255,255,255,.1);
-    display: flex; flex-direction: column; gap: 12px;
+    background: #0A1F12; padding: 16px 24px 24px; border-top: 1px solid rgba(255,255,255,.1);
+    display: flex; flex-direction: column; gap: 16px;
+    position: absolute; top: 64px; left: 0; right: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.5);
   }
-  .header-mobile-menu .header-link { font-size: 15px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .header-mobile-menu .header-link { font-size: 15px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .header-mobile-menu .header-btn { display: block; width: 100%; text-align: center; padding: 14px; font-size: 15px; margin-top: 8px; }
 }
 
 /* EXACT MAIN PLATFORM ENGAGEMENT LETTER CSS */
@@ -100,9 +103,6 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 .el p{margin:0 0 12px}
 .el ul{margin:0 0 14px;padding-left:22px}
 .el li{margin-bottom:6px;font-size:12.5px}
-.el .total{margin-top:8px;padding-top:14px;border-top:2px solid #0A1F12;display:flex;justify-content:space-between;align-items:baseline;gap:16px}
-.el .total .tl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#8A6828}
-.el .total .tv{font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:800;color:#E8730F}
 .el .sign{margin-top:26px;padding-top:20px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:30px}
 .el .sign .sigval{font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding-bottom:8px;border-bottom:1px solid #333;margin-bottom:10px;min-height:38px}
 .el .sign .siginput{width:100%;font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding:0 0 8px;border:none;border-bottom:1px solid #333;background:transparent;outline:none;margin-bottom:10px;min-height:38px;transition:border-color .2s}
@@ -123,6 +123,14 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
   .el .sign { grid-template-columns: 1fr; gap: 20px; }
   .el .eh { flex-direction: column; gap: 10px; }
   .el .eh .dt, .el .eh .mt { text-align: left; }
+}
+
+/* PRINT CSS */
+@media print {
+  body * { visibility: hidden; }
+  .printable, .printable * { visibility: visible; }
+  .printable { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: #fff; box-shadow: none; border: none; }
+  .no-print { display: none !important; }
 }
 </style>
 </head>
@@ -146,6 +154,7 @@ const CONFIG = {
   },
   mainSiteUrl: 'https://starteasyzambia.com',
   adminWhatsapp: '260762499581',
+  contactEmail: 'referrals@starteasyzambia.com',
   attributionDays: 30,
   minPayoutZmw: 200,
   clearingDays: 7,
@@ -173,14 +182,6 @@ try {
 /* ---------------- HELPERS ---------------- */
 const fmtZmw = n => 'K' + (Number(n) || 0).toFixed(2);
 const fmtInt = n => String(Number(n) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-const timeAgo = ts => {
-  if (!ts) return '';
-  const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return 'just now';
-  if (s < 3600) return Math.floor(s / 60) + 'm ago';
-  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-  return Math.floor(s / 86400) + 'd ago';
-};
 const copyText = async t => {
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(t); return true; }
@@ -196,23 +197,6 @@ const baseUrl = () => window.location.origin + window.location.pathname.replace(
 const generateAgentCode = name => {
   const clean = String(name || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 8) || 'AGENT';
   return 'SE-' + clean + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
-};
-const resolveServiceType = payment => {
-  const code = String(payment.serviceCode || '').toUpperCase();
-  if (code === 'P0' || code === 'P1') return 'micro';
-  if (code === 'P2') return 'complex';
-  if (code === 'C1') return 'checkup';
-  if (code === 'C2') return 'regularise';
-  if (code === 'C3') return 'ongoing_managed';
-  if (code.startsWith('V-')) return 'venture';
-  if (payment.ongoing === 'managed') return 'ongoing_managed';
-  if (payment.ongoing === 'standard') return 'ongoing_standard';
-  if (payment.ongoing === 'filing') return 'ongoing_filing';
-  return 'standard';
-};
-const calcCommission = (type, gross) => {
-  const pct = CONFIG.commissionTable[type] || 20;
-  return { pct, amount: Math.round(gross * pct) / 100 };
 };
 
 /* ---------------- ATTRIBUTION ---------------- */
@@ -242,10 +226,6 @@ const logReferralClick = async code => {
 };
 
 /* ---------------- UI COMPONENTS ---------------- */
-const Mark = ({ size = 36 }) => (
-  <span style={{ width: size, height: size, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', fontFamily: "'Playfair Display',serif", fontWeight: 800, fontSize: size * 0.5, flexShrink: 0 }}>S</span>
-);
-
 const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style, type = 'button' }) => {
   const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
   const sizes = { sm: { padding: '8px 14px', fontSize: 12 }, md: { padding: '11px 20px', fontSize: 13.5 }, lg: { padding: '14px 24px', fontSize: 14.5 } };
@@ -286,13 +266,19 @@ const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
   </div>
 );
 
-/* ---------------- NAV ---------------- */
+/* ---------------- NAVIGATION ---------------- */
 function Nav({ route, go, agent, onSignOut }) {
   const [open, setOpen] = useState(false);
+  
+  const handleNav = (r) => {
+    setOpen(false);
+    go(r);
+  };
+
   return (
     <header className="site-header">
       <div className="header-container">
-        <button onClick={() => go('')} className="header-logo">
+        <button onClick={() => handleNav('')} className="header-logo">
           <div className="header-logo-mark">S</div>
           <div className="header-logo-text">
             <span className="header-logo-sub">Agent Opportunity</span>
@@ -301,16 +287,20 @@ function Nav({ route, go, agent, onSignOut }) {
         </button>
 
         <nav className="header-nav">
-          <button onClick={() => go('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
+          <button onClick={() => handleNav('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
+          <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works</button>
+          <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
+          <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support</button>
+          <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
           {agent ? (
             <>
-              <button onClick={() => go('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>Dashboard</button>
+              <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>Dashboard</button>
               <button onClick={onSignOut} className="header-btn" style={{ background: 'rgba(255,255,255,.1)' }}>Sign Out</button>
             </>
           ) : (
             <>
-              <button onClick={() => go('join')} className={`header-link ${route === 'join' ? 'active' : ''}`}>Get Code</button>
-              <button onClick={() => go('login')} className="header-btn">Sign In</button>
+              <button onClick={() => handleNav('login')} className="header-link">Sign In</button>
+              <button onClick={() => handleNav('join')} className="header-btn">Get Code</button>
             </>
           )}
         </nav>
@@ -322,16 +312,20 @@ function Nav({ route, go, agent, onSignOut }) {
 
       {open && (
         <div className="header-mobile-menu">
-          <button onClick={() => { setOpen(false); go(''); }} className="header-link">Home</button>
+          <button onClick={() => handleNav('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
+          <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works & Earnings</button>
+          <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
+          <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support / Contact</button>
+          <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '8px 0' }}></div>
           {agent ? (
             <>
-              <button onClick={() => { setOpen(false); go('dashboard'); }} className="header-link">Dashboard</button>
+              <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>My Dashboard</button>
               <button onClick={() => { setOpen(false); onSignOut(); }} className="header-link" style={{ color: '#B8564F' }}>Sign Out</button>
             </>
           ) : (
             <>
-              <button onClick={() => { setOpen(false); go('join'); }} className="header-link">Get Code</button>
-              <button onClick={() => { setOpen(false); go('login'); }} className="header-link">Sign In</button>
+              <button onClick={() => handleNav('login')} className={`header-link ${route === 'login' ? 'active' : ''}`}>Sign In</button>
+              <button onClick={() => handleNav('join')} className="header-btn">Sign Agreement & Get Code</button>
             </>
           )}
         </div>
@@ -346,21 +340,170 @@ function Landing({ go }) {
     <div className="fadein">
       <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '64px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <span style={{ fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', fontWeight: 800, color: '#F5A623', display: 'block', marginBottom: 16 }}>StartEasy Referral Program</span>
+          <span style={{ fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', fontWeight: 800, color: '#F5A623', display: 'block', marginBottom: 16 }}>StartEasy Zambia</span>
           <h1 className="serif" style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', lineHeight: 1.1, marginBottom: 20 }}>
             Share StartEasy. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Earn on every sale.</em>
           </h1>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
             Sign your opportunity engagement agreement to get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement, you earn a commission.
           </p>
-          <Btn size="lg" variant="primary" onClick={() => go('join')}>View Agreement & Get Code <i className="fas fa-arrow-right"></i></Btn>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Btn size="lg" variant="primary" onClick={() => go('join')}>Sign Agreement & Get Code</Btn>
+            <Btn size="lg" variant="ghost" onClick={() => go('how-it-works')}>See How It Works</Btn>
+          </div>
         </div>
       </section>
     </div>
   );
 }
 
-/* INSTANT ONBOARDING: OFFICIAL AGREEMENT */
+function HowItWorks({ go }) {
+  return (
+    <div className="fadein" style={{ background: '#F5FAF6', paddingBottom: 60 }}>
+      <section style={{ background: '#0A1F12', color: '#fff', padding: '48px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+          <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', marginBottom: 16 }}>How It Works</h1>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.7)', lineHeight: 1.7 }}>
+            Understand exactly how your referral link tracks customers, and how you earn commissions from every service StartEasy provides.
+          </p>
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
+        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 24 }}>Your 4-Step Earning Process</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 48 }}>
+          {[
+            { n: '01', t: 'Sign & Get Code', d: 'Fill out the engagement agreement. Your unique referral link is generated instantly.' },
+            { n: '02', t: 'Share Your Link', d: 'Share it on WhatsApp, social media, email, or in person with potential clients.' },
+            { n: '03', t: 'They Buy', d: 'When they click your link, the system tracks them for 30 days. If they pay, it is attributed to you.' },
+            { n: '04', t: 'You Earn', d: 'Once the payment clears (7 days), your commission is credited to your dashboard.' }
+          ].map((x, i) => (
+            <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', borderTopWidth: 4, borderTopColor: '#E8730F' }}>
+              <div className="serif" style={{ fontSize: 14, color: '#E8730F', fontWeight: 800, marginBottom: 8 }}>{x.n}</div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>{x.t}</h3>
+              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.65)', lineHeight: 1.6, margin: 0 }}>{x.d}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 12 }}>Commission Structure</h2>
+        <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', marginBottom: 20, maxWidth: 700 }}>
+          You earn a percentage of the <strong>StartEasy service fee</strong> (excluding government fees) for every successful referral. Below is the breakdown of what you earn per service category.
+        </p>
+        
+        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden', marginBottom: 40 }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+              <thead>
+                <tr>
+                  {['Service Tier', 'Examples', 'Service Fee', 'Your Commission', 'You Earn'].map(h => (
+                    <th key={h} style={{ textAlign: 'left', padding: '14px 18px', background: '#0A1F12', fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(255,255,255,.7)' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { tier: 'Micro / Wizard', ex: 'Name Clearance, Structure Adv.', fee: 'K25', pct: '40%', earn: 'K10' },
+                  { tier: 'Basic', ex: 'TPIN, Employer Reg.', fee: 'K250', pct: '30%', earn: 'K75' },
+                  { tier: 'Standard', ex: 'Business Name, Tax Returns', fee: 'K400', pct: '25%', earn: 'K100' },
+                  { tier: 'Complex', ex: 'Company Incorporation', fee: 'K750', pct: '22%', earn: 'K165' },
+                  { tier: 'Check-Up', ex: 'Compliance Audit', fee: 'K750', pct: '22%', earn: 'K165' },
+                  { tier: 'Regularisation', ex: 'Tax/Compliance Clean-up', fee: 'from K1,500', pct: '18%', earn: 'from K270' },
+                  { tier: 'Venture Services', ex: 'Business Plan, Brand', fee: 'K600 - K1,200', pct: '20%', earn: 'K120 - K240' },
+                  { tier: 'Ongoing Services', ex: 'Monthly Filing', fee: 'K250 - K1,200', pct: '15% - 20%', earn: 'K50 - K180' }
+                ].map((r, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid rgba(10,31,18,.06)' }}>
+                    <td style={{ padding: '14px 18px', fontSize: 13, fontWeight: 700, color: '#0A1F12' }}>{r.tier}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 12.5, color: 'rgba(10,31,18,.6)' }}>{r.ex}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.fee}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.pct}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, fontWeight: 800, color: '#E8730F' }}>{r.earn}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style={{ background: 'linear-gradient(135deg,#FFF9E6,#FFFCF0)', border: '1.5px solid #F0E0A0', borderRadius: 12, padding: '24px 28px', marginBottom: 40 }}>
+          <h3 className="serif" style={{ fontSize: 18, color: '#0A1F12', marginBottom: 12 }}>Getting Paid</h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <li style={{ display: 'flex', gap: 12, fontSize: 14, color: 'rgba(10,31,18,.8)', alignItems: 'flex-start' }}>
+              <i className="fas fa-check-circle" style={{ color: '#E8730F', marginTop: 3 }}></i>
+              <span><strong>Clearing Period:</strong> Commissions become "Earned" 7 days after the client's payment is approved.</span>
+            </li>
+            <li style={{ display: 'flex', gap: 12, fontSize: 14, color: 'rgba(10,31,18,.8)', alignItems: 'flex-start' }}>
+              <i className="fas fa-check-circle" style={{ color: '#E8730F', marginTop: 3 }}></i>
+              <span><strong>Minimum Payout:</strong> You can request a withdrawal once your available balance reaches K200.</span>
+            </li>
+            <li style={{ display: 'flex', gap: 12, fontSize: 14, color: 'rgba(10,31,18,.8)', alignItems: 'flex-start' }}>
+              <i className="fas fa-check-circle" style={{ color: '#E8730F', marginTop: 3 }}></i>
+              <span><strong>Payment Methods:</strong> Payouts are sent directly to your Airtel Money, MTN MoMo, or Bank Account within 5 working days.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div style={{ textAlign: 'center' }}>
+          <Btn size="lg" variant="primary" onClick={() => go('join')}>Sign Agreement & Start Earning</Btn>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function FAQPage() {
+  const faqs = [
+    { q: 'Is this a salaried job?', a: 'No. This is an independent contractor opportunity. You are not an employee, and there is no salary or guaranteed income. Your earnings depend entirely on the sales you refer.' },
+    { q: 'How does StartEasy know I referred a client?', a: 'Your unique referral code is embedded in the link we generate for you. When a client clicks your link, we store your code on their device for 30 days. If they purchase a service within that period, you get the commission.' },
+    { q: 'Can I refer myself or my own business?', a: 'No. Self-referrals are automatically detected and blocked by our system to prevent fraud.' },
+    { q: 'When and how do I get paid?', a: 'Once a client you referred pays, the commission goes into a "Pending" state for 7 days. After 7 days, it becomes "Earned". You can request a payout from your dashboard once your total earned reaches K200.' },
+    { q: 'What happens if a client gets a refund?', a: 'If a payment is reverted or declined, the associated commission is automatically cancelled.' },
+    { q: 'Can I share my link on Facebook or WhatsApp?', a: 'Yes! You can share it on WhatsApp, Facebook, Twitter, LinkedIn, email, or even offline by giving your code directly to a client.' },
+    { q: 'Do I have to pay to join?', a: 'No. Registration is completely free. StartEasy does not charge any joining or maintenance fees.' }
+  ];
+
+  return (
+    <div className="fadein" style={{ background: '#F5FAF6', minHeight: '100vh', padding: '48px 24px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: '#0A1F12', marginBottom: 16, textAlign: 'center' }}>Frequently Asked Questions</h1>
+        <p style={{ fontSize: 15, color: 'rgba(10,31,18,.6)', textAlign: 'center', marginBottom: 40 }}>Everything you need to know about the StartEasy Referral Program.</p>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {faqs.map((f, i) => (
+            <details key={i} style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: '16px 20px' }}>
+              <summary style={{ cursor: 'pointer', fontSize: 15, fontWeight: 700, color: '#0A1F12', lineHeight: 1.5 }}>{f.q}</summary>
+              <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', lineHeight: 1.7, marginTop: 12, marginBottom: 0 }}>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SupportPage() {
+  return (
+    <div className="fadein" style={{ background: '#F5FAF6', minHeight: '100vh', padding: '48px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ maxWidth: 500, width: '100%', textAlign: 'center' }}>
+        <i className="fas fa-headset" style={{ fontSize: 48, color: '#E8730F', marginBottom: 20 }}></i>
+        <h1 className="serif" style={{ fontSize: 32, color: '#0A1F12', marginBottom: 12 }}>Need Help?</h1>
+        <p style={{ fontSize: 15, color: 'rgba(10,31,18,.7)', lineHeight: 1.7, marginBottom: 32 }}>
+          Our agent support desk is here to help you with your link, your dashboard, or any questions about earning commissions.
+        </p>
+        
+        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: 32, textAlign: 'left' }}>
+          <a href={waUrl('Hello StartEasy — I am an agent and I need help with the Referral Program.')} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#25D366', color: '#fff', padding: '14px 20px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 16 }}>
+            <i className="fab fa-whatsapp" style={{ fontSize: 20 }}></i> Chat with us on WhatsApp
+          </a>
+          <a href={`mailto:${CONFIG.contactEmail}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#0A1F12', color: '#fff', padding: '14px 20px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
+            <i className="fas fa-envelope"></i> Email {CONFIG.contactEmail}
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function JoinPage({ go, onAuth }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '', location: '', password: '' });
   const [agreed, setAgreed] = useState(false);
@@ -378,13 +521,9 @@ function JoinPage({ go, onAuth }) {
 
     setBusy(true);
     try {
-      // 1. Create Auth Account
       const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
-      
-      // 2. Generate Code
       const agentCode = generateAgentCode(form.name);
 
-      // 3. Save Profile Instantly
       await db.collection(SE_AGENTS).doc(cred.user.uid).set({
         uid: cred.user.uid,
         agentCode: agentCode,
@@ -398,7 +537,7 @@ function JoinPage({ go, onAuth }) {
         totals: { clicks: 0, conversions: 0, earnedZmw: 0, paidZmw: 0, pendingZmw: 0 }
       });
 
-      onAuth(); // Redirect to Dashboard
+      onAuth();
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in.');
       else setErr(e.message || 'Registration failed.');
@@ -407,8 +546,6 @@ function JoinPage({ go, onAuth }) {
 
   return (
     <div style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
-      
-      {/* EXACT MAIN PLATFORM LETTER STYLE */}
       <div className="el fadein printable">
         <div className="eh">
           <div>
@@ -424,7 +561,6 @@ function JoinPage({ go, onAuth }) {
           </div>
         </div>
 
-        {/* DYNAMIC GREETING - NO "APPLICANT" FALLBACK */}
         <p><strong>Dear {form.name.trim() ? form.name.trim() : '___________________'},</strong></p>
         
         <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
@@ -469,10 +605,8 @@ function JoinPage({ go, onAuth }) {
           </div>
         </div>
 
-        {/* THE SIGNATURES */}
         <div className="sign">
           <div>
-            {/* MWABA LEWIS IS PRE-SIGNED HERE */}
             <div className="sigval">MWABA LEWIS</div>
             <div className="lbl">For StartEasy</div>
           </div>
@@ -489,7 +623,7 @@ function JoinPage({ go, onAuth }) {
         </Btn>
 
         <div className="ft">
-          <strong>StartEasy</strong> · Lusaka, Zambia · referrals@starteasyzambia.com · +260 762499581
+          <strong>StartEasy</strong> · Lusaka, Zambia · {CONFIG.contactEmail} · +260 762499581
         </div>
       </div>
     </div>
@@ -532,17 +666,16 @@ function LoginPage({ go, onAuth }) {
 
 function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [commissions, setCommissions] = useState([]);
-  const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
   const [showCodeBanner, setShowCodeBanner] = useState(true);
+  const [showAgreement, setShowAgreement] = useState(false);
 
   useEffect(() => {
     if (!agent) return;
     const unsubs = [
       db.collection(SE_AGENTS).doc(agent.id).onSnapshot(s => { if (s.exists) setAgent({ id: s.id, ...s.data() }); }),
-      db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).orderBy('createdAt', 'desc').limit(100).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
-      db.collection(SE_PAYOUTS).where('agentId', '==', agent.id).orderBy('requestedAt', 'desc').limit(50).onSnapshot(s => setPayouts(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+      db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).orderBy('createdAt', 'desc').limit(100).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
     ];
     setLoading(false);
     return () => unsubs.forEach(u => u());
@@ -562,12 +695,19 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     setTimeout(() => setMsg(''), 2000);
   };
 
+  const signedDate = new Date(agent.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const refCode = 'SE-AGT-' + new Date(agent.createdAt).getFullYear() + '-' + agent.agentCode.split('-')[2];
+  
+  const waShareMsg = `Hello StartEasy, I have signed my referral agreement.\n\nName: ${agent.displayName}\nCode: ${agent.agentCode}\nDate: ${signedDate}\n\nPlease find my signed agreement attached/here for your records.`;
+  const emailSubject = `Signed Referral Agreement - ${agent.displayName} (${agent.agentCode})`;
+  const emailBody = `Hello StartEasy,\n\nI have signed my referral agreement.\n\nName: ${agent.displayName}\nAgent Code: ${agent.agentCode}\nEmail: ${agent.email}\nPhone: ${agent.phone}\nLocation: ${agent.location}\nDate: ${signedDate}\n\nPlease find my signed agreement attached for your records.\n\nRegards,\n${agent.displayName}`;
+
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 16px' }}>
         
         {showCodeBanner && (
-          <div style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff', borderRadius: 12, padding: '24px', marginBottom: 24, position: 'relative', boxShadow: '0 10px 30px rgba(10,31,18,.2)' }}>
+          <div className="no-print" style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff', borderRadius: 12, padding: '24px', marginBottom: 24, position: 'relative', boxShadow: '0 10px 30px rgba(10,31,18,.2)' }}>
             <button onClick={() => setShowCodeBanner(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 16 }}>✕</button>
             <h2 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 8 }}>Welcome, {agent.displayName.split(' ')[0]}! Your code is ready.</h2>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 16 }}>Copy your unique link below and share it with potential clients.</p>
@@ -578,7 +718,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+        <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
           <div>
             <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: 0 }}>Agent Dashboard</h1>
             <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: '4px 0 0' }}>Code: <strong>{agent.agentCode}</strong></p>
@@ -586,26 +726,36 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           <Btn onClick={onSignOut} variant="ghost" size="sm">Sign Out</Btn>
         </div>
 
-        {msg && <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 12, borderRadius: 8, marginBottom: 16, fontWeight: 600, fontSize: 13 }}>{msg}</div>}
+        {msg && <div className="no-print" style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 12, borderRadius: 8, marginBottom: 16, fontWeight: 600, fontSize: 13 }}>{msg}</div>}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
+        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
           <Kpi label="Clicks" value={fmtInt(agent.totals?.clicks)} sub="Link clicks" icon="fa-eye" color="#1B6CA8" />
           <Kpi label="Conversions" value={fmtInt(agent.totals?.conversions)} sub="Approved payments" icon="fa-circle-check" color="#1E7B3C" />
           <Kpi label="Earned" value={fmtZmw(earned)} sub={`${fmtZmw(available)} avail`} icon="fa-wallet" color="#E8730F" />
           <Kpi label="Pending" value={fmtZmw(pending)} sub="Clearing (7 days)" icon="fa-clock" color="#8A6828" />
         </div>
 
-        {/* Link Box (Always Visible) */}
-        <div style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+        <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
           <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Your Referral Link</h3>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <input type="text" readOnly value={shareLink} style={{ flex: 1, minWidth: 250, padding: 12, border: '1px solid #ccc', borderRadius: 8, fontFamily: 'monospace', fontSize: 13, background: '#F9FBFA' }} />
             <Btn variant="primary" onClick={() => doCopy(shareLink, 'Link')}><i className="fas fa-copy"></i> Copy</Btn>
-            <a href={`https://wa.me/?text=${encodeURIComponent('Check out StartEasy — quality business services in Zambia. Use my link: ' + shareLink)}`} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share</a>
+            <a href={waUrl(`Check out StartEasy — quality business services in Zambia. Use my link: ${shareLink}`)} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share</a>
           </div>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden' }}>
+        {/* SIGNED AGREEMENT SECTION */}
+        <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: '#0A1F12' }}>My Signed Agreement</h3>
+              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: 0 }}>Download, print, or send a copy to StartEasy for your records.</p>
+            </div>
+            <Btn variant="dark" onClick={() => setShowAgreement(true)}><i className="fas fa-file-signature"></i> View / Print Agreement</Btn>
+          </div>
+        </div>
+
+        <div className="no-print" style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(10,31,18,.08)', fontWeight: 700, fontSize: 14 }}>Recent Commissions</div>
           {commissions.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: 'rgba(10,31,18,.5)', fontSize: 13 }}>No commissions yet. Share your link to start earning.</div>
@@ -632,7 +782,87 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
             </div>
           )}
         </div>
+
       </div>
+
+      {/* MODAL FOR AGREEMENT */}
+      {showAgreement && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,31,18,.9)', overflowY: 'auto', padding: '40px 16px' }}>
+          <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
+            
+            {/* Action Buttons - Hidden on Print */}
+            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, background: '#fff', padding: '16px 20px', borderRadius: 12, flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <Btn variant="dark" onClick={() => window.print()}><i className="fas fa-print"></i> Print / Save PDF</Btn>
+                <a href={waUrl(waShareMsg)} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share to WhatsApp</a>
+                <a href={`mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`} style={{ padding: '11px 20px', background: '#1B6CA8', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fas fa-envelope"></i> Email to StartEasy</a>
+              </div>
+              <button onClick={() => setShowAgreement(false)} style={{ background: 'none', border: 'none', fontSize: 24, color: '#B8564F', cursor: 'pointer', padding: '0 10px' }}>✕</button>
+            </div>
+
+            {/* The Printable Letter */}
+            <div className="el printable">
+              <div className="eh">
+                <div>
+                  <div className="brand">Start<em>Easy</em></div>
+                  <div className="sub">StartEasy Zambia</div>
+                </div>
+                <div>
+                  <div className="dt">OPPORTUNITY ENGAGEMENT</div>
+                  <div className="mt">
+                    {signedDate}<br/>
+                    Ref: {refCode}
+                  </div>
+                </div>
+              </div>
+
+              <p><strong>Dear {agent.displayName},</strong></p>
+              
+              <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
+
+              <h4>1. Nature of Engagement</h4>
+              <p>You are joining as an independent Referral Agent. This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
+
+              <h4>2. Commission & Payouts</h4>
+              <p>You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions clear after a 7-day period and can be withdrawn to your mobile money or bank account once your balance reaches K200.</p>
+
+              <h4>3. Agent Details</h4>
+              <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
+                <span>
+                  <strong>Email Address:</strong><br/>
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{agent.email}</div>
+                </span>
+                <span>
+                  <strong>Phone / WhatsApp:</strong><br/>
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{agent.phone}</div>
+                </span>
+              </p>
+              <p style={{ marginTop: 12 }}>
+                <strong>Location:</strong><br/>
+                <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{agent.location}</div>
+              </p>
+
+              <h4>4. Acceptance</h4>
+              <p>The Agent has confirmed agreement to the engagement terms and signed below.</p>
+
+              <div className="sign">
+                <div>
+                  <div className="sigval">MWABA LEWIS</div>
+                  <div className="lbl">For StartEasy</div>
+                </div>
+                <div>
+                  <div className="sigval" style={{ borderBottom: '1px solid #333' }}>{agent.displayName}</div>
+                  <div className="lbl">For the Agent</div>
+                </div>
+              </div>
+
+              <div className="ft">
+                <strong>StartEasy</strong> · Lusaka, Zambia · {CONFIG.contactEmail} · +260 762499581
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -685,7 +915,10 @@ function App() {
   if (route === 'r' && routeArg) return <RedirectHandler code={routeArg.toUpperCase()} />;
 
   let page = <Landing go={go} />;
-  if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
+  if (route === 'how-it-works') page = <HowItWorks go={go} />;
+  else if (route === 'faq') page = <FAQPage />;
+  else if (route === 'support') page = <SupportPage />;
+  else if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
   else if (route === 'login') page = <LoginPage go={go} onAuth={onAuth} />;
   else if (route === 'dashboard') {
     if (!agent) page = <LoginPage go={go} onAuth={onAuth} />;
