@@ -658,13 +658,16 @@ function LoginPage({ go, onAuth }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Password Reset State
+  const [resetMode, setResetMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const submit = async () => {
     setErr('');
     if (!email.trim() || !pw) return setErr('Enter your email and password.');
     setBusy(true);
     try {
-      // 15-second timeout so it never hangs indefinitely
       const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('__timeout__')), 15000));
       await Promise.race([auth.signInWithEmailAndPassword(email.trim(), pw), timeout]);
       onAuth();
@@ -681,38 +684,92 @@ function LoginPage({ go, onAuth }) {
     } finally { setBusy(false); }
   };
 
+  const handleReset = async () => {
+    setErr('');
+    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return setErr('Enter a valid email address.');
+    setBusy(true);
+    try {
+      await auth.sendPasswordResetEmail(email.trim());
+      setResetSent(true);
+    } catch (e) {
+      if (e.code === 'auth/user-not-found') setErr('No account exists with this email. Have you signed the agreement?');
+      else setErr(e.message || 'Failed to send reset email.');
+    } finally { setBusy(false); }
+  };
+
   return (
     <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
       <div style={{ background: '#fff', borderRadius: 14, padding: '32px 28px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,.08)' }}>
-        <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Welcome back</h1>
-        <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>Sign in to view your dashboard.</p>
-        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
-        <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
-        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Password</label>
-        <div style={{ position: 'relative', marginBottom: 16 }}>
-          <input 
-            type={showPassword ? 'text' : 'password'} 
-            value={pw} 
-            onChange={e => setPw(e.target.value)} 
-            style={{ width: '100%', padding: '12px 40px 12px 12px', border: '1px solid #ccc', borderRadius: 8 }} 
-          />
-          <button 
-            type="button" 
-            onClick={() => setShowPassword(!showPassword)} 
-            style={{ 
-              position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', 
-              background: 'none', border: 'none', cursor: 'pointer', 
-              color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' 
-            }}
-          >
-            <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-          </button>
-        </div>
-        {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
-        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
-          {busy ? 'Signing in...' : 'Sign in'}
-        </Btn>
-        <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign agreement here</a>.</p>
+        
+        {resetMode ? (
+          // RESET PASSWORD VIEW
+          <>
+            <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Reset Password</h1>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>
+              {resetSent ? 'Check your email inbox for a secure link to reset your password.' : 'Enter your email address and we will send you a reset link.'}
+            </p>
+            
+            {!resetSent ? (
+              <>
+                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
+                {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
+                <Btn onClick={handleReset} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
+                  {busy ? 'Sending...' : 'Send Reset Link'}
+                </Btn>
+              </>
+            ) : (
+              <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', color: '#1E7B3C', padding: 16, borderRadius: 8, marginBottom: 20, fontSize: 13, fontWeight: 600, lineHeight: 1.5 }}>
+                <i className="fas fa-check-circle" style={{ marginRight: 8 }}></i>
+                Reset link sent to <strong>{email}</strong>.
+              </div>
+            )}
+            
+            <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>
+              <button onClick={() => { setResetMode(false); setResetSent(false); setErr(''); }} style={{ background: 'none', border: 'none', color: '#0A1F12', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}>Back to login</button>
+            </p>
+          </>
+        ) : (
+          // STANDARD LOGIN VIEW
+          <>
+            <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Welcome back</h1>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>Sign in to view your dashboard.</p>
+            <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700 }}>Password</label>
+              <button onClick={() => { setResetMode(true); setErr(''); }} style={{ background: 'none', border: 'none', color: '#E8730F', fontSize: 12, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>Forgot password?</button>
+            </div>
+            
+            <div style={{ position: 'relative', marginBottom: 16 }}>
+              <input 
+                type={showPassword ? 'text' : 'password'} 
+                value={pw} 
+                onChange={e => setPw(e.target.value)} 
+                style={{ width: '100%', padding: '12px 40px 12px 12px', border: '1px solid #ccc', borderRadius: 8 }} 
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                style={{ 
+                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', 
+                  background: 'none', border: 'none', cursor: 'pointer', 
+                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' 
+                }}
+              >
+                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              </button>
+            </div>
+            {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
+            
+            <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
+              {busy ? 'Signing in...' : 'Sign in'}
+            </Btn>
+            <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign agreement here</a>.</p>
+          </>
+        )}
+
       </div>
     </div>
   );
