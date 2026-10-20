@@ -541,6 +541,7 @@ function JoinPage({ go, onAuth }) {
       onAuth();
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in.');
+      else if (e.code === 'auth/operation-not-allowed') setErr('Email/Password sign-in is not enabled in Firebase Console.');
       else setErr(e.message || 'Registration failed.');
     } finally { setBusy(false); }
   };
@@ -609,7 +610,7 @@ function JoinPage({ go, onAuth }) {
                 placeholder="Min 6 characters" 
                 value={form.password} 
                 onChange={e => setForm({...form, password: e.target.value})} 
-                style={{ paddingRight: '40px' }} /* Space for the eye icon */
+                style={{ paddingRight: '40px' }}
               />
               <button 
                 type="button" 
@@ -663,10 +664,21 @@ function LoginPage({ go, onAuth }) {
     if (!email.trim() || !pw) return setErr('Enter your email and password.');
     setBusy(true);
     try {
-      await auth.signInWithEmailAndPassword(email.trim(), pw);
+      // 15-second timeout so it never hangs indefinitely
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('__timeout__')), 15000));
+      await Promise.race([auth.signInWithEmailAndPassword(email.trim(), pw), timeout]);
       onAuth();
-    } catch (e) { setErr('Incorrect email or password.'); }
-    finally { setBusy(false); }
+    } catch (e) {
+      if (e.message === '__timeout__') {
+        setErr('Connection timed out. Check your internet or ensure this domain is authorized in Firebase Console.');
+      } else if (e.code === 'auth/operation-not-allowed') {
+        setErr('Email/Password sign-in is not enabled in Firebase Console.');
+      } else if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+        setErr('Incorrect email or password. (Have you signed the agreement yet?)');
+      } else {
+        setErr(e.message || 'Sign in failed.');
+      }
+    } finally { setBusy(false); }
   };
 
   return (
@@ -696,8 +708,10 @@ function LoginPage({ go, onAuth }) {
             <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
           </button>
         </div>
-        {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16 }}>{err}</div>}
-        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>{busy ? 'Signing in...' : 'Sign in'}</Btn>
+        {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
+        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
+          {busy ? 'Signing in...' : 'Sign in'}
+        </Btn>
         <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign agreement here</a>.</p>
       </div>
     </div>
@@ -784,7 +798,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           </div>
         </div>
 
-        {/* SIGNED AGREEMENT SECTION */}
         <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
             <div>
@@ -825,12 +838,10 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
 
       </div>
 
-      {/* MODAL FOR AGREEMENT */}
       {showAgreement && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,31,18,.9)', overflowY: 'auto', padding: '40px 16px' }}>
           <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
             
-            {/* Action Buttons - Hidden on Print */}
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, background: '#fff', padding: '16px 20px', borderRadius: 12, flexWrap: 'wrap', gap: 12 }}>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <Btn variant="dark" onClick={() => window.print()}><i className="fas fa-print"></i> Print / Save PDF</Btn>
@@ -840,7 +851,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
               <button onClick={() => setShowAgreement(false)} style={{ background: 'none', border: 'none', fontSize: 24, color: '#B8564F', cursor: 'pointer', padding: '0 10px' }}>✕</button>
             </div>
 
-            {/* The Printable Letter */}
             <div className="el printable">
               <div className="eh">
                 <div>
