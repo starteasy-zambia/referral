@@ -152,7 +152,7 @@ const CONFIG = {
     messagingSenderId: "54136399237",
     appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
   },
-  mainSiteUrl: 'https://starteasyzambia.com',
+  mainSiteUrl: 'https://www.starteasyzambia.com',
   adminWhatsapp: '260762499581',
   contactEmail: 'referrals@starteasyzambia.com',
   attributionDays: 30,
@@ -291,7 +291,13 @@ function Nav({ route, go, agent, onSignOut }) {
           <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works</button>
           <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
           <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support</button>
+          
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
+          
+          <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
+          
+          <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
+
           {agent ? (
             <>
               <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>Dashboard</button>
@@ -316,7 +322,11 @@ function Nav({ route, go, agent, onSignOut }) {
           <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works & Earnings</button>
           <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
           <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support / Contact</button>
+          
+          <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
+          
           <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '8px 0' }}></div>
+          
           {agent ? (
             <>
               <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>My Dashboard</button>
@@ -331,6 +341,32 @@ function Nav({ route, go, agent, onSignOut }) {
         </div>
       )}
     </header>
+  );
+}
+
+/* ---------------- FOOTER ---------------- */
+function Footer() {
+  return (
+    <footer style={{ background: '#0A1F12', borderTop: '1px solid rgba(255,255,255,.1)', padding: '40px 24px', textAlign: 'center', marginTop: 'auto' }}>
+      <p style={{ color: 'rgba(255,255,255,.5)', fontSize: 14, marginBottom: 20 }}>
+        Want to explore our full range of business services?
+      </p>
+      <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" 
+         style={{ 
+           display: 'inline-flex', alignItems: 'center', gap: 10, 
+           padding: '14px 28px', background: 'rgba(255,255,255,.05)', 
+           color: '#F5A623', border: '1px solid rgba(245,166,35,.3)', 
+           borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', transition: 'all .2s' 
+         }}
+         onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
+         onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,.05)'}
+      >
+        Explore StartEasy Zambia <i className="fas fa-external-link-alt" style={{ fontSize: 13 }}></i>
+      </a>
+      <div style={{ marginTop: 32, fontSize: 11, color: 'rgba(255,255,255,.3)' }}>
+        © {new Date().getFullYear()} StartEasy Zambia. All rights reserved.
+      </div>
+    </footer>
   );
 }
 
@@ -1036,6 +1072,7 @@ function App() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Nav route={route} go={go} agent={agent} onSignOut={onSignOut} />
       <main style={{ flex: 1 }}>{page}</main>
+      <Footer />
     </div>
   );
 }
