@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StartEasy Agent Engagement</title>
+<title>StartEasy Zambia | Agent Opportunity</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -92,7 +92,7 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 .el .eh{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:3px solid #0A1F12;margin-bottom:22px;flex-wrap:wrap}
 .el .eh .brand{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:800;color:#0A1F12;letter-spacing:1px}
 .el .eh .brand em{font-style:normal;color:#E8730F}
-.el .eh .sub{font-size:9.5px;color:#8A6828;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
+.el .eh .sub{font-size:10px;color:#8A6828;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
 .el .eh .dt{font-family:'Playfair Display',Georgia,serif;font-size:14px;font-weight:800;color:#E8730F;letter-spacing:1.2px;text-align:right}
 .el .eh .mt{font-size:11px;color:#666;text-align:right;margin-top:6px}
 .el h4{font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#0A1F12;font-weight:700;margin:22px 0 10px}
@@ -157,7 +157,6 @@ const SE_COMMISSIONS = 'se_commissions';
 const SE_PAYOUTS = 'se_payouts';
 const SE_PAYMENTS = 'se_payments';
 const SE_EVENTS = 'se_events';
-const SE_ADMINS = 'se_admins';
 const REF_KEY = 'starteasy.ref.v1';
 const CODE_RX = /^SE-[A-Z0-9-]{3,32}$/;
 
@@ -254,8 +253,7 @@ const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, st
     primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' },
     dark: { background: '#0A1F12', color: '#fff' },
     ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' },
-    success: { background: '#1E7B3C', color: '#fff' },
-    danger: { background: '#B8564F', color: '#fff' }
+    success: { background: '#1E7B3C', color: '#fff' }
   };
   return <button type={type} onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
@@ -415,7 +413,7 @@ function JoinPage({ go, onAuth }) {
         <div className="eh">
           <div>
             <div className="brand">Start<em>Easy</em></div>
-            <div className="sub">Administrative Services Desk · Zambia</div>
+            <div className="sub">StartEasy Zambia</div>
           </div>
           <div>
             <div className="dt">OPPORTUNITY ENGAGEMENT</div>
@@ -426,7 +424,7 @@ function JoinPage({ go, onAuth }) {
           </div>
         </div>
 
-        <p><strong>Dear Agent,</strong></p>
+        <p><strong>Dear {form.name.trim() ? form.name.trim() : 'Applicant'},</strong></p>
         <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
         <h4>1. Nature of Engagement</h4>
