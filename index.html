@@ -424,8 +424,9 @@ function JoinPage({ go, onAuth }) {
           </div>
         </div>
 
-        {/* DYNAMIC GREETING */}
-        <p><strong>Dear {form.name.trim() ? form.name.trim() : 'Applicant'},</strong></p>
+        {/* DYNAMIC GREETING - NO "APPLICANT" FALLBACK */}
+        <p><strong>Dear {form.name.trim() ? form.name.trim() : '___________________'},</strong></p>
+        
         <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
         <h4>1. Nature of Engagement</h4>
