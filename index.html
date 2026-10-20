@@ -424,6 +424,7 @@ function JoinPage({ go, onAuth }) {
           </div>
         </div>
 
+        {/* DYNAMIC GREETING */}
         <p><strong>Dear {form.name.trim() ? form.name.trim() : 'Applicant'},</strong></p>
         <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
@@ -470,7 +471,7 @@ function JoinPage({ go, onAuth }) {
         {/* THE SIGNATURES */}
         <div className="sign">
           <div>
-            {/* MWABA LEWIS IS ALREADY SIGNED HERE */}
+            {/* MWABA LEWIS IS PRE-SIGNED HERE */}
             <div className="sigval">MWABA LEWIS</div>
             <div className="lbl">For StartEasy</div>
           </div>
