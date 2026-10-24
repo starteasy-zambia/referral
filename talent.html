@@ -3,79 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StartEasy Zambia | Founding Team Portal</title>
+<title>StartEasy Zambia | Agent Opportunity</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
 :root {
   --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F; 
-  --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --blue:#1B6CA8;
+  --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --teal:#0E7C7B;
 }
-/* FIX FOR SHAKING */
 html, body { overflow-x: hidden; width: 100%; margin: 0; padding: 0; box-sizing: border-box; }
 *, *::before, *::after { box-sizing: inherit; }
 body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: var(--light); color: var(--forest); }
 .serif { font-family: 'Playfair Display', Georgia, serif; }
-input:focus, textarea:focus { outline: none; border-color: var(--orange) !important; }
+input:focus, select:focus { outline: none; border-color: var(--orange) !important; }
 .fadein { animation: fi .4s cubic-bezier(.22,.61,.36,1) both; }
 @keyframes fi { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.spin { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* HEADER & NAVIGATION */
-.site-header { position: sticky; top: 0; z-index: 100; background: #0A1F12; padding: 16px 24px; border-bottom: 1px solid rgba(245,166,35,.1); width: 100%; }
-.header-content { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-.logo-group { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-.logo-mark { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#E8730F,#F5A623); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; font-family: 'Playfair Display', serif; }
-.logo-text-sub { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); font-weight: 700; }
-.logo-text-main { font-size: 16px; font-weight: 700; color: #fff; }
+/* BULLETPROOF HEADER */
+.site-header { position: sticky; top: 0; z-index: 50; background: #0A1F12; border-bottom: 1px solid rgba(245,166,35,.1); padding: 0 16px; }
+.header-container { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; width: 100%; }
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; }
+.header-logo-mark { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,var(--orange),var(--orange-2)); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 800; font-size: 16px; }
+.header-logo-text { display: flex; flex-direction: column; text-align: left; line-height: 1; }
+.header-logo-sub { font-size: 8.5px; letter-spacing: .15em; text-transform: uppercase; font-weight: 700; color: rgba(255,255,255,.4); margin-bottom: 3px; }
+.header-logo-main { font-size: 15px; font-weight: 700; color: #fff; }
+.header-logo-main em { font-style: normal; color: var(--orange-2); }
 
-.menu-toggle { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 4px; }
-.nav-menu { position: absolute; top: 70px; right: 24px; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 250px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(10,31,18,0.1); }
-.nav-item { padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #0A1F12; text-decoration: none; border-bottom: 1px solid #eee; transition: background 0.2s; cursor: pointer; }
-.nav-item:hover { background: #F5FAF6; }
-.nav-item:last-child { border-bottom: none; color: #B8564F; }
+.header-nav { display: flex; align-items: center; gap: 20px; }
+.header-link { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.6); padding: 6px 0; position: relative; text-decoration: none; white-space: nowrap; }
+.header-link.active { color: var(--orange-2); font-weight: 700; }
+.header-link.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: var(--orange-2); border-radius: 99px; }
+.header-btn { background: linear-gradient(135deg,var(--orange),var(--orange-2)); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.header-mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 8px; }
 
-/* FORMAL AGREEMENT STYLES */
-.main-container { width: 100%; max-width: 100vw; padding: 40px 16px; overflow-x: hidden; display: flex; flex-direction: column; align-items: center;}
-.el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:40px 50px; font-size:13.5px; line-height:1.8; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 850px; width: 100%; margin: 0 auto; overflow-wrap: break-word; }
-.el .eh{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:3px solid #0A1F12;margin-bottom:24px;flex-wrap:wrap}
-.el .eh .brand{font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:800;color:#0A1F12;letter-spacing:1px}
+@media (max-width: 900px) {
+  .header-nav { display: none; }
+  .header-btn { display: none; }
+  .header-mobile-toggle { display: block; }
+  .header-mobile-menu { background: #0A1F12; padding: 16px 24px 24px; border-top: 1px solid rgba(255,255,255,.1); display: flex; flex-direction: column; gap: 16px; position: absolute; top: 64px; left: 0; right: 0; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .header-mobile-menu .header-link { font-size: 15px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .header-mobile-menu .header-btn { display: block; width: 100%; text-align: center; padding: 14px; font-size: 15px; margin-top: 8px; }
+}
+
+/* EXACT MAIN PLATFORM ENGAGEMENT LETTER CSS */
+.el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:34px 42px; font-size:13px; line-height:1.65; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 800px; margin: 0 auto; width: 100%; }
+.el .eh{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:3px solid #0A1F12;margin-bottom:22px;flex-wrap:wrap}
+.el .eh .brand{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:800;color:#0A1F12;letter-spacing:1px}
 .el .eh .brand em{font-style:normal;color:#E8730F}
-.el .eh .sub{font-size:10.5px;color:#8A6828;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
-.el .eh .dt{font-family:'Playfair Display',Georgia,serif;font-size:15px;font-weight:800;color:#E8730F;letter-spacing:1.2px;text-align:right}
-.el .eh .mt{font-size:11.5px;color:#666;text-align:right;margin-top:6px}
-.el h4{font-family:'Playfair Display',Georgia,serif;font-size:16.5px;color:#0A1F12;font-weight:700;margin:28px 0 12px; border-bottom: 1px solid #eee; padding-bottom: 6px;}
+.el .eh .sub{font-size:10px;color:#8A6828;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
+.el .eh .dt{font-family:'Playfair Display',Georgia,serif;font-size:14px;font-weight:800;color:#E8730F;letter-spacing:1.2px;text-align:right}
+.el .eh .mt{font-size:11px;color:#666;text-align:right;margin-top:6px}
+.el h4{font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#0A1F12;font-weight:700;margin:22px 0 10px}
 .el h4:first-of-type{margin-top:0}
-.el p{margin:0 0 16px; text-align: justify;}
-.el ul{margin:0 0 18px;padding-left:24px}
-.el li{margin-bottom:12px;font-size:13.5px; text-align: justify;}
+.el p{margin:0 0 12px}
+.el ul{margin:0 0 14px;padding-left:22px}
+.el li{margin-bottom:6px;font-size:12.5px}
+.el .sign{margin-top:26px;padding-top:20px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.el .sign .sigval{font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding-bottom:8px;border-bottom:1px solid #333;margin-bottom:10px;min-height:38px}
+.el .sign .siginput{width:100%;font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding:0 0 8px;border:none;border-bottom:1px solid #333;background:transparent;outline:none;margin-bottom:10px;min-height:38px;transition:border-color .2s}
+.el .sign .siginput:focus{border-bottom-color:#E8730F}
+.el .sign .siginput::placeholder{font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:500;font-style:normal;letter-spacing:normal;color:rgba(10,31,18,.4)}
+.el .sign .lbl{font-size:10.5px;color:#666;font-weight:600}
+.el .ft{margin-top:22px;padding-top:16px;border-top:2px solid #0A1F12;font-size:10.5px;color:#666;line-height:1.6}
 
-.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; width: 100%; }
-@media (max-width: 600px) { .form-grid-2 { grid-template-columns: 1fr; } }
+.doc-input-line { border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size: 13px; color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none; width: 100%; margin-top: 4px; padding: 6px; }
+.doc-input-line:focus { background: #fff; border-bottom: 1px solid var(--orange); }
 
-.el .highlight-box{background:#F9FBFA; border-left:4px solid #E8730F; padding:18px; margin-bottom:24px; font-size:13.5px; font-weight:500;}
-.el .sign{margin-top:36px;padding-top:24px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:40px; width: 100%;}
-@media (max-width: 600px) { .el .sign { grid-template-columns: 1fr; gap: 24px; } }
+@media (max-width: 600px) { .el { padding: 20px; } .el .sign { grid-template-columns: 1fr; gap: 20px; } .el .eh { flex-direction: column; gap: 10px; } .el .eh .dt, .el .eh .mt { text-align: left; } }
 
-.el .sign .sigval{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding-bottom:8px;border-bottom:1px solid #333;margin-bottom:10px;min-height:40px}
-.el .sign .lbl{font-size:11px;color:#666;font-weight:600; text-transform:uppercase; letter-spacing:0.05em;}
-.el .ft{margin-top:36px;padding-top:16px;border-top:2px solid #0A1F12;font-size:11px;color:#666;line-height:1.6}
-.doc-input-line { border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size:14px; color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none; width: 100%; margin-top: 4px; padding: 8px; transition: all 0.2s;}
-.doc-input-line:focus { background: #fff; border-bottom: 2px solid var(--orange); }
-
-/* PRINT STYLES */
 @media print {
   body * { visibility: hidden; }
   .printable, .printable * { visibility: visible; }
-  .printable { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; box-shadow: none; border: none; }
+  .printable { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: #fff; box-shadow: none; border: none; }
   .no-print { display: none !important; }
 }
-
-@media (max-width: 600px) { .el { padding: 24px 20px; } .el .eh { flex-direction: column; gap: 12px; } .el .eh .dt, .el .eh .mt { text-align: left; } }
 </style>
 </head>
 <body>
@@ -84,896 +91,944 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 <script type="text/babel" data-presets="react">
-const { useState, useEffect } = React;
+const { useState, useEffect, useCallback } = React;
 
-// INITIALIZE FIREBASE
-// Replace with your actual Firebase config if different
-const firebaseConfig = {
-  apiKey: "AIzaSyDdEyxvsd2RjgKVYTGYJfYUB_637lV3n5I",
-  authDomain: "starteasy-zambia.firebaseapp.com",
-  projectId: "starteasy-zambia",
-  storageBucket: "starteasy-zambia.firebasestorage.app",
-  messagingSenderId: "54136399237",
-  appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
-};
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// EXHAUSTIVELY DETAILED, PLAIN ENGLISH JOB DESCRIPTIONS & LEGAL TERMS
-const ROLES = {
-  cdmo: { 
-    id: 'cdmo', 
-    title: 'Co-Founder & Chief Digital Marketing Officer', 
-    summary: 'You are the chief architect of our public image and customer acquisition. Your job is to ensure that every Zambian entrepreneur, diaspora investor, and local SME knows who we are, trusts us, and signs up on our platform. You will own the entire digital funnel, from the first ad they see to the moment they create an account.',
-    reporting: 'You will report directly to the Founder.',
-    responsibilities: [
-      "**Platform Management:** You will oversee the design, copy, and user experience of the StartEasy Zambia website. You must ensure it looks premium, loads quickly, and makes it easy for people to buy our services.",
-      "**Advertising Execution:** You will create, manage, and optimize paid ad campaigns on Meta (Facebook/Instagram) and LinkedIn. You will be given a budget and must ensure we get a high return on investment.",
-      "**Content Creation:** You will write or oversee the creation of all blog posts, social media updates, and email newsletters. You must communicate complex topics (like PACRA compliance) in simple, engaging language.",
-      "**Lead Generation Strategy:** You will design the lead magnets (e.g., free compliance checklists, downloadable guides) that encourage people to give us their email addresses.",
-      "**Analytics & Reporting:** You will use Google Analytics and platform insights to track how many people visit our site, where they drop off, and how many actually pay us. You will report these numbers to the Founder every Friday."
-    ],
-    month1: 'You will conduct a full audit of our current website and marketing materials. You will create our Core Brand Guidelines (colors, fonts, tone of voice). You will map out our three primary customer profiles and write a comprehensive Go-To-Market strategy document detailing exactly how we will reach them.',
-    month2: 'You will execute a complete overhaul of the website copy. You will set up our LinkedIn company page and publish 3 high-value posts per week. You will create the digital assets for our next major service launch. You will set up our Google Analytics and Meta Pixel tracking.',
-    month3: 'You will launch our first major paid advertising campaigns. You will run A/B tests on different ad creatives. You will analyze the Customer Acquisition Cost (CAC) and adjust the campaigns to ensure we are not spending more to get a customer than they are paying us.',
-    compensation: [
-      "**Equity Stake:** You will be granted a substantial ownership stake in StartEasy Zambia. The exact percentage, valuation, and vesting schedule will be strictly defined in a separate, legally binding Equity Agreement.",
-      "**Performance Bonus:** You will be eligible for performance bonuses tied to specific company revenue milestones. The exact financial figures and targets will be outlined in a separate Bonus Agreement.",
-      "**No Base Pay:** There is no fixed salary, hourly wage, or guaranteed monthly retainer. Your financial success is directly tied to the company's growth and your equity valuation."
-    ],
-    resources: 'You will have a budget for essential tools (e.g., advertising credits, design software), the exact amount of which will be agreed upon and documented separately. You will have direct access to the Founder for approvals.',
-    environment: 'You can work from anywhere in the world. You are not required to relocate. We only ask that you attend one 30-minute video call with the Founder every Monday at 10:00 AM Central Africa Time (CAT).',
-    terms: [
-      "**No Employment Relationship:** This Agreement does not create an employer-employee relationship. You are an independent co-founder/contractor.",
-      "**Confidentiality:** You must not share our marketing strategies, financial data, or client lists with anyone outside the company.",
-      "**Intellectual Property:** Any logos, website copy, or ad creatives you create for StartEasy Zambia belong entirely to the company, even if you leave.",
-      "**Termination:** Either party can end this agreement with 30 days written notice. If you leave before your vesting is complete, you will only keep the equity you have already vested as per the separate Equity Agreement."
-    ]
+/* ---------------- CONFIG ---------------- */
+const CONFIG = {
+  firebase: {
+    apiKey: "AIzaSyDdEyxvsd2RjgKVYTGYJfYUB_637lV3n5I",
+    authDomain: "starteasy-zambia.firebaseapp.com",
+    projectId: "starteasy-zambia",
+    storageBucket: "starteasy-zambia.firebasestorage.app",
+    messagingSenderId: "54136399237",
+    appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
   },
-  director_finance: { 
-    id: 'director_finance', 
-    title: 'Co-Founder & Director of Finance & Administration', 
-    summary: 'You are the legal and financial guardian of StartEasy Zambia. Your job is to keep us out of trouble with the government, ensure our taxes are paid perfectly, keep track of every cent we spend, and build the operational systems that allow us to scale from a few clients to thousands without breaking.',
-    reporting: 'You will report directly to the Founder.',
-    responsibilities: [
-      "**Government Compliance:** You will manage all interactions with PACRA and ZRA. You will ensure our annual returns and tax filings are submitted accurately and on time.",
-      "**Bookkeeping & Accounting:** You will manage our financial software (e.g., QuickBooks or Xero). You will record all incoming client payments and all outgoing business expenses.",
-      "**Payroll Management:** You will calculate and process the payments for all contractors, ensuring the correct taxes are deducted.",
-      "**Client Contract Management:** You will review all client service agreements before they are signed to ensure they protect the company legally.",
-      "**Financial Reporting:** You will prepare a monthly financial report showing our Profit & Loss, Cash Flow, and Balance Sheet. You will present this to the Founder on the first Tuesday of every month."
-    ],
-    month1: 'You will conduct a full audit of our current PACRA and ZRA status to ensure there are no outstanding penalties. You will establish a strict internal financial control policy. You will set up our official invoicing system.',
-    month2: 'You will implement a cloud-based bookkeeping system. You will digitize all past receipts and invoices. You will create a simple dashboard that shows the Founder exactly how much cash we have in the bank at any given time.',
-    month3: 'You will map out the entire client onboarding journey from a financial perspective. You will ensure that when a client pays, the money is tracked, the service is delivered, and the revenue is recorded in the CRM without any manual errors.',
-    compensation: [
-      "**Equity Stake:** You will be granted a significant ownership stake in StartEasy Zambia. The exact percentage, valuation, and vesting schedule will be strictly defined in a separate, legally binding Equity Agreement.",
-      "**Performance Bonus:** You will be eligible for an annual performance bonus based on the company's overall profitability. The exact structure will be defined in a separate Bonus Agreement.",
-      "**No Base Pay:** There is no fixed salary, hourly wage, or guaranteed monthly retainer. Your financial success is directly tied to the company's growth and your equity valuation."
-    ],
-    resources: 'You will have full access to the company bank accounts and our external legal counsel. You will be provided with any accounting software you require.',
-    environment: 'You must be based in Lusaka, Zambia. You will work from our office or remotely, but you must be physically available to go to PACRA or ZRA offices to resolve issues or submit documents in person when required.',
-    terms: [
-      "**No Employment Relationship:** This Agreement does not create an employer-employee relationship. You are an independent co-founder/contractor.",
-      "**Fiduciary Duty:** You have a legal obligation to act in the best financial interest of StartEasy Zambia at all times.",
-      "**Confidentiality:** You will have access to sensitive financial data. You must never disclose this information.",
-      "**Termination:** This agreement requires 60 days written notice for termination from either party."
-    ]
-  },
-  growth_associate: { 
-    id: 'growth_associate', 
-    title: 'Growth & Client Associate', 
-    summary: 'You are the engine of our revenue. Your job is to speak to as many business owners as possible, explain how StartEasy Zambia can save them time and money, and convince them to pay for our services. You are not just answering emails; you are actively hunting for new clients every single day.',
-    reporting: 'You will report directly to the Founder.',
-    responsibilities: [
-      "**Outbound Prospecting:** You will use LinkedIn, Facebook Groups, and local business directories to find the contact details of at least 50 new businesses every single day.",
-      "**Cold Calling & Emailing:** You will call or email these businesses using the scripts provided to you. You must make at least 40 dials or send 50 personalized emails per day.",
-      "**CRM Management:** You will use our CRM software (e.g., HubSpot) to track every single conversation. You must log the outcome of every call.",
-      "**Client Onboarding:** When a client pays, you will be their first point of contact. You will send them the welcome email, collect their required documents, and hand them over to the operations team.",
-      "**Upselling:** You will call existing clients every 30 days to ensure they are happy and to sell them additional services."
-    ],
-    month1: 'You will memorize our pricing and service offerings perfectly. You will build a database of 1,000 potential business leads in Zambia. You will practice your phone scripts with the Founder until you are confident.',
-    month2: 'You will hit your daily outreach targets. You will book at least 20 discovery meetings for the Founder and Director of Finance. You will begin closing your first small deals.',
-    month3: 'You will be fully responsible for your own pipeline. You will close a steady stream of deals per week. You will implement a system to follow up with cold leads every two weeks.',
-    compensation: [
-      "**Commission (Sales):** You will earn a commission on the total value of any service package you sell. The exact percentage and payout structure will be strictly defined in a separate, legally binding Commission Agreement.",
-      "**Commission (Recurring):** You will earn a recurring commission on all monthly subscriptions you sell, for as long as that client continues to pay. The exact structure will be defined in the separate Commission Agreement.",
-      "**Bonuses:** You will be eligible for volume-based bonuses. The exact targets and amounts will be defined in the separate Commission Agreement.",
-      "**No Base Pay:** There is no fixed salary, hourly wage, stipend, or guaranteed monthly retainer. Your income is 100% based on the sales you close."
-    ],
-    resources: 'You will be provided with a company laptop, a dedicated phone line, and access to our CRM. You will receive weekly training from the Founder on sales tactics.',
-    environment: 'You can work remotely, but you must be based in Zambia so you can make calls during standard business hours (08:00 to 17:00 CAT). You may be required to attend occasional in-person networking events in Lusaka.',
-    terms: [
-      "**No Employment Relationship:** This Agreement does not create an employer-employee relationship. You are an independent contractor.",
-      "**Clawback Policy:** Commission is only paid out after the client has paid us and the refund window has passed, as defined in the separate Commission Agreement.",
-      "**Non-Solicitation:** You cannot attempt to steal StartEasy clients for another competing business while working here or for 1 year after you leave.",
-      "**Termination:** This is a performance-based role. If you fail to meet your outreach targets for 3 consecutive weeks, the company reserves the right to terminate this agreement immediately."
-    ]
-  }
+  mainSiteUrl: 'https://www.starteasyzambia.com',
+  directoryUrl: 'https://suppliersdirectory.starteasyzambia.com',
+  adminWhatsapp: '260762499581',
+  contactEmail: 'referrals@starteasyzambia.com'
 };
 
-const LIVE_CODES = {
-  'INV-CDM-7B3N': 'cdmo',
-  'INV-DIR-2P8Q': 'director_finance',
-  'INV-GRO-4M1X': 'growth_associate'
+const SE_AGENTS = 'se_agents';
+const SE_COMMISSIONS = 'se_commissions';
+const REF_KEY = 'starteasy.ref.v1';
+const CODE_RX = /^SE-[A-Z0-9-]{3,32}$/;
+
+/* ---------------- FIREBASE ---------------- */
+let db = null, auth = null, fbReady = false;
+try {
+  if (!firebase.apps.length) firebase.initializeApp(CONFIG.firebase);
+  db = firebase.firestore();
+  auth = firebase.auth();
+  fbReady = true;
+  auth.signInAnonymously().catch(() => {});
+} catch (e) { console.error("Firebase Init Error:", e); }
+
+/* ---------------- HELPERS ---------------- */
+const fmtZmw = n => 'K' + (Number(n) || 0).toFixed(2);
+const fmtInt = n => String(Number(n) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const copyText = async t => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(t); return true; }
+    const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); return true;
+  } catch (e) { return false; }
+};
+const isMobileUA = () => /android|iphone|ipad|ipod|mobile/i.test((navigator.userAgent || '').toLowerCase());
+const waUrl = (msg, phone) => {
+  const p = phone || CONFIG.adminWhatsapp; const e = encodeURIComponent(msg);
+  return isMobileUA() ? 'whatsapp://send?phone=' + p + '&text=' + e : 'https://wa.me/' + p + '?text=' + e;
+};
+const generateAgentCode = name => {
+  const clean = String(name || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 8) || 'AGENT';
+  return 'SE-' + clean + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 };
 
-const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style, type="button" }) => {
+/* ---------------- UI COMPONENTS ---------------- */
+const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style, type = 'button' }) => {
   const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
   const sizes = { sm: { padding: '8px 14px', fontSize: 12 }, md: { padding: '11px 20px', fontSize: 13.5 }, lg: { padding: '14px 24px', fontSize: 14.5 } };
-  const variants = { primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' }, dark: { background: '#0A1F12', color: '#fff' }, ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' }, success: { background: '#1E7B3C', color: '#fff' } };
+  const variants = {
+    primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' },
+    dark: { background: '#0A1F12', color: '#fff' },
+    ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' },
+    success: { background: '#1E7B3C', color: '#fff' }
+  };
   return <button type={type} onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
 
-const downloadMockPDF = (filename) => {
-  const element = document.createElement("a");
-  const file = new Blob(["This is a simulated document for StartEasy Zambia: " + filename], {type: 'application/pdf'});
-  element.href = URL.createObjectURL(file);
-  element.download = filename.replace(/\s+/g, '_') + ".pdf";
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
+const Spinner = ({ label }) => (
+  <div style={{ padding: 80, textAlign: 'center' }}>
+    <i className="fas fa-circle-notch spin" style={{ fontSize: 28, color: '#E8730F' }}></i>
+    {label && <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{label}</p>}
+  </div>
+);
+
+const Badge = ({ status }) => {
+  const m = {
+    active: { label: 'Active', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
+    pending: { label: 'Pending', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
+    earned: { label: 'Earned', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
+    paid: { label: 'Paid', color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' }
+  }[status] || { label: status, color: '#666', bg: '#eee', icon: 'fa-circle' };
+  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 99, fontSize: 10.5, fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase', background: m.bg, color: m.color, border: `1px solid ${m.color}33` }}><i className={`fas ${m.icon}`}></i> {m.label}</span>;
 };
 
-function App() {
-  const [view, setView] = useState('gateway'); 
-  const [inviteCode, setInviteCode] = useState('');
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [codeError, setCodeError] = useState('');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  // Contract State
-  const [form, setForm] = useState({ name: '', email: '', phone: '', location: '' });
-  const [agreed, setAgreed] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [hrStatus, setHrStatus] = useState('pending'); 
-  const [itRequest, setItRequest] = useState('');
-  const [itRequestSent, setItRequestSent] = useState(false);
+const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
+  <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '16px 18px', borderTopWidth: 3, borderTopColor: color }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+      <span style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)' }}>{label}</span>
+      {icon && <i className={`fas ${icon}`} style={{ color, fontSize: 12 }}></i>}
+    </div>
+    <div className="serif" style={{ fontSize: 24, fontWeight: 800, color: '#0A1F12', lineHeight: 1.1, marginBottom: 2 }}>{value}</div>
+    {sub && <div style={{ fontSize: 11, color: 'rgba(10,31,18,.5)' }}>{sub}</div>}
+  </div>
+);
 
-  // Auth State
-  const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  
-  // Auth Forms
-  const [authPassword, setAuthPassword] = useState('');
-  const [authConfirmPassword, setAuthConfirmPassword] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [resetEmail, setResetEmail] = useState('');
-  const [resetSent, setResetSent] = useState(false);
-
-  // Listen to Firebase Auth State
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        // Fetch user data from Firestore
-        try {
-          const docRef = db.collection('se_appointees').doc(currentUser.uid);
-          const docSnap = await docRef.get();
-          if (docSnap.exists) {
-            setUserData(docSnap.data());
-            // If they are logged in, send them to dashboard view
-            setView('dashboard');
-          }
-        } catch (e) {
-          console.error("Error fetching user data:", e);
-        }
-      } else {
-        setUser(null);
-        setUserData(null);
-      }
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // --- AUTHENTICATION LOGIC ---
-
-  const handleCreateAccount = async (e) => {
-    e.preventDefault();
-    setAuthError('');
-    
-    if (authPassword.length < 6) return setAuthError('Password must be at least 6 characters.');
-    if (authPassword !== authConfirmPassword) return setAuthError('Passwords do not match.');
-    
-    setBusy(true);
-    try {
-      // 1. Create Auth User
-      const userCredential = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), authPassword);
-      
-      // 2. Save Appointee Data to Firestore
-      await db.collection('se_appointees').doc(userCredential.user.uid).set({
-        name: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
-        phone: form.phone.trim(),
-        location: form.location.trim(),
-        roleId: selectedRole.id,
-        roleTitle: selectedRole.title,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      // Auth listener will automatically redirect to dashboard
-    } catch (err) {
-      console.error(err);
-      if (err.code === 'auth/email-already-in-use') setAuthError('This email is already registered. Please login instead.');
-      else setAuthError(err.message || 'Failed to create account.');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setAuthError('');
-    setBusy(true);
-    try {
-      await auth.signInWithEmailAndPassword(form.email.trim().toLowerCase(), authPassword);
-      // Auth listener handles redirect
-    } catch (err) {
-      console.error(err);
-      if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-        setAuthError('Invalid email or password.');
-      } else {
-        setAuthError(err.message || 'Login failed.');
-      }
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setAuthError('');
-    if (!resetEmail.trim()) return setAuthError('Please enter your email address.');
-    setBusy(true);
-    try {
-      await auth.sendPasswordResetEmail(resetEmail.trim().toLowerCase());
-      setResetSent(true);
-    } catch (err) {
-      console.error(err);
-      setAuthError(err.message || 'Failed to send reset email.');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    await auth.signOut();
-    resetPortal();
-  };
-
-  // --- NAVIGATION LOGIC ---
-
-  const validateCode = () => {
-    setCodeError('');
-    const codeUpper = inviteCode.trim().toUpperCase();
-    if (LIVE_CODES[codeUpper]) {
-      setSelectedRole(ROLES[LIVE_CODES[codeUpper]]);
-      setView('brief');
-      window.scrollTo(0, 0);
-      setIsMenuOpen(false);
-    } else {
-      setCodeError('Invalid or expired invitation code. Please contact StartEasy Zambia Admin.');
-    }
-  };
-
-  const signAgreement = () => {
-    setError('');
-    if (!form.name.trim()) return setError('Please type your full legal name to sign.');
-    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setError('Please enter a valid email address.');
-    if (!form.phone.trim()) return setError('Please enter a valid phone number.');
-    if (!form.location.trim()) return setError('Please enter your current city/location.');
-    if (!agreed) return setError('You must check the acceptance box to execute this agreement.');
-
-    setBusy(true);
-    setTimeout(() => {
-      setBusy(false);
-      setView('create-account'); // GO TO ACCOUNT CREATION AFTER SIGNING
-      window.scrollTo(0, 0);
-    }, 1000);
-  };
-
-  const resetPortal = () => {
-    setView('gateway');
-    setInviteCode('');
-    setSelectedRole(null);
-    setForm({name:'', email:'', phone:'', location:''});
-    setAgreed(false);
-    setError('');
-    setCodeError('');
-    setHrStatus('pending');
-    setItRequest('');
-    setItRequestSent(false);
-    setAuthPassword('');
-    setAuthConfirmPassword('');
-    setAuthError('');
-    setIsMenuOpen(false);
-    window.scrollTo(0, 0);
-  };
-
-  const submitITRequest = (e) => {
-    e.preventDefault();
-    if(!itRequest.trim()) return;
-    setItRequestSent(true);
-    setTimeout(() => {
-      setItRequest('');
-      setItRequestSent(false);
-    }, 4000);
-  };
-
-  if (authLoading) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A1F12' }}><i className="fas fa-circle-notch fa-spin" style={{ fontSize: 32, color: '#E8730F' }}></i></div>;
-  }
+/* ---------------- NAVIGATION ---------------- */
+function Nav({ route, go, agent, onSignOut }) {
+  const [open, setOpen] = useState(false);
+  const handleNav = (r) => { setOpen(false); go(r); };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%' }}>
-      
-      {/* HEADER WITH DYNAMIC MENU */}
-      <header className="site-header no-print">
-        <div className="header-content">
-          <div className="logo-group" onClick={() => user ? setView('dashboard') : resetPortal()}>
-            <div className="logo-mark">S</div>
-            <div>
-              <div className="logo-text-sub">Founding Team Portal</div>
-              <div className="logo-text-main">StartEasy Zambia</div>
-            </div>
+    <header className="site-header">
+      <div className="header-container">
+        <button onClick={() => handleNav('')} className="header-logo">
+          <div className="header-logo-mark">S</div>
+          <div className="header-logo-text">
+            <span className="header-logo-sub">Agent Opportunity</span>
+            <span className="header-logo-main">Start<em>Easy</em></span>
           </div>
+        </button>
+
+        <nav className="header-nav">
+          <button onClick={() => handleNav('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
+          <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works</button>
+          <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
+          <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support</button>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
-            </button>
+          <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
+          
+          <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
+          
+          <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
+
+          {agent ? (
+            <>
+              <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>Dashboard</button>
+              <button onClick={onSignOut} className="header-btn" style={{ background: 'rgba(255,255,255,.1)' }}>Sign Out</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => handleNav('login')} className="header-link">Sign In</button>
+              <button onClick={() => handleNav('join')} className="header-btn">Get Code</button>
+            </>
+          )}
+        </nav>
+
+        <button onClick={() => setOpen(!open)} className="header-mobile-toggle">
+          <i className={`fas ${open ? 'fa-times' : 'fa-bars'}`}></i>
+        </button>
+      </div>
+
+      {open && (
+        <div className="header-mobile-menu">
+          <button onClick={() => handleNav('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
+          <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works & Earnings</button>
+          <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
+          <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support / Contact</button>
+          
+          <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
+          
+          <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '8px 0' }}></div>
+          
+          {agent ? (
+            <>
+              <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>My Dashboard</button>
+              <button onClick={() => { setOpen(false); onSignOut(); }} className="header-link" style={{ color: '#B8564F' }}>Sign Out</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => handleNav('login')} className={`header-link ${route === 'login' ? 'active' : ''}`}>Sign In</button>
+              <button onClick={() => handleNav('join')} className="header-btn">Sign Agreement & Get Code</button>
+            </>
+          )}
+        </div>
+      )}
+    </header>
+  );
+}
+
+/* ---------------- FOOTER ---------------- */
+function Footer() {
+  return (
+    <footer style={{ background: '#0A1F12', borderTop: '1px solid rgba(255,255,255,.1)', padding: '40px 24px', textAlign: 'center', marginTop: 'auto' }}>
+      <p style={{ color: 'rgba(255,255,255,.5)', fontSize: 14, marginBottom: 20 }}>
+        Want to explore our full range of business services?
+      </p>
+      <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" 
+         style={{ 
+           display: 'inline-flex', alignItems: 'center', gap: 10, 
+           padding: '14px 28px', background: 'rgba(255,255,255,.05)', 
+           color: '#F5A623', border: '1px solid rgba(245,166,35,.3)', 
+           borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', transition: 'all .2s' 
+         }}
+         onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
+         onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,.05)'}
+      >
+        Explore StartEasy Zambia <i className="fas fa-external-link-alt" style={{ fontSize: 13 }}></i>
+      </a>
+      <div style={{ marginTop: 32, fontSize: 11, color: 'rgba(255,255,255,.3)' }}>
+        © {new Date().getFullYear()} StartEasy Zambia. All rights reserved.
+      </div>
+    </footer>
+  );
+}
+
+/* ---------------- PAGES ---------------- */
+function Landing({ go }) {
+  return (
+    <div className="fadein">
+      <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '64px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <span style={{ fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', fontWeight: 800, color: '#F5A623', display: 'block', marginBottom: 16 }}>StartEasy Zambia</span>
+          <h1 className="serif" style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', lineHeight: 1.1, marginBottom: 20 }}>
+            Share StartEasy. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Earn on every sale.</em>
+          </h1>
+          <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
+            Sign your opportunity engagement agreement to get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement, you earn a commission.
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Btn size="lg" variant="primary" onClick={() => go('join')}>Sign Agreement & Get Code</Btn>
+            <Btn size="lg" variant="ghost" onClick={() => go('how-it-works')}>See How It Works</Btn>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function HowItWorks({ go }) {
+  return (
+    <div className="fadein" style={{ background: '#F5FAF6', paddingBottom: 60 }}>
+      <section style={{ background: '#0A1F12', color: '#fff', padding: '48px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+          <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', marginBottom: 16 }}>How It Works</h1>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.7)', lineHeight: 1.7 }}>
+            Understand exactly how your referral links track customers, and how you earn commissions from every service StartEasy provides.
+          </p>
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
+        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 24 }}>Your 4-Step Earning Process</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 48 }}>
+          {[
+            { n: '01', t: 'Sign & Get Code', d: 'Fill out the engagement agreement. Your unique referral links are generated instantly.' },
+            { n: '02', t: 'Share Your Link', d: 'Use the Main Link for services (PACRA, ZRA) or the Directory Link for suppliers.' },
+            { n: '03', t: 'They Buy', d: 'When they click your link, the system tracks them for 30 days. If they pay, it is attributed to you.' },
+            { n: '04', t: 'You Earn', d: 'Once the payment clears (7 days), your commission is credited to your dashboard.' }
+          ].map((x, i) => (
+            <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', borderTopWidth: 4, borderTopColor: '#E8730F' }}>
+              <div className="serif" style={{ fontSize: 14, color: '#E8730F', fontWeight: 800, marginBottom: 8 }}>{x.n}</div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>{x.t}</h3>
+              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.65)', lineHeight: 1.6, margin: 0 }}>{x.d}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 12 }}>Commission Structure</h2>
+        <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', marginBottom: 20, maxWidth: 700 }}>
+          You earn a percentage of the <strong>StartEasy service fee</strong> (excluding government fees) for every successful referral. Below is the breakdown of what you earn per service category.
+        </p>
+        
+        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden', marginBottom: 40 }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+              <thead>
+                <tr>
+                  {['Service Tier', 'Examples', 'Service Fee', 'Your Commission', 'You Earn'].map(h => (
+                    <th key={h} style={{ textAlign: 'left', padding: '14px 18px', background: '#0A1F12', fontSize: 10.5, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(255,255,255,.7)' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {/* Main Platform Services */}
+                <tr><td colSpan="5" style={{ padding: '10px 18px', background: '#F8FAF6', fontSize: 11.5, fontWeight: 800, textTransform: 'uppercase', color: '#8A6828', borderBottom: '1px solid rgba(10,31,18,.08)' }}>Main Platform Services</td></tr>
+                {[
+                  { tier: 'Micro / Wizard', ex: 'Name Clearance, Structure Adv.', fee: 'K25', pct: '40%', earn: 'K10' },
+                  { tier: 'Basic', ex: 'TPIN, Employer Reg.', fee: 'K250', pct: '30%', earn: 'K75' },
+                  { tier: 'Standard', ex: 'Business Name, Tax Returns', fee: 'K400', pct: '25%', earn: 'K100' },
+                  { tier: 'Complex', ex: 'Company Incorporation', fee: 'K750', pct: '22%', earn: 'K165' },
+                  { tier: 'Check-Up', ex: 'Compliance Audit', fee: 'K750', pct: '22%', earn: 'K165' },
+                  { tier: 'Regularisation', ex: 'Tax/Compliance Clean-up', fee: 'from K1,500', pct: '18%', earn: 'from K270' },
+                  { tier: 'Venture Services', ex: 'Business Plan, Brand', fee: 'K600 - K1,200', pct: '20%', earn: 'K120 - K240' },
+                  { tier: 'Ongoing Services', ex: 'Monthly Filing', fee: 'K250 - K1,200', pct: '15% - 20%', earn: 'K50 - K180' }
+                ].map((r, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid rgba(10,31,18,.06)' }}>
+                    <td style={{ padding: '14px 18px', fontSize: 13, fontWeight: 700, color: '#0A1F12' }}>{r.tier}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 12.5, color: 'rgba(10,31,18,.6)' }}>{r.ex}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.fee}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.pct}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, fontWeight: 800, color: '#E8730F' }}>{r.earn}</td>
+                  </tr>
+                ))}
+
+                {/* Directory Platform Services */}
+                <tr><td colSpan="5" style={{ padding: '10px 18px', background: '#F8FAF6', fontSize: 11.5, fontWeight: 800, textTransform: 'uppercase', color: '#8A6828', borderBottom: '1px solid rgba(10,31,18,.08)', borderTop: '1px solid rgba(10,31,18,.08)' }}>Directory Services (Suppliers & Buyers)</td></tr>
+                {[
+                  { tier: 'Directory Listing', ex: 'Monthly or Annual Subscription', fee: 'K100 - K1,400', pct: '20%', earn: 'K20 - K280' },
+                  { tier: 'Directory Verification', ex: 'Trust Badge', fee: 'K75 - K600', pct: '20%', earn: 'K15 - K120' },
+                  { tier: 'Campaign Placement', ex: 'Sponsored Promo', fee: 'K455', pct: '20%', earn: 'K91' },
+                  { tier: 'Qualified Leads', ex: 'Monthly Access', fee: 'K400', pct: '20%', earn: 'K80' },
+                  { tier: 'Sourcing Support', ex: 'Procurement Service', fee: 'K600', pct: '20%', earn: 'K120' }
+                ].map((r, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid rgba(10,31,18,.06)' }}>
+                    <td style={{ padding: '14px 18px', fontSize: 13, fontWeight: 700, color: '#0A1F12' }}>{r.tier}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 12.5, color: 'rgba(10,31,18,.6)' }}>{r.ex}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.fee}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{r.pct}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 13, fontWeight: 800, color: '#E8730F' }}>{r.earn}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* DYNAMIC DROPDOWN MENU */}
-        {isMenuOpen && (
-          <div className="nav-menu fadein">
-            {user ? (
-              // Logged In Menu
+        <div style={{ background: 'linear-gradient(135deg,#FFF9E6,#FFFCF0)', border: '1.5px solid #F0E0A0', borderRadius: 12, padding: '24px 28px', marginBottom: 40 }}>
+          <h3 className="serif" style={{ fontSize: 18, color: '#0A1F12', marginBottom: 12 }}>Getting Paid</h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <li style={{ display: 'flex', gap: 12, fontSize: 14, color: 'rgba(10,31,18,.8)', alignItems: 'flex-start' }}>
+              <i className="fas fa-check-circle" style={{ color: '#E8730F', marginTop: 3 }}></i>
+              <span><strong>Clearing Period:</strong> Commissions become "Earned" 7 days after the client's payment is approved.</span>
+            </li>
+            <li style={{ display: 'flex', gap: 12, fontSize: 14, color: 'rgba(10,31,18,.8)', alignItems: 'flex-start' }}>
+              <i className="fas fa-check-circle" style={{ color: '#E8730F', marginTop: 3 }}></i>
+              <span><strong>Minimum Payout:</strong> You can request a withdrawal once your available balance reaches K200.</span>
+            </li>
+            <li style={{ display: 'flex', gap: 12, fontSize: 14, color: 'rgba(10,31,18,.8)', alignItems: 'flex-start' }}>
+              <i className="fas fa-check-circle" style={{ color: '#E8730F', marginTop: 3 }}></i>
+              <span><strong>Payment Methods:</strong> Payouts are sent directly to your Airtel Money, MTN MoMo, or Bank Account within 5 working days.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div style={{ textAlign: 'center' }}>
+          <Btn size="lg" variant="primary" onClick={() => go('join')}>Sign Agreement & Start Earning</Btn>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function FAQPage() {
+  const faqs = [
+    { q: 'Is this a salaried job?', a: 'No. This is an independent contractor opportunity. You are not an employee, and there is no salary or guaranteed income. Your earnings depend entirely on the sales you refer.' },
+    { q: 'Why do I have two links?', a: 'StartEasy has two platforms. The Main Platform is for business services (PACRA, ZRA, compliance). The Directory is for buyers and suppliers. Both links use the exact same referral code to track your commissions.' },
+    { q: 'Can I refer myself or my own business?', a: 'No. Self-referrals are automatically detected and blocked by our system to prevent fraud.' },
+    { q: 'When and how do I get paid?', a: 'Once a client you referred pays, the commission goes into a "Pending" state for 7 days. After 7 days, it becomes "Earned". You can request a payout from your dashboard once your total earned reaches K200.' },
+    { q: 'What happens if a client gets a refund?', a: 'If a payment is reverted or declined, the associated commission is automatically cancelled.' },
+    { q: 'Do I have to pay to join?', a: 'No. Registration is completely free. StartEasy does not charge any joining or maintenance fees.' }
+  ];
+
+  return (
+    <div className="fadein" style={{ background: '#F5FAF6', minHeight: '100vh', padding: '48px 24px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: '#0A1F12', marginBottom: 16, textAlign: 'center' }}>Frequently Asked Questions</h1>
+        <p style={{ fontSize: 15, color: 'rgba(10,31,18,.6)', textAlign: 'center', marginBottom: 40 }}>Everything you need to know about the StartEasy Referral Program.</p>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {faqs.map((f, i) => (
+            <details key={i} style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: '16px 20px' }}>
+              <summary style={{ cursor: 'pointer', fontSize: 15, fontWeight: 700, color: '#0A1F12', lineHeight: 1.5 }}>{f.q}</summary>
+              <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', lineHeight: 1.7, marginTop: 12, marginBottom: 0 }}>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SupportPage() {
+  return (
+    <div className="fadein" style={{ background: '#F5FAF6', minHeight: '100vh', padding: '48px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ maxWidth: 500, width: '100%', textAlign: 'center' }}>
+        <i className="fas fa-headset" style={{ fontSize: 48, color: '#E8730F', marginBottom: 20 }}></i>
+        <h1 className="serif" style={{ fontSize: 32, color: '#0A1F12', marginBottom: 12 }}>Need Help?</h1>
+        <p style={{ fontSize: 15, color: 'rgba(10,31,18,.7)', lineHeight: 1.7, marginBottom: 32 }}>
+          Our agent support desk is here to help you with your links, your dashboard, or any questions about earning commissions.
+        </p>
+        
+        <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: 32, textAlign: 'left' }}>
+          <a href={waUrl('Hello StartEasy — I am an agent and I need help with the Referral Program.')} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#25D366', color: '#fff', padding: '14px 20px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 16 }}>
+            <i className="fab fa-whatsapp" style={{ fontSize: 20 }}></i> Chat with us on WhatsApp
+          </a>
+          <a href={`mailto:${CONFIG.contactEmail}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#0A1F12', color: '#fff', padding: '14px 20px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
+            <i className="fas fa-envelope"></i> Email {CONFIG.contactEmail}
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JoinPage({ go, onAuth }) {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', location: '', password: '' });
+  const [agreed, setAgreed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const submit = async () => {
+    setErr('');
+    if (!form.name.trim()) return setErr('Please type your full name on the signature line.');
+    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setErr('Please enter a valid email.');
+    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 9) return setErr('Please enter a valid phone number.');
+    if (!form.location) return setErr('Please select your location.');
+    if (!form.password || form.password.length < 6) return setErr('Password must be at least 6 characters.');
+    if (!agreed) return setErr('You must check the agreement box to proceed.');
+
+    setBusy(true);
+    try {
+      // 1. Create Auth User
+      const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
+      const agentCode = generateAgentCode(form.name);
+
+      // 2. Save Agent Data to Firestore
+      await db.collection(SE_AGENTS).doc(cred.user.uid).set({
+        uid: cred.user.uid,
+        agentCode: agentCode,
+        displayName: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim(),
+        location: form.location,
+        status: 'active',
+        commissionPct: 20,
+        createdAt: Date.now(),
+        totals: { clicks: 0, conversions: 0, earnedZmw: 0, paidZmw: 0, pendingZmw: 0 }
+      });
+
+      onAuth();
+    } catch (e) {
+      if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in.');
+      else if (e.code === 'auth/operation-not-allowed') setErr('Email/Password sign-in is not enabled in Firebase Console.');
+      else setErr(e.message || 'Registration failed.');
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
+      <div className="el fadein printable">
+        <div className="eh">
+          <div>
+            <div className="brand">Start<em>Easy</em></div>
+            <div className="sub">StartEasy Zambia</div>
+          </div>
+          <div>
+            <div className="dt">OPPORTUNITY ENGAGEMENT</div>
+            <div className="mt">
+              {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br/>
+              Ref: SE-AGT-{new Date().getFullYear()}-{String(Math.floor(Math.random()*9000)+1000)}
+            </div>
+          </div>
+        </div>
+
+        <p><strong>Dear {form.name.trim() ? form.name.trim() : '___________________'},</strong></p>
+        
+        <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
+
+        <h4>1. Nature of Engagement</h4>
+        <p>You are joining as an independent Referral Agent. This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
+
+        <h4>2. Commission & Payouts</h4>
+        <p>You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions clear after a 7-day period and can be withdrawn to your mobile money or bank account once your balance reaches K200.</p>
+
+        <div style={{ background: '#F9FBFA', padding: 16, borderRadius: 8, border: '1px solid #eee', marginBottom: 20 }}>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: 14, border: 'none', padding: 0 }}>Commission Figures Preview</h4>
+          <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12.5, color: 'rgba(10,31,18,0.8)' }}>
+            <li><strong>Micro Services (K25):</strong> Earn K10</li>
+            <li><strong>Basic Services (K250):</strong> Earn K75</li>
+            <li><strong>Standard Services (K400):</strong> Earn K100</li>
+            <li><strong>Complex Services (K750):</strong> Earn K165</li>
+            <li><em>View full table in the "How It Works" section.</em></li>
+          </ul>
+        </div>
+
+        <h4>3. Agent Details</h4>
+        <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
+          <span>
+            <strong>Email Address:</strong><br/>
+            <input className="doc-input-line" type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+          </span>
+          <span>
+            <strong>Phone / WhatsApp:</strong><br/>
+            <input className="doc-input-line" placeholder="+260..." value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+          </span>
+        </p>
+        <p style={{ marginTop: 12 }}>
+          <strong>Location:</strong><br/>
+          <select className="doc-input-line" value={form.location} onChange={e => setForm({...form, location: e.target.value})}>
+            <option value="">Choose location...</option>
+            {['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora'].map(l => <option key={l} value={l}>{l}</option>)}
+          </select>
+        </p>
+
+        <h4>4. Acceptance</h4>
+        <p>To proceed, create a password for your dashboard, confirm your agreement below, and sign on the right.</p>
+        
+        <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
+          <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
+            <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
+            <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand this is a commission-only independent contractor agreement.</span>
+          </label>
+          
+          <div style={{ marginTop: 16 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '.05em' }}>Create Dashboard Password:</label>
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? 'text' : 'password'} 
+                className="doc-input-line" 
+                placeholder="Min 6 characters" 
+                value={form.password} 
+                onChange={e => setForm({...form, password: e.target.value})} 
+                style={{ paddingRight: '40px' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                style={{ 
+                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', 
+                  background: 'none', border: 'none', cursor: 'pointer', 
+                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' 
+                }}
+              >
+                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="sign">
+          <div>
+            <div className="sigval">MWABA LEWIS</div>
+            <div className="lbl">For StartEasy</div>
+          </div>
+          <div>
+            <input className="siginput" placeholder="Type your full name to sign" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+            <div className="lbl">For the Agent</div>
+          </div>
+        </div>
+
+        {err && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{err}</div>}
+
+        <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
+          {busy ? 'Generating Code...' : 'Sign & Generate My Referral Code'}
+        </Btn>
+
+        <div className="ft">
+          <strong>StartEasy</strong> · Lusaka, Zambia · {CONFIG.contactEmail} · +260 762499581
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoginPage({ go, onAuth }) {
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  
+  const [resetMode, setResetMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  const submit = async () => {
+    setErr('');
+    if (!email.trim() || !pw) return setErr('Enter your email and password.');
+    setBusy(true);
+    try {
+      await auth.signInWithEmailAndPassword(email.trim(), pw);
+      onAuth();
+    } catch (e) {
+      if (e.code === 'auth/operation-not-allowed') {
+        setErr('Email/Password sign-in is not enabled in Firebase Console.');
+      } else if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+        setErr('Incorrect email or password. (Have you signed the agreement yet?)');
+      } else {
+        setErr(e.message || 'Sign in failed.');
+      }
+    } finally { setBusy(false); }
+  };
+
+  const handleReset = async () => {
+    setErr('');
+    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return setErr('Enter a valid email address.');
+    setBusy(true);
+    try {
+      await auth.sendPasswordResetEmail(email.trim());
+      setResetSent(true);
+    } catch (e) {
+      if (e.code === 'auth/user-not-found') setErr('No account exists with this email. Have you signed the agreement?');
+      else setErr(e.message || 'Failed to send reset email.');
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+      <div style={{ background: '#fff', borderRadius: 14, padding: '32px 28px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,.08)' }}>
+        
+        {resetMode ? (
+          // RESET PASSWORD VIEW
+          <>
+            <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Reset Password</h1>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>
+              {resetSent ? 'Check your email inbox for a secure link to reset your password.' : 'Enter your email address and we will send you a reset link.'}
+            </p>
+            
+            {!resetSent ? (
               <>
-                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('dashboard'); window.scrollTo(0,0); }}>
-                  <i className="fas fa-columns text-gray-500"></i> My Dashboard
-                </div>
-                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('resources'); window.scrollTo(0,0); }}>
-                  <i className="fas fa-book-open text-gray-500"></i> Guidance & Resources
-                </div>
-                <a href="mailto:hr@starteasyzambia.com" className="nav-item" style={{ color: '#0A1F12' }}>
-                  <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
-                </a>
-                <div className="nav-item" onClick={handleLogout} style={{ borderTop: '1px solid #eee', color: '#B8564F' }}>
-                  <i className="fas fa-sign-out-alt"></i> Log Out
-                </div>
+                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
+                {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
+                <Btn onClick={handleReset} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
+                  {busy ? 'Sending...' : 'Send Reset Link'}
+                </Btn>
               </>
             ) : (
-              // Logged Out Menu
-              <>
-                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('login'); window.scrollTo(0,0); }}>
-                  <i className="fas fa-sign-in-alt text-gray-500"></i> Login to HR Portal
-                </div>
-                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('resources'); window.scrollTo(0,0); }}>
-                  <i className="fas fa-book-open text-gray-500"></i> Guidance & Resources
-                </div>
-                <a href="mailto:hr@starteasyzambia.com" className="nav-item" style={{ color: '#0A1F12' }}>
-                  <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
-                </a>
-              </>
+              <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', color: '#1E7B3C', padding: 16, borderRadius: 8, marginBottom: 20, fontSize: 13, fontWeight: 600, lineHeight: 1.5 }}>
+                <i className="fas fa-check-circle" style={{ marginRight: 8 }}></i>
+                Reset link sent to <strong>{email}</strong>.
+              </div>
             )}
-          </div>
+            
+            <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>
+              <button onClick={() => { setResetMode(false); setResetSent(false); setErr(''); }} style={{ background: 'none', border: 'none', color: '#0A1F12', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}>Back to login</button>
+            </p>
+          </>
+        ) : (
+          // STANDARD LOGIN VIEW
+          <>
+            <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Welcome back</h1>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>Sign in to view your dashboard.</p>
+            <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700 }}>Password</label>
+              <button onClick={() => { setResetMode(true); setErr(''); }} style={{ background: 'none', border: 'none', color: '#E8730F', fontSize: 12, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>Forgot password?</button>
+            </div>
+            
+            <div style={{ position: 'relative', marginBottom: 16 }}>
+              <input 
+                type={showPassword ? 'text' : 'password'} 
+                value={pw} 
+                onChange={e => setPw(e.target.value)} 
+                style={{ width: '100%', padding: '12px 40px 12px 12px', border: '1px solid #ccc', borderRadius: 8 }} 
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                style={{ 
+                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', 
+                  background: 'none', border: 'none', cursor: 'pointer', 
+                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' 
+                }}
+              >
+                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              </button>
+            </div>
+            {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
+            
+            <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
+              {busy ? 'Signing in...' : 'Sign in'}
+            </Btn>
+            <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign agreement here</a>.</p>
+          </>
         )}
-      </header>
 
-      <main style={{ flex: 1, background: '#F5FAF6', width: '100%', overflowX: 'hidden' }}>
+      </div>
+    </div>
+  );
+}
+
+function Dashboard({ go, onSignOut, agent, setAgent }) {
+  const [commissions, setCommissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [msg, setMsg] = useState('');
+  const [showCodeBanner, setShowCodeBanner] = useState(true);
+  const [showAgreement, setShowAgreement] = useState(false);
+
+  useEffect(() => {
+    if (!agent) return;
+    const unsubs = [
+      db.collection(SE_AGENTS).doc(agent.id).onSnapshot(s => { if (s.exists) setAgent({ id: s.id, ...s.data() }); }),
+      db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).orderBy('createdAt', 'desc').limit(100).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+    ];
+    setLoading(false);
+    return () => unsubs.forEach(u => u());
+  }, [agent.id]);
+
+  if (loading || !agent) return <Spinner label="Loading dashboard…" />;
+
+  const mainLink = `${CONFIG.mainSiteUrl}/?ref=${agent.agentCode}`;
+  const directoryLink = `${CONFIG.directoryUrl}/?ref=${agent.agentCode}`;
+
+  const earned = agent.totals?.earnedZmw || 0;
+  const paid = agent.totals?.paidZmw || 0;
+  const pending = agent.totals?.pendingZmw || 0;
+  const available = Math.max(0, earned - paid);
+
+  const doCopy = async (text, label) => {
+    const ok = await copyText(text);
+    setMsg(ok ? `${label} copied!` : 'Copy failed');
+    setTimeout(() => setMsg(''), 2000);
+  };
+
+  const signedDate = new Date(agent.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const refCode = 'SE-AGT-' + new Date(agent.createdAt).getFullYear() + '-' + agent.agentCode.split('-')[2];
+  
+  const waShareMsg = `Hello StartEasy, I have signed my referral agreement.\n\nName: ${agent.displayName}\nCode: ${agent.agentCode}\nDate: ${signedDate}\n\nPlease find my signed agreement attached/here for your records.`;
+  const emailSubject = `Signed Referral Agreement - ${agent.displayName} (${agent.agentCode})`;
+  const emailBody = `Hello StartEasy,\n\nI have signed my referral agreement.\n\nName: ${agent.displayName}\nAgent Code: ${agent.agentCode}\nEmail: ${agent.email}\nPhone: ${agent.phone}\nLocation: ${agent.location}\nDate: ${signedDate}\n\nPlease find my signed agreement attached for your records.\n\nRegards,\n${agent.displayName}`;
+
+  return (
+    <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 16px' }}>
         
-        {/* --- LANDING PAGE --- */}
-        {view === 'gateway' && (
-          <div className="fadein" style={{ width: '100%' }}>
-            <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center', width: '100%' }}>
-              <div style={{ maxWidth: 800, margin: '0 auto' }}>
-                <span style={{ display: 'inline-block', background: 'rgba(232,115,15,0.2)', color: '#F5A623', padding: '6px 16px', borderRadius: 99, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>Official Partner Portal</span>
-                <h1 className="serif" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', lineHeight: 1.1, marginBottom: 24 }}>
-                  Welcome to the <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Founding Team.</em>
-                </h1>
-                <p style={{ fontSize: 18, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', marginBottom: 40, maxWidth: 650, margin: '0 auto 40px' }}>
-                  This is a secure portal for shortlisted candidates. If you have received an invitation code, enter it below to review your role brief and execute your formal engagement agreement.
-                </p>
-              </div>
-            </section>
-
-            <section style={{ padding: '60px 24px', maxWidth: 1000, margin: '0 auto', width: '100%' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24, marginBottom: 60 }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>1</div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Verify Code</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Enter the unique invitation code sent to your email.</p>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>2</div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Review Brief</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Read the detailed role description and exact compensation structure.</p>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>3</div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Sign & Onboard</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Execute the agreement, create your account, and unlock your workspace.</p>
-                </div>
-              </div>
-
-              <div style={{ maxWidth: 450, margin: '0 auto', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
-                <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', margin: '0 0 8px', textAlign: 'center' }}>Secure Login</h2>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: '0 0 24px', textAlign: 'center' }}>Enter your invitation code to proceed.</p>
-
-                <input 
-                  type="text" 
-                  value={inviteCode} 
-                  onChange={e => setInviteCode(e.target.value.toUpperCase())} 
-                  placeholder="e.g. INV-CDM-XXXX"
-                  style={{ width: '100%', padding: 16, border: '2px solid #E8730F', borderRadius: 8, fontSize: 18, textAlign: 'center', letterSpacing: 2, fontWeight: 700, marginBottom: 16, background: '#FFF9E6' }} 
-                />
-                
-                {codeError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{codeError}</div>}
-                
-                <Btn onClick={validateCode} size="lg" variant="dark" style={{ width: '100%' }}>
-                  Unlock Your Role Brief
-                </Btn>
-              </div>
-            </section>
+        {showCodeBanner && (
+          <div className="no-print" style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff', borderRadius: 12, padding: '24px', marginBottom: 24, position: 'relative', boxShadow: '0 10px 30px rgba(10,31,18,.2)' }}>
+            <button onClick={() => setShowCodeBanner(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 16 }}>✕</button>
+            <h2 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 8 }}>Welcome, {agent.displayName.split(' ')[0]}! Your codes are ready.</h2>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 16 }}>You have two links below. Use the Main Link for business services, and the Directory Link for suppliers and buyers.</p>
           </div>
         )}
 
-        {/* --- LOGIN PAGE (For returning users) --- */}
-        {view === 'login' && (
-          <div className="fadein main-container" style={{ minHeight: '80vh', justifyContent: 'center' }}>
-            <div style={{ maxWidth: 450, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
-              <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                <i className="fas fa-sign-in-alt" style={{ fontSize: 32, color: '#E8730F', marginBottom: 12 }}></i>
-                <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', margin: 0 }}>HR Portal Login</h2>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: '8px 0 0' }}>Access your workspace and resources.</p>
-              </div>
+        <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+          <div>
+            <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: 0 }}>Agent Dashboard</h1>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: '4px 0 0' }}>Code: <strong>{agent.agentCode}</strong></p>
+          </div>
+          <Btn onClick={onSignOut} variant="ghost" size="sm">Sign Out</Btn>
+        </div>
 
-              <form onSubmit={handleLogin}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Email Address</label>
-                <input 
-                  type="email" 
-                  value={form.email} 
-                  onChange={e => setForm({...form, email: e.target.value})} 
-                  placeholder="Enter your registered email"
-                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
-                  required
-                />
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Password</label>
-                <input 
-                  type="password" 
-                  value={authPassword} 
-                  onChange={e => setAuthPassword(e.target.value)} 
-                  placeholder="Enter your password"
-                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
-                  required
-                />
-                {authError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, fontWeight: 600 }}>{authError}</div>}
-                <Btn type="submit" disabled={busy} size="lg" variant="dark" style={{ width: '100%', marginBottom: 16 }}>
-                  {busy ? 'Logging in...' : 'Log In'}
-                </Btn>
-              </form>
+        {msg && <div className="no-print" style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 12, borderRadius: 8, marginBottom: 16, fontWeight: 600, fontSize: 13 }}>{msg}</div>}
 
-              <div style={{ textAlign: 'center' }}>
-                <button onClick={() => { setView('forgot-password'); setAuthError(''); setResetSent(false); }} style={{ background: 'none', border: 'none', color: '#E8730F', fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
-                  Forgot Password?
-                </button>
-              </div>
+        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
+          <Kpi label="Clicks" value={fmtInt(agent.totals?.clicks)} sub="Link clicks" icon="fa-eye" color="#1B6CA8" />
+          <Kpi label="Conversions" value={fmtInt(agent.totals?.conversions)} sub="Approved payments" icon="fa-circle-check" color="#1E7B3C" />
+          <Kpi label="Earned" value={fmtZmw(earned)} sub={`${fmtZmw(available)} avail`} icon="fa-wallet" color="#E8730F" />
+          <Kpi label="Pending" value={fmtZmw(pending)} sub="Clearing (7 days)" icon="fa-clock" color="#8A6828" />
+        </div>
+
+        <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Your Referral Links</h3>
+          <p style={{ fontSize: 12.5, color: 'rgba(10,31,18,.6)', marginBottom: 16, lineHeight: 1.5 }}>
+            You have one agent code, but two platforms. Use the <strong>Main Link</strong> for business services (like company registration and taxes). Use the <strong>Directory Link</strong> for buyers and suppliers.
+          </p>
+          
+          {/* Main Platform Link */}
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'rgba(10,31,18,.6)', marginBottom: 6 }}>Main Platform (Services, PACRA, ZRA)</label>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <input type="text" readOnly value={mainLink} style={{ flex: 1, minWidth: 250, padding: 12, border: '1px solid #ccc', borderRadius: 8, fontFamily: 'monospace', fontSize: 13, background: '#F9FBFA' }} />
+              <Btn variant="primary" onClick={() => doCopy(mainLink, 'Main Link')}><i className="fas fa-copy"></i> Copy</Btn>
+              <a href={waUrl(`Check out StartEasy — quality business services in Zambia. Use my link: ${mainLink}`)} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share</a>
             </div>
           </div>
-        )}
 
-        {/* --- FORGOT PASSWORD PAGE --- */}
-        {view === 'forgot-password' && (
-          <div className="fadein main-container" style={{ minHeight: '80vh', justifyContent: 'center' }}>
-            <div style={{ maxWidth: 450, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
-              <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                <i className="fas fa-key" style={{ fontSize: 32, color: '#E8730F', marginBottom: 12 }}></i>
-                <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', margin: 0 }}>Reset Password</h2>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: '8px 0 0' }}>We will send a reset link to your email.</p>
-              </div>
-
-              {resetSent ? (
-                <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 20, borderRadius: 8, textAlign: 'center' }}>
-                  <i className="fas fa-check-circle" style={{ fontSize: 24, marginBottom: 8, display: 'block' }}></i>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>If an account exists for <strong>{resetEmail}</strong>, a reset link has been sent. Please check your inbox (and spam folder).</p>
-                  <Btn onClick={() => setView('login')} variant="ghost" style={{ marginTop: 16, width: '100%' }}>Back to Login</Btn>
-                </div>
-              ) : (
-                <form onSubmit={handleForgotPassword}>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Registered Email</label>
-                  <input 
-                    type="email" 
-                    value={resetEmail} 
-                    onChange={e => setResetEmail(e.target.value)} 
-                    placeholder="Enter your email"
-                    style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
-                    required
-                  />
-                  {authError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, fontWeight: 600 }}>{authError}</div>}
-                  <Btn type="submit" disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 12 }}>
-                    {busy ? 'Sending...' : 'Send Reset Link'}
-                  </Btn>
-                  <Btn onClick={() => setView('login')} variant="ghost" style={{ width: '100%' }}>Back to Login</Btn>
-                </form>
-              )}
+          {/* Directory Link */}
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'rgba(10,31,18,.6)', marginBottom: 6 }}>Businesses & Suppliers Directory</label>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <input type="text" readOnly value={directoryLink} style={{ flex: 1, minWidth: 250, padding: 12, border: '1px solid #ccc', borderRadius: 8, fontFamily: 'monospace', fontSize: 13, background: '#F9FBFA' }} />
+              <Btn variant="dark" onClick={() => doCopy(directoryLink, 'Directory Link')}><i className="fas fa-copy"></i> Copy</Btn>
+              <a href={waUrl(`Check out StartEasy's Business Directory — find verified suppliers in Zambia. Use my link: ${directoryLink}`)} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#0A1F12', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share</a>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* --- GUIDANCE & RESOURCES --- */}
-        {view === 'resources' && (
-          <div className="fadein main-container">
-            <div style={{ maxWidth: 900, width: '100%', margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                <h1 className="serif" style={{ fontSize: 36, color: '#0A1F12', marginBottom: 12 }}>Guidance & Resources</h1>
-                <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.6)', maxWidth: 600, margin: '0 auto' }}>Access the official documents, handbooks, and SOPs required for your role.</p>
-              </div>
-
-              <div style={{ display: 'grid', gap: 16 }}>
-                {[
-                  { title: 'StartEasy Zambia Employee Handbook', desc: 'The complete guide to our culture, policies, and expectations.', size: '2.4 MB', type: 'PDF' },
-                  { title: 'Brand Guidelines 2026', desc: 'Official logos, color codes, and typography rules.', size: '8.1 MB', type: 'PDF' },
-                  { title: 'Remote Work & IT Policy', desc: 'Guidelines for secure remote access and equipment usage.', size: '1.2 MB', type: 'PDF' },
-                  { title: 'Compliance & PACRA Checklist', desc: 'The exact steps and required documents for company registration.', size: '950 KB', type: 'PDF' },
-                ].map((doc, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 24, background: '#fff', border: '1px solid #eee', borderRadius: 12, flexWrap: 'wrap', gap: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                      <div style={{ width: 48, height: 48, borderRadius: 10, background: '#F5FAF6', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
-                        <i className="fas fa-file-pdf"></i>
-                      </div>
-                      <div>
-                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{doc.title}</h4>
-                        <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{doc.desc} • {doc.type} ({doc.size})</p>
-                      </div>
-                    </div>
-                    <Btn onClick={() => downloadMockPDF(doc.title)} size="md" variant="ghost">
-                      <i className="fas fa-download"></i> Download
-                    </Btn>
-                  </div>
-                ))}
-              </div>
+        <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: '#0A1F12' }}>My Signed Agreement</h3>
+              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: 0 }}>Download, print, or send a copy to StartEasy for your records.</p>
             </div>
+            <Btn variant="dark" onClick={() => setShowAgreement(true)}><i className="fas fa-file-signature"></i> View / Print Agreement</Btn>
           </div>
-        )}
+        </div>
 
-        {/* --- BRIEF --- */}
-        {view === 'brief' && selectedRole && (
-          <div className="fadein main-container">
-            <div style={{ maxWidth: 850, margin: '0 auto', background: '#fff', padding: '40px 50px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-              
-              <div style={{ borderBottom: '2px solid #eee', paddingBottom: 24, marginBottom: 24 }}>
-                <h1 className="serif" style={{ fontSize: 36, color: '#0A1F12', margin: '0 0 16px' }}>{selectedRole.title}</h1>
-                <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.7)', margin: 0, lineHeight: 1.7 }}>{selectedRole.summary}</p>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', marginTop: 12, fontWeight: 600 }}>{selectedRole.reporting}</p>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 32 }}>
-                <div>
-                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-list-check" style={{ color: '#E8730F', marginRight: 8 }}></i> Specific Duties & Responsibilities</h4>
-                  <ul style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', paddingLeft: 20, margin: 0, lineHeight: 1.7 }}>
-                    {selectedRole.responsibilities.map((item, i) => <li key={i} style={{ marginBottom: 10 }} dangerouslySetInnerHTML={{__html: item}} />)}
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-calendar-alt" style={{ color: '#E8730F', marginRight: 8 }}></i> Your First 90 Days (Milestones)</h4>
-                  <div style={{ background: '#F9FBFA', padding: 16, borderRadius: 8 }}>
-                    <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 12, lineHeight: 1.7 }}><strong>Month 1:</strong> {selectedRole.month1}</p>
-                    <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 12, lineHeight: 1.7 }}><strong>Month 2:</strong> {selectedRole.month2}</p>
-                    <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 0, lineHeight: 1.7 }}><strong>Month 3:</strong> {selectedRole.month3}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-wallet" style={{ color: '#1E7B3C', marginRight: 8 }}></i> Exact Compensation Structure</h4>
-                  <ul style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 24, lineHeight: 1.7, background: '#F9FBFA', padding: '16px 16px 16px 36px', borderRadius: 8 }}>
-                    {selectedRole.compensation.map((item, i) => <li key={i} style={{ marginBottom: 8 }} dangerouslySetInnerHTML={{__html: item}} />)}
-                  </ul>
-                  
-                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-tools" style={{ color: '#1B6CA8', marginRight: 8 }}></i> Resources & Environment</h4>
-                  <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 12, lineHeight: 1.7 }}>{selectedRole.resources}</p>
-                  <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', margin: 0, lineHeight: 1.7 }}>{selectedRole.environment}</p>
-                </div>
-              </div>
-
-              <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid #eee', textAlign: 'center' }}>
-                <p style={{ fontSize: 15, color: '#0A1F12', fontWeight: 600, marginBottom: 16 }}>By proceeding, you confirm you have read and understood the detailed role requirements above.</p>
-                <Btn onClick={() => { setView('contract'); window.scrollTo(0, 0); }} size="lg" variant="primary" style={{ width: '100%', maxWidth: 400 }}>
-                  Proceed to Formal Agreement <i className="fas fa-arrow-right"></i>
-                </Btn>
-              </div>
+        <div className="no-print" style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(10,31,18,.08)', fontWeight: 700, fontSize: 14 }}>Recent Commissions</div>
+          {commissions.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: 'rgba(10,31,18,.5)', fontSize: 13 }}>No commissions yet. Share your links to start earning.</div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+                <thead>
+                  <tr style={{ background: '#F9FBFA', borderBottom: '1px solid rgba(10,31,18,.08)' }}>
+                    {['Ref', 'Service', 'Fee', 'Commission', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: 12, fontSize: 11, textTransform: 'uppercase', color: 'rgba(10,31,18,.5)' }}>{h}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {commissions.map(c => (
+                    <tr key={c.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}>
+                      <td style={{ padding: 12, fontSize: 12, fontFamily: 'monospace' }}>{c.paymentRef}</td>
+                      <td style={{ padding: 12, fontSize: 13 }}>{c.serviceTitle}</td>
+                      <td style={{ padding: 12, fontSize: 13 }}>{fmtZmw(c.grossZmw)}</td>
+                      <td style={{ padding: 12, fontSize: 13, fontWeight: 700, color: '#E8730F' }}>{fmtZmw(c.commissionZmw)}</td>
+                      <td style={{ padding: 12 }}><Badge status={c.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* --- CONTRACT --- */}
-        {view === 'contract' && selectedRole && (
-          <div className="fadein main-container">
+      </div>
+
+      {showAgreement && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,31,18,.9)', overflowY: 'auto', padding: '40px 16px' }}>
+          <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
+            
+            <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, background: '#fff', padding: '16px 20px', borderRadius: 12, flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <Btn variant="dark" onClick={() => window.print()}><i className="fas fa-print"></i> Print / Save PDF</Btn>
+                <a href={waUrl(waShareMsg)} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share to WhatsApp</a>
+                <a href={`mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`} style={{ padding: '11px 20px', background: '#1B6CA8', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fas fa-envelope"></i> Email to StartEasy</a>
+              </div>
+              <button onClick={() => setShowAgreement(false)} style={{ background: 'none', border: 'none', fontSize: 24, color: '#B8564F', cursor: 'pointer', padding: '0 10px' }}>✕</button>
+            </div>
+
             <div className="el printable">
               <div className="eh">
                 <div>
-                  <div className="brand">Start<em>Easy Zambia</em></div>
-                  <div className="sub">Founding Team Engagement</div>
+                  <div className="brand">Start<em>Easy</em></div>
+                  <div className="sub">StartEasy Zambia</div>
                 </div>
                 <div>
-                  <div className="dt">AGREEMENT OF ENGAGEMENT</div>
+                  <div className="dt">OPPORTUNITY ENGAGEMENT</div>
                   <div className="mt">
-                    {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {signedDate}<br/>
+                    Ref: {refCode}
                   </div>
                 </div>
               </div>
 
-              <p>
-                This Agreement of Engagement is entered into by StartEasy Zambia (the "Company") and <strong>{form.name.trim() ? form.name.trim() : '[Applicant Full Legal Name]'}</strong> (the "Appointee"). By digitally signing this document, the Appointee formally accepts the appointment, terms, and responsibilities outlined herein.
-              </p>
+              <p><strong>Dear {agent.displayName},</strong></p>
+              
+              <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
-              <h4>1. Appointment & Position</h4>
-              <p>The Company hereby appoints the Appointee to the position of <strong>{selectedRole.title}</strong>. {selectedRole.reporting}</p>
+              <h4>1. Nature of Engagement</h4>
+              <p>You are joining as an independent Referral Agent. This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
 
-              <h4>2. Role Summary</h4>
-              <p>{selectedRole.summary}</p>
+              <h4>2. Commission & Payouts</h4>
+              <p>You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions clear after a 7-day period and can be withdrawn to your mobile money or bank account once your balance reaches K200.</p>
 
-              <h4>3. Specific Duties & Responsibilities</h4>
-              <p>The Appointee agrees to perform the following specific duties:</p>
-              <ul>
-                {selectedRole.responsibilities.map((item, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: item}} />)}
-              </ul>
-
-              <h4>4. Performance Milestones (First 90 Days)</h4>
-              <p>The Appointee agrees to execute and deliver on the following initial milestones:</p>
-              <ul>
-                <li><strong>Month 1:</strong> {selectedRole.month1}</li>
-                <li><strong>Month 2:</strong> {selectedRole.month2}</li>
-                <li><strong>Month 3:</strong> {selectedRole.month3}</li>
-              </ul>
-
-              <h4>5. Remuneration & Compensation</h4>
-              <p>The Appointee's compensation for services rendered is structured strictly as follows:</p>
-              <ul>
-                {selectedRole.compensation.map((item, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: item}} />)}
-              </ul>
-
-              <h4>6. Resources, Work Environment & Terms</h4>
-              <p><strong>Allocated Resources:</strong> {selectedRole.resources}</p>
-              <p><strong>Work Environment:</strong> {selectedRole.environment}</p>
-              <p><strong>Binding Terms:</strong></p>
-              <ul>
-                {selectedRole.terms.map((term, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: term}} />)}
-                <li><strong>Confidentiality:</strong> You must keep all of our business plans, client information, and strategies completely confidential.</li>
-              </ul>
-
-              <h4>7. Appointee Details (For Execution)</h4>
-              <div className="form-grid-2">
-                <span>
-                  <strong>Full Legal Name:</strong><br/>
-                  <input className="doc-input-line" placeholder="Enter full legal name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-                </span>
+              <h4>3. Agent Details</h4>
+              <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
                 <span>
                   <strong>Email Address:</strong><br/>
-                  <input className="doc-input-line" type="email" placeholder="Enter email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{agent.email}</div>
                 </span>
                 <span>
                   <strong>Phone / WhatsApp:</strong><br/>
-                  <input className="doc-input-line" placeholder="Enter phone number" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{agent.phone}</div>
                 </span>
-                <span>
-                  <strong>Current Location (City/Country):</strong><br/>
-                  <input className="doc-input-line" placeholder="e.g. Lusaka, Zambia" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
-                </span>
-              </div>
+              </p>
+              <p style={{ marginTop: 12 }}>
+                <strong>Location:</strong><br/>
+                <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{agent.location}</div>
+              </p>
 
-              <h4>8. Declaration & Acceptance</h4>
-              <div className="highlight-box">
-                <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: '#E8730F', flexShrink: 0 }} />
-                  <span style={{ fontSize: 13.5, lineHeight: 1.6, color: '#0A1F12', fontWeight: 600 }}>
-                    I, the undersigned Appointee, hereby declare that I have read, understood, and voluntarily accept the terms, compensation structure, and 90-day priorities outlined in this Agreement of Engagement. I acknowledge that this is an Entrepreneurship/Intrapreneurship opportunity and not a standard employment contract.
-                  </span>
-                </label>
-              </div>
+              <h4>4. Acceptance</h4>
+              <p>The Agent has confirmed agreement to the engagement terms and signed below.</p>
 
               <div className="sign">
                 <div>
-                  <div className="sigval" style={{ color: '#1B6CA8' }}>Mwaba Lewis</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1F12', marginBottom: 4 }}>MWABA LEWIS</div>
-                  <div className="lbl">Founder, StartEasy Zambia</div>
+                  <div className="sigval">MWABA LEWIS</div>
+                  <div className="lbl">For StartEasy</div>
                 </div>
                 <div>
-                  <div className="sigval" style={{ color: '#E8730F' }}>
-                    {form.name.trim() || '_________________________'}
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1F12', marginBottom: 4 }}>
-                    {form.name.trim() || '[Applicant Name]'}
-                  </div>
-                  <div className="lbl">Appointee</div>
+                  <div className="sigval" style={{ borderBottom: '1px solid #333' }}>{agent.displayName}</div>
+                  <div className="lbl">For the Agent</div>
                 </div>
               </div>
 
-              {error && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{error}</div>}
-
-              <div className="no-print" style={{ width: '100%' }}>
-                <Btn onClick={signAgreement} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
-                  {busy ? 'Processing...' : 'Execute Agreement & Proceed to HR'}
-                </Btn>
+              <div className="ft">
+                <strong>StartEasy</strong> · Lusaka, Zambia · {CONFIG.contactEmail} · +260 762499581
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
+    </div>
+  );
+}
 
-        {/* --- CREATE ACCOUNT (Immediate Post-Contract Onboarding) --- */}
-        {view === 'create-account' && selectedRole && (
-          <div className="fadein main-container" style={{ minHeight: '80vh', justifyContent: 'center' }}>
-            <div style={{ maxWidth: 500, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
-              <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                <div style={{ width: 60, height: 60, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px' }}>
-                  <i className="fas fa-check"></i>
-                </div>
-                <h2 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: '0 0 8px' }}>Contract Signed!</h2>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: 0, lineHeight: 1.5 }}>
-                  Your Agreement of Engagement for the <strong>{selectedRole.title}</strong> role is executed. 
-                  <br/><br/>
-                  To access your onboarding workspace, please create your secure portal account below.
-                </p>
-              </div>
+function RedirectHandler({ code }) {
+  useEffect(() => {
+    if (!CODE_RX.test(code)) { window.location.hash = '#/'; return; }
+    setTimeout(() => { window.location.href = CONFIG.mainSiteUrl + '/?ref=' + code; }, 500);
+  }, [code]);
+  return <Spinner label="Redirecting to StartEasy..." />;
+}
 
-              <form onSubmit={handleCreateAccount}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Registered Email</label>
-                <input 
-                  type="email" 
-                  value={form.email} 
-                  readOnly
-                  style={{ width: '100%', padding: 12, border: '1px solid #eee', background: '#f9f9f9', color: '#666', borderRadius: 8, marginBottom: 16 }} 
-                />
-                
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Create Password</label>
-                <input 
-                  type="password" 
-                  value={authPassword} 
-                  onChange={e => setAuthPassword(e.target.value)} 
-                  placeholder="Minimum 6 characters"
-                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
-                  required
-                />
+function App() {
+  const [hash, setHash] = useState(window.location.hash || '#/');
+  const [agent, setAgent] = useState(null);
+  const [bootChecked, setBootChecked] = useState(false);
 
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Confirm Password</label>
-                <input 
-                  type="password" 
-                  value={authConfirmPassword} 
-                  onChange={e => setAuthConfirmPassword(e.target.value)} 
-                  placeholder="Re-enter password"
-                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
-                  required
-                />
+  useEffect(() => {
+    const onHash = () => setHash(window.location.hash || '#/');
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
-                {authError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, fontWeight: 600 }}>{authError}</div>}
+  useEffect(() => {
+    if (!fbReady) { setBootChecked(true); return; }
+    const unsub = auth.onAuthStateChanged(async user => {
+      if (!user) { setAgent(null); setBootChecked(true); return; }
+      try {
+        const snap = await db.collection(SE_AGENTS).doc(user.uid).get();
+        if (snap.exists) setAgent({ id: user.uid, ...snap.data() });
+        else setAgent(null);
+      } catch (e) { setAgent(null); }
+      setBootChecked(true);
+    });
+    return unsub;
+  }, []);
 
-                <Btn type="submit" disabled={busy} size="lg" variant="primary" style={{ width: '100%' }}>
-                  {busy ? 'Creating Account...' : 'Create Account & Enter Portal'}
-                </Btn>
-              </form>
+  const raw = (hash || '#/').replace(/^#\/?/, '');
+  const parts = raw.split('/').filter(Boolean);
+  const route = parts[0] || '';
+  const routeArg = parts[1] || '';
 
-              <div style={{ textAlign: 'center', marginTop: 20 }}>
-                <p style={{ fontSize: 12, color: 'rgba(10,31,18,0.5)', margin: 0 }}>Already created an account? <span onClick={() => setView('login')} style={{ color: '#E8730F', cursor: 'pointer', fontWeight: 600 }}>Log in here</button></p>
-              </div>
-            </div>
-          </div>
-        )}
+  const go = useCallback((r) => { window.location.hash = '#/' + r; window.scrollTo(0, 0); }, []);
+  const onSignOut = async () => { await auth.signOut(); setAgent(null); go(''); };
+  const onAuth = () => { go('dashboard'); };
 
-        {/* --- HR ONBOARDING DASHBOARD (Protected View) --- */}
-        {view === 'dashboard' && userData && (
-          <div className="fadein main-container" style={{ minHeight: '100vh' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
-              
-              <div style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', padding: '40px', borderRadius: 16, textAlign: 'center', marginBottom: 32, color: '#fff', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', width: '100%' }}>
-                <div style={{ width: 64, height: 64, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 16px' }}>
-                  <i className="fas fa-handshake"></i>
-                </div>
-                <h1 className="serif" style={{ fontSize: 32, margin: '0 0 12px' }}>Welcome to the Team, {userData.name.split(' ')[0]}!</h1>
-                <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto', lineHeight: 1.6 }}>
-                  You are now officially part of the StartEasy Zambia founding team as the <strong>{userData.roleTitle}</strong>.
-                </p>
-              </div>
+  if (!bootChecked) return <Spinner />;
+  if (route === 'r' && routeArg) return <RedirectHandler code={routeArg.toUpperCase()} />;
 
-              <div className="fadein" style={{ width: '100%' }}>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32, width: '100%' }}>
-                  <div style={{ background: '#0A1F12', borderRadius: 16, padding: 32, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <h3 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 12 }}>Message from the Founder</h3>
-                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: 20 }}>
-                      "Welcome aboard. We are building something truly special here at StartEasy Zambia. Your role is critical to our success. I look forward to working closely with you. Let's get to work."
-                    </p>
-                    <p style={{ fontSize: 14, fontWeight: 700 }}>— Mwaba Lewis, Founder</p>
-                  </div>
+  let page = <Landing go={go} />;
+  if (route === 'how-it-works') page = <HowItWorks go={go} />;
+  else if (route === 'faq') page = <FAQPage />;
+  else if (route === 'support') page = <SupportPage />;
+  else if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
+  else if (route === 'login') page = <LoginPage go={go} onAuth={onAuth} />;
+  else if (route === 'dashboard') {
+    if (!agent) page = <LoginPage go={go} onAuth={onAuth} />;
+    else page = <Dashboard go={go} onSignOut={onSignOut} agent={agent} setAgent={setAgent} />;
+  }
 
-                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)' }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}>Request IT Setup</h3>
-                    {itRequestSent ? (
-                      <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 16, borderRadius: 8, textAlign: 'center', fontSize: 14, fontWeight: 600 }}>
-                        <i className="fas fa-check-circle" style={{ marginBottom: 8, fontSize: 24, display: 'block' }}></i>
-                        Your request has been sent to HR!
-                      </div>
-                    ) : (
-                      <form onSubmit={submitITRequest}>
-                        <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 16 }}>Do you need a company email address, laptop, or software license?</p>
-                        <textarea 
-                          value={itRequest}
-                          onChange={e => setItRequest(e.target.value)}
-                          placeholder="e.g., I need a company email and a Zoom Pro license..."
-                          style={{ width: '100%', height: 80, padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16, fontFamily: 'inherit' }}
-                        />
-                        <Btn type="submit" variant="ghost" style={{ width: '100%' }}>Send Request</Btn>
-                      </form>
-                    )}
-                  </div>
-                </div>
-
-                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', width: '100%' }}>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <i className="fas fa-laptop-code" style={{ color: '#E8730F' }}></i> Your Remote Workspace
-                  </h2>
-                  
-                  <div style={{ display: 'grid', gap: 16 }}>
-                    {[
-                      { title: 'Team WhatsApp Group', desc: 'Join the internal group for instant communication.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/mock-invite-link', btn: 'Join WhatsApp' },
-                      { title: 'StartEasy Slack Workspace', desc: 'Our primary tool for project channels and daily updates.', icon: 'fa-slack', color: '#4A154B', link: 'https://slack.com/mock-invite', btn: 'Open Slack' },
-                      { title: 'Company Notion Wiki', desc: 'Access all SOPs, brand guidelines, and project boards.', icon: 'fa-book', color: '#000000', link: 'https://notion.so/mock-invite', btn: 'Open Notion' },
-                    ].map((task, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, border: '1px solid #eee', borderRadius: 8, flexWrap: 'wrap', gap: 16 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                          <div style={{ width: 44, height: 44, borderRadius: 10, background: `${task.color}15`, color: task.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-                            <i className={`fab ${task.icon}`}></i>
-                          </div>
-                          <div>
-                            <h4 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{task.title}</h4>
-                            <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{task.desc}</p>
-                          </div>
-                        </div>
-                        <a href={task.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                          <Btn size="md" variant="dark">{task.btn} <i className="fas fa-external-link-alt" style={{ fontSize: 12, marginLeft: 4 }}></i></Btn>
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32, width: '100%' }}>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                    <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
-                      <img src="https://ui-avatars.com/api/?name=Mwaba+Lewis&background=E8730F&color=fff&size=80" alt="Mwaba Lewis" style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
-                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Mwaba Lewis</h4>
-                      <p style={{ fontSize: 12, color: '#E8730F', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Founder</p>
-                    </div>
-                    <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
-                      <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#EAF7EE', color: '#1E7B3C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, margin: '0 auto 12px' }}>
-                        <i className="fas fa-user"></i>
-                      </div>
-                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{userData.name}</h4>
-                      <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{userData.roleTitle}</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        )}
-
-      </main>
-
-      <footer className="no-print" style={{ background: '#0A1F12', padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', width: '100%' }}>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0 }}>© {new Date().getFullYear()} StartEasy Zambia. All rights reserved.</p>
-      </footer>
-
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Nav route={route} go={go} agent={agent} onSignOut={onSignOut} />
+      <main style={{ flex: 1 }}>{page}</main>
+      <Footer />
     </div>
   );
 }
