@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StartEasy Zambia | Secure Team Portal</title>
+<title>StartEasy Zambia | Careers & Founding Team</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -51,13 +51,13 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 <script type="text/babel" data-presets="react">
 const { useState } = React;
 
-// EXTREMELY DETAILED FOUNDING TEAM ROLES
+// EXTREMELY DETAILED FOUNDING TEAM ROLES (Answers Sana's questions publicly)
 const ROLES = {
   cdmo: { 
     id: 'cdmo', 
     title: 'Chief Digital & Marketing Officer', 
     type: 'Fractional or Full-Time (Equity + Retainer)',
-    pitch: 'We need an architect to build the StartEasy brand engine from scratch. You will define our digital presence, optimize our acquisition funnels, and position us as the premier business support platform in Zambia. This is a heavy execution role, not just a management position.',
+    pitch: 'We need an architect to build the StartEasy brand engine from scratch. You will define our digital presence, optimize our acquisition funnels, and position us as the premier business support platform in Zambia.',
     day90Plan: [
       "Month 1 (Foundation): Audit the current platform MVP. Define target personas (Local SMEs, Diaspora, Foreign Investors). Map out the comprehensive Go-To-Market digital strategy.",
       "Month 2 (Activation): Overhaul the digital presence (website copy, LinkedIn strategy, lead magnets) to ensure the brand looks premium and trustworthy to high-net-worth clients.",
@@ -76,7 +76,7 @@ const ROLES = {
     id: 'director_finance', 
     title: 'Director of Finance & Admin', 
     type: 'Hybrid (Equity + Base Salary)',
-    pitch: 'You are the operational backbone. You will ensure strict regulatory compliance (PACRA, ZRA), oversee financial reporting, and build the administrative infrastructure that allows us to scale without breaking. You must know the Zambian corporate landscape inside and out.',
+    pitch: 'You are the operational backbone. You will ensure strict regulatory compliance (PACRA, ZRA), oversee financial reporting, and build the administrative infrastructure that allows us to scale without breaking.',
     day90Plan: [
       "Month 1 (Compliance Setup): Audit all current PACRA/ZRA filings. Establish robust internal financial controls. Set up the company payroll and invoicing structure.",
       "Month 2 (Systems): Implement bookkeeping software. Establish monthly financial reporting dashboards for the CEO and Board.",
@@ -147,8 +147,8 @@ const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, st
 };
 
 function App() {
-  // view: 'gateway' | 'contract' | 'success'
-  const [view, setView] = useState('gateway'); 
+  // view: 'landing' | 'portal' | 'contract' | 'success'
+  const [view, setView] = useState('landing'); 
   const [inviteCode, setInviteCode] = useState('');
   const [selectedRole, setSelectedRole] = useState(null);
   const [codeError, setCodeError] = useState('');
@@ -159,14 +159,28 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  const handleApplyClick = (role) => {
+    setSelectedRole(role);
+    setView('portal'); // Send them to the secure portal
+    setInviteCode('');
+    setCodeError('');
+    window.scrollTo(0, 0);
+  };
+
   const validateCode = () => {
     setCodeError('');
     const codeUpper = inviteCode.trim().toUpperCase();
     
     if (LIVE_CODES[codeUpper]) {
-      setSelectedRole(ROLES[LIVE_CODES[codeUpper]]);
+      const roleFromCode = ROLES[LIVE_CODES[codeUpper]];
+      // Ensure the code matches the role they are trying to apply for
+      if (selectedRole && roleFromCode.id !== selectedRole.id) {
+        setCodeError(`This code is for the ${roleFromCode.title} role. You cannot use it for the ${selectedRole.title} role.`);
+        return;
+      }
+      
+      setSelectedRole(roleFromCode);
       setView('contract');
-      window.scrollTo(0, 0);
     } else {
       setCodeError('Invalid or expired invitation code. Please contact StartEasy Zambia Admin.');
     }
@@ -203,36 +217,136 @@ function App() {
     }, 800);
   };
 
+  const resetToHome = () => {
+    setView('landing');
+    setInviteCode('');
+    setSelectedRole(null);
+    setForm({name:'', email:'', phone:'', motivation:''});
+    setAgreed(false);
+    setError('');
+    setCodeError('');
+    window.scrollTo(0, 0);
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       {/* HEADER */}
-      <header style={{ background: '#0A1F12', padding: '16px 24px', borderBottom: '1px solid rgba(245,166,35,.1)' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <header style={{ background: '#0A1F12', padding: '16px 24px', borderBottom: '1px solid rgba(245,166,35,.1)', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={resetToHome}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, fontFamily: 'Playfair Display' }}>S</div>
             <div>
-              <div style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Secure Portal</div>
+              <div style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Careers & Founding Team</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>StartEasy Zambia</div>
             </div>
+          </div>
+          
+          <div style={{ display: 'flex', gap: 16 }}>
+            {view === 'landing' && (
+              <>
+                <a href="#roles" style={{ color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Open Roles</a>
+                <button onClick={() => setView('portal')} style={{ background: 'none', border: 'none', color: '#F5A623', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Team Portal Login</button>
+              </>
+            )}
+            {view !== 'landing' && (
+              <button onClick={resetToHome} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}><i className="fas fa-arrow-left" style={{marginRight: 6}}></i> Back to Home</button>
+            )}
           </div>
         </div>
       </header>
 
       {/* MAIN CONTENT */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <main style={{ flex: 1 }}>
         
-        {/* --- GATEWAY VIEW (Prevents unauthorized access) --- */}
-        {view === 'gateway' && (
-          <div className="fadein" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5FAF6', padding: 24 }}>
+        {/* --- LANDING VIEW (Public Directory) --- */}
+        {view === 'landing' && (
+          <div className="fadein">
+            {/* Hero */}
+            <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '100px 24px', textAlign: 'center' }}>
+              <div style={{ maxWidth: 800, margin: '0 auto' }}>
+                <span style={{ display: 'inline-block', background: 'rgba(232,115,15,0.2)', color: '#F5A623', padding: '6px 16px', borderRadius: 99, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>Female-Led Tech Startup</span>
+                <h1 className="serif" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', lineHeight: 1.1, marginBottom: 24 }}>
+                  Build StartEasy Zambia <em style={{ fontStyle: 'italic', color: '#F5A623' }}>From The Ground Up.</em>
+                </h1>
+                <p style={{ fontSize: 18, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', marginBottom: 40, maxWidth: 650, margin: '0 auto 40px' }}>
+                  We are building the premier business support platform in Zambia. We are not offering standard salaried jobs right now. We are offering equity, commission, and the opportunity to build a legacy. We want founders and intrapreneurs who are ready to execute.
+                </p>
+                <a href="#roles" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', padding: '16px 32px', borderRadius: 8, fontSize: 16, fontWeight: 700, textDecoration: 'none' }}>
+                  View Open Roles <i className="fas fa-arrow-down"></i>
+                </a>
+              </div>
+            </section>
+
+            {/* Public Role Directory */}
+            <section id="roles" style={{ padding: '80px 24px', background: '#F5FAF6' }}>
+              <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+                <div style={{ textAlign: 'center', marginBottom: 56 }}>
+                  <h2 className="serif" style={{ fontSize: 36, color: '#0A1F12', marginBottom: 16 }}>Founding Team Directory</h2>
+                  <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.6)', maxWidth: 600, margin: '0 auto' }}>
+                    We believe in total transparency. Read the exact expectations, compensation structures, and 90-day plans before you apply.
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gap: 32 }}>
+                  {Object.values(ROLES).map(role => (
+                    <div key={role.id} style={{ background: '#fff', padding: '40px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 24, marginBottom: 32, borderBottom: '1px solid #eee', paddingBottom: 32 }}>
+                        <div style={{ flex: 1, minWidth: 300 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#E8730F', letterSpacing: '0.05em', marginBottom: 8 }}>{role.type}</div>
+                          <h3 className="serif" style={{ fontSize: 32, color: '#0A1F12', margin: '0 0 12px' }}>{role.title}</h3>
+                          <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.7)', margin: 0, lineHeight: 1.6, maxWidth: 650 }}>{role.pitch}</p>
+                        </div>
+                        <div>
+                          <Btn size="lg" variant="dark" onClick={() => handleApplyClick(role)}>Apply & Sign T&Cs <i className="fas fa-lock" style={{marginLeft: 6, fontSize: 12}}></i></Btn>
+                          <p style={{ fontSize: 11, color: 'rgba(10,31,18,0.4)', textAlign: 'center', marginTop: 8 }}>Requires Invitation Code</p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
+                        <div>
+                          <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-calendar-alt" style={{ color: '#E8730F', marginRight: 8 }}></i> First 90-Day Priorities</h4>
+                          <ul style={{ fontSize: 14, color: 'rgba(10,31,18,0.75)', paddingLeft: 20, margin: 0, lineHeight: 1.6 }}>
+                            {role.day90Plan.map((item, i) => <li key={i} style={{ marginBottom: 10 }}>{item}</li>)}
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-wallet" style={{ color: '#1E7B3C', marginRight: 8 }}></i> Compensation Structure</h4>
+                          <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.75)', marginBottom: 24, lineHeight: 1.6 }}>{role.compensation}</p>
+                          
+                          <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-tools" style={{ color: '#1B6CA8', marginRight: 8 }}></i> Resources & Environment</h4>
+                          <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.75)', marginBottom: 12, lineHeight: 1.6 }}>{role.resources}</p>
+                          <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.75)', margin: 0, lineHeight: 1.6 }}><strong>Environment:</strong> {role.environment}</p>
+                        </div>
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* --- PORTAL GATEWAY (Strict Security) --- */}
+        {view === 'portal' && (
+          <div className="fadein" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5FAF6', padding: 24 }}>
             <div style={{ maxWidth: 450, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
               <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                <i className="fas fa-lock" style={{ fontSize: 32, color: '#E8730F', marginBottom: 16 }}></i>
-                <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: '0 0 8px' }}>Founding Team Access</h1>
+                <i className="fas fa-shield-alt" style={{ fontSize: 36, color: '#E8730F', marginBottom: 16 }}></i>
+                <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: '0 0 8px' }}>Secure Application Portal</h1>
                 <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: 0, lineHeight: 1.5 }}>
-                  To prevent unauthorized signups, you must enter the specific invitation code provided by the StartEasy Zambia Admin.
+                  To prevent unauthorized signups, you must enter the specific invitation code provided to you by the StartEasy Zambia Admin.
                 </p>
               </div>
+
+              {selectedRole && (
+                <div style={{ background: '#FFF9E6', padding: 12, borderRadius: 8, marginBottom: 16, textAlign: 'center', fontSize: 13, color: '#0A1F12', fontWeight: 600 }}>
+                  Applying for: {selectedRole.title}
+                </div>
+              )}
 
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Invitation Code</label>
               <input 
@@ -246,13 +360,13 @@ function App() {
               {codeError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{codeError}</div>}
               
               <Btn onClick={validateCode} size="lg" variant="dark" style={{ width: '100%' }}>
-                Unlock Role & T&Cs
+                Unlock Contract & T&Cs
               </Btn>
             </div>
           </div>
         )}
 
-        {/* --- CONTRACT VIEW (Revealed only after code validation) --- */}
+        {/* --- CONTRACT VIEW (Unlocked by Code) --- */}
         {view === 'contract' && selectedRole && (
           <div className="fadein" style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
             
@@ -357,7 +471,7 @@ function App() {
 
         {/* --- SUCCESS VIEW --- */}
         {view === 'success' && (
-          <div className="fadein" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: '#F5FAF6' }}>
+          <div className="fadein" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: '#F5FAF6' }}>
             <div style={{ maxWidth: 500, background: '#fff', padding: 48, borderRadius: 16, textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid rgba(10,31,18,0.08)' }}>
               <div style={{ width: 72, height: 72, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, margin: '0 auto 24px' }}>
                 <i className="fas fa-check"></i>
@@ -368,7 +482,7 @@ function App() {
                 <br/><br/>
                 Because this is a founding team position, we review every application personally. We will contact you at <strong>{form.email}</strong> within 48 hours to discuss next steps.
               </p>
-              <Btn onClick={() => { setView('gateway'); setInviteCode(''); setSelectedRole(null); setForm({name:'', email:'', phone:'', motivation:''}); setAgreed(false); }} size="lg" variant="dark" style={{ width: '100%' }}>Return to Secure Gateway</Btn>
+              <Btn onClick={resetToHome} size="lg" variant="dark" style={{ width: '100%' }}>Return to Home</Btn>
             </div>
           </div>
         )}
@@ -376,7 +490,7 @@ function App() {
       </main>
 
       {/* FOOTER */}
-      <footer style={{ background: '#0A1F12', padding: '32px 24px', textAlign: 'center' }}>
+      <footer style={{ background: '#0A1F12', padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0 }}>© {new Date().getFullYear()} StartEasy Zambia. All rights reserved.</p>
       </footer>
 
