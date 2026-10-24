@@ -177,7 +177,6 @@ const ROLES = {
     month1: 'You will memorize our pricing and service offerings perfectly. You will build a database of 1,000 potential business leads in Zambia. You will practice your phone scripts with the Founder until you are confident.',
     month2: 'You will hit your daily outreach targets. You will book at least 20 discovery meetings for the Founder and Director of Finance. You will begin closing your first small deals.',
     month3: 'You will be fully responsible for your own pipeline. You will close a steady stream of deals per week. You will implement a system to follow up with cold leads every two weeks.',
-    // ─── UPDATED: real commission structure from the agent portal ───────
     compensation: [
       "**Tiered Sales Commission:** You earn a percentage of StartEasy's service fee (excluding government fees) on every sale you close. The exact tiers are: Micro / Wizard services (K25 fee) at 40% — you earn K10; Basic services (K250 fee) at 30% — you earn K75; Standard services (K400 fee) at 25% — you earn K100; Complex services (K750 fee) at 22% — you earn K165; Check-Up services (K750 fee) at 22% — you earn K165; Regularisation services (from K1,500) at 18% — you earn from K270; Venture Services (K600–K1,200) at 20% — you earn K120–K240; Ongoing Services (K250–K1,200) at 15%–20% — you earn K50–K180.",
       "**Recurring Commission:** You earn a recurring commission on every monthly subscription client you sell (Ongoing Services tier), for as long as that client continues to pay StartEasy. That is 15% to 20% of the service fee, paid to you every month.",
@@ -247,7 +246,7 @@ const downloadMockPDF = (filename) => {
   document.body.removeChild(element);
 };
 
-// Human-friendly Firebase error messages (mirrors the agent portal)
+// Human-friendly Firebase error messages
 function firebaseErrorMsg(err, context = 'auth') {
   const code = err && err.code;
   if (code === 'auth/email-already-in-use')
@@ -313,20 +312,32 @@ function App() {
           if (snap && snap.exists) {
             setUserData(snap.data());
             setView('dashboard');
+          } else {
+            // Profile missing! (e.g., they used an Agent portal account)
+            setUser(null);
+            setUserData(null);
+            setView('login');
+            setAuthError("This email is registered, but we couldn't find a Founding Team profile for it. If you are a Referral Agent, please use the Agent Portal. Otherwise, contact HR.");
+            auth.signOut();
           }
         } catch (e) {
           console.error("Error fetching user data:", e);
+          setUser(null);
+          setUserData(null);
+          setAuthError("Failed to load your profile. Please check your connection.");
+          auth.signOut();
         }
       } else {
         setUser(null);
         setUserData(null);
       }
+      setBusy(false);
       setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // ─── AUTH: create account (same Firebase flow as agent portal) ───────
+  // ─── AUTH: create account ───────
   const handleCreateAccount = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -365,10 +376,10 @@ function App() {
     setBusy(true);
     try {
       await auth.signInWithEmailAndPassword(loginEmail.trim().toLowerCase(), loginPassword);
+      // Note: busy stays true until the useEffect finishes checking the profile
     } catch (err) {
       console.error(err);
       setAuthError(firebaseErrorMsg(err, 'login'));
-    } finally {
       setBusy(false);
     }
   };
@@ -465,7 +476,7 @@ function App() {
 
       <header className="site-header no-print">
         <div className="header-content">
-          <div className="logo-group" onClick={() => user ? setView('dashboard') : resetPortal()}>
+          <div className="logo-group" onClick={() => userData ? setView('dashboard') : resetPortal()}>
             <div className="logo-mark">S</div>
             <div>
               <div className="logo-text-sub">Founding Team Portal</div>
@@ -482,7 +493,7 @@ function App() {
 
         {isMenuOpen && (
           <div className="nav-menu fadein">
-            {user ? (
+            {userData ? (
               <>
                 <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('dashboard'); window.scrollTo(0,0); }}>
                   <i className="fas fa-columns text-gray-500"></i> My Dashboard
@@ -936,6 +947,22 @@ function App() {
                   </span>
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── DASHBOARD FALLBACK (If profile is missing) ─── */}
+        {view === 'dashboard' && !userData && (
+          <div className="fadein main-container" style={{ minHeight: '60vh', justifyContent: 'center' }}>
+            <div style={{ background: '#fff', padding: 40, borderRadius: 16, textAlign: 'center', maxWidth: 450, boxShadow: '0 20px 60px rgba(0,0,0,0.08)' }}>
+              <div style={{ width: 60, height: 60, background: '#FFF3E0', color: '#E8730F', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px' }}>
+                <i className="fas fa-user-slash"></i>
+              </div>
+              <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 12 }}>Profile Not Found</h2>
+              <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6, marginBottom: 24 }}>
+                We couldn't load your profile details. This usually happens if your account is from a different StartEasy portal or if your profile is still being set up.
+              </p>
+              <Btn onClick={handleLogout} variant="primary" style={{ width: '100%' }}>Log Out & Try Again</Btn>
             </div>
           </div>
         )}
