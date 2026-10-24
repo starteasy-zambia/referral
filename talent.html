@@ -169,9 +169,12 @@ function App() {
   
   const [form, setForm] = useState({ name: '', email: '', phone: '', location: '' });
   const [agreed, setAgreed] = useState(false);
-  const [isSigned, setIsSigned] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  // HR Onboarding State
+  const [hrStatus, setHrStatus] = useState('pending'); // 'pending' or 'submitted'
+  const [itRequest, setItRequest] = useState('');
 
   const validateCode = () => {
     setCodeError('');
@@ -212,7 +215,7 @@ function App() {
 
     setTimeout(() => {
       setBusy(false);
-      setView('onboarding'); // Redirect to HR Onboarding Page
+      setView('onboarding');
       window.scrollTo(0, 0);
     }, 1000);
   };
@@ -223,9 +226,10 @@ function App() {
     setSelectedRole(null);
     setForm({name:'', email:'', phone:'', location:''});
     setAgreed(false);
-    setIsSigned(false);
     setError('');
     setCodeError('');
+    setHrStatus('pending');
+    setItRequest('');
     window.scrollTo(0, 0);
   };
 
@@ -233,7 +237,16 @@ function App() {
     window.print();
   };
 
-  const hrEmailLink = `mailto:hr@starteasyzambia.com?subject=Signed Agreement - ${form.name} (${selectedRole?.title})&body=Dear StartEasy Zambia HR Team,%0D%0A%0D%0APlease find attached my signed Agreement of Engagement for the ${selectedRole?.title} role.%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone}%0D%0ALocation: ${form.location}%0D%0A%0D%0AI have printed/saved a PDF copy of this agreement and attached it to this email as requested.%0D%0A%0D%0ABest regards,%0D%0A${form.name}`;
+  const submitToHR = () => {
+    setBusy(true);
+    setTimeout(() => {
+      setHrStatus('submitted');
+      setBusy(false);
+      window.scrollTo(0, 0);
+    }, 1500);
+  };
+
+  const hrEmailLink = `mailto:hr@starteasyzambia.com?subject=Signed Agreement - ${form.name} (${selectedRole?.title})&body=Dear StartEasy Zambia HR Team,%0D%0A%0D%0APlease find attached my signed Agreement of Engagement for the ${selectedRole?.title} role.%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone}%0D%0ALocation: ${form.location}%0D%0A%0D%0ABest regards,%0D%0A${form.name}`;
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -255,7 +268,7 @@ function App() {
 
       <main style={{ flex: 1, background: '#F5FAF6' }}>
         
-        {/* --- LANDING PAGE --- */}
+        {/* --- GATEWAY --- */}
         {view === 'gateway' && (
           <div className="fadein">
             <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center' }}>
@@ -285,7 +298,7 @@ function App() {
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>3</div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Sign & Onboard</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Digitally execute the agreement, print a PDF copy, and join the team workspace.</p>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Digitally execute the agreement, submit to HR, and unlock your team workspace.</p>
                 </div>
               </div>
 
@@ -311,7 +324,7 @@ function App() {
           </div>
         )}
 
-        {/* --- BRIEF PAGE --- */}
+        {/* --- BRIEF --- */}
         {view === 'brief' && selectedRole && (
           <div className="fadein" style={{ padding: '40px 16px' }}>
             <div style={{ maxWidth: 850, margin: '0 auto', background: '#fff', padding: '40px 50px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
@@ -361,7 +374,7 @@ function App() {
           </div>
         )}
 
-        {/* --- CONTRACT PAGE --- */}
+        {/* --- CONTRACT --- */}
         {view === 'contract' && selectedRole && (
           <div className="fadein" style={{ padding: '40px 16px' }}>
             <div className="el printable">
@@ -487,76 +500,120 @@ function App() {
                 </div>
                 <h1 className="serif" style={{ fontSize: 32, margin: '0 0 12px' }}>Welcome to the Team, {form.name.split(' ')[0]}!</h1>
                 <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto', lineHeight: 1.6 }}>
-                  Your Agreement of Engagement for the <strong>{selectedRole?.title}</strong> role has been successfully executed. You are now officially part of the StartEasy Zambia founding team.
+                  You are now officially part of the StartEasy Zambia founding team.
                 </p>
               </div>
 
-              {/* Step 1: Finalize HR File */}
-              <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginBottom: 32, boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ background: '#E8730F', color: '#fff', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>1</span>
-                  Finalize Your HR File
-                </h2>
-                <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.7)', marginBottom: 24, lineHeight: 1.6 }}>
-                  Please click the button below to save a PDF copy of your signed agreement, and email it directly to our HR team at <strong>hr@starteasyzambia.com</strong>. This is required to finalize your file.
-                </p>
-                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                  <Btn onClick={handlePrint} size="lg" variant="dark" style={{ flex: 1, minWidth: 200 }}>
-                    <i className="fas fa-print"></i> Print / Save as PDF
-                  </Btn>
-                  <a href={hrEmailLink} style={{ textDecoration: 'none', flex: 1, minWidth: 200 }}>
-                    <Btn size="lg" variant="primary" style={{ width: '100%' }}>
-                      <i className="fas fa-envelope"></i> Email Signed Copy to HR
+              {/* HR Status Section */}
+              {hrStatus === 'pending' ? (
+                <div style={{ background: '#FFF9E6', border: '1px solid #F5A623', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center' }}>
+                  <i className="fas fa-file-signature" style={{ fontSize: 40, color: '#E8730F', marginBottom: 16 }}></i>
+                  <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}>Action Required: Submit to HR</h2>
+                  <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.8)', marginBottom: 24, lineHeight: 1.6, maxWidth: 600, margin: '0 auto 24px' }}>
+                    Your contract is signed, but your official HR file is not yet complete. Please click the button below to submit your digital agreement to the HR team for review and final approval.
+                  </p>
+                  
+                  <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
+                    <Btn onClick={handlePrint} variant="dark" size="lg">
+                      <i className="fas fa-print"></i> Print / Save PDF
                     </Btn>
-                  </a>
-                </div>
-              </div>
+                    <Btn onClick={submitToHR} disabled={busy} variant="primary" size="lg">
+                      {busy ? 'Submitting...' : 'Submit Contract to HR'}
+                    </Btn>
+                  </div>
 
-              {/* Step 2: Onboarding Checklist */}
-              <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginBottom: 32, boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ background: '#1E7B3C', color: '#fff', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>2</span>
-                  Onboarding Checklist
-                </h2>
-                <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.7)', marginBottom: 24, lineHeight: 1.6 }}>
-                  Complete these steps to get fully set up in our systems and start collaborating with the team.
-                </p>
-                
-                <div style={{ display: 'grid', gap: 16 }}>
-                  {[
-                    { title: 'Join Team WhatsApp Group', desc: 'For daily quick updates and team banter.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/mock-invite-link' },
-                    { title: 'Access Slack Workspace', desc: 'Our primary tool for project communication.', icon: 'fa-slack', color: '#4A154B', link: 'https://slack.com/mock-invite' },
-                    { title: 'Set Up Notion Account', desc: 'Access the company wiki, SOPs, and project boards.', icon: 'fa-book', color: '#000000', link: 'https://notion.so/mock-invite' },
-                    { title: 'Update Your Profile', desc: 'Add your photo and bio to the internal team directory.', icon: 'fa-user-circle', color: '#E8730F', link: '#' }
-                  ].map((task, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, border: '1px solid #eee', borderRadius: 8, flexWrap: 'wrap', gap: 16 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 8, background: `${task.color}15`, color: task.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
-                          <i className={`fab ${task.icon}`}></i>
-                        </div>
-                        <div>
-                          <h4 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{task.title}</h4>
-                          <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{task.desc}</p>
-                        </div>
-                      </div>
-                      <a href={task.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                        <Btn size="sm" variant="ghost">Join <i className="fas fa-external-link-alt" style={{ fontSize: 10 }}></i></Btn>
-                      </a>
+                  <p style={{ fontSize: 12.5, color: 'rgba(10,31,18,0.6)', margin: 0 }}>
+                    <em>Fallback: You can also manually email your saved PDF to <a href={hrEmailLink} style={{ color: '#E8730F', fontWeight: 700 }}>hr@starteasyzambia.com</a></em>
+                  </p>
+                </div>
+              ) : (
+                <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center' }}>
+                  <i className="fas fa-check-circle" style={{ fontSize: 40, color: '#1E7B3C', marginBottom: 16 }}></i>
+                  <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}>HR File Submitted Successfully</h2>
+                  <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.8)', marginBottom: 0, lineHeight: 1.6, maxWidth: 600, margin: '0 auto' }}>
+                    The HR team has received your contract. You now have full access to the StartEasy Zambia remote workspace below.
+                  </p>
+                </div>
+              )}
+
+              {/* LOCKED WORKSPACE (Only shows if HR submitted) */}
+              {hrStatus === 'submitted' && (
+                <div className="fadein">
+                  
+                  {/* Welcome Video & Message */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
+                    <div style={{ background: '#0A1F12', borderRadius: 16, padding: 32, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <h3 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 12 }}>Message from the CEO</h3>
+                      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: 20 }}>
+                        "Welcome aboard. We are building something truly special here at StartEasy Zambia. Your role is critical to our success. I look forward to working closely with you. Let's get to work."
+                      </p>
+                      <p style={{ fontSize: 14, fontWeight: 700 }}>— Mwaba Lewis</p>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Step 3: Contact HR */}
-              <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', textAlign: 'center' }}>
-                <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12', marginBottom: 8 }}>Need assistance?</h2>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', marginBottom: 20 }}>The HR Team is here to help you settle in.</p>
-                <a href="mailto:hr@starteasyzambia.com" style={{ textDecoration: 'none' }}>
-                  <Btn size="md" variant="success" style={{ padding: '12px 32px' }}>
-                    <i className="fas fa-envelope"></i> Contact HR Team
-                  </Btn>
-                </a>
-              </div>
+                    <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)' }}>
+                      <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}>Request IT Setup</h3>
+                      <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 16 }}>Do you need a company email address, laptop, or software license?</p>
+                      <textarea 
+                        value={itRequest}
+                        onChange={e => setItRequest(e.target.value)}
+                        placeholder="e.g., I need a company email and a Zoom Pro license..."
+                        style={{ width: '100%', height: 80, padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16, fontFamily: 'inherit' }}
+                      />
+                      <Btn onClick={() => { alert("IT Request sent to HR!"); setItRequest(''); }} variant="ghost" style={{ width: '100%' }}>Send Request</Btn>
+                    </div>
+                  </div>
+
+                  {/* The Tech Stack / Tools */}
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <i className="fas fa-laptop-code" style={{ color: '#E8730F' }}></i> Your Remote Workspace
+                    </h2>
+                    
+                    <div style={{ display: 'grid', gap: 16 }}>
+                      {[
+                        { title: 'Team WhatsApp Group', desc: 'Join the internal group for instant communication.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/mock-invite-link', btn: 'Join WhatsApp' },
+                        { title: 'StartEasy Slack Workspace', desc: 'Our primary tool for project channels and daily updates.', icon: 'fa-slack', color: '#4A154B', link: 'https://slack.com/mock-invite', btn: 'Open Slack' },
+                        { title: 'Company Notion Wiki', desc: 'Access all SOPs, brand guidelines, and project boards.', icon: 'fa-book', color: '#000000', link: 'https://notion.so/mock-invite', btn: 'Open Notion' },
+                      ].map((task, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, border: '1px solid #eee', borderRadius: 8, flexWrap: 'wrap', gap: 16 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 10, background: `${task.color}15`, color: task.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+                              <i className={`fab ${task.icon}`}></i>
+                            </div>
+                            <div>
+                              <h4 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{task.title}</h4>
+                              <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{task.desc}</p>
+                            </div>
+                          </div>
+                          <a href={task.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                            <Btn size="md" variant="dark">{task.btn} <i className="fas fa-external-link-alt" style={{ fontSize: 12, marginLeft: 4 }}></i></Btn>
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Team Directory */}
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32 }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                      <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
+                        <img src="https://ui-avatars.com/api/?name=Mwaba+Lewis&background=E8730F&color=fff&size=80" alt="Mwaba Lewis" style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
+                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Mwaba Lewis</h4>
+                        <p style={{ fontSize: 12, color: '#E8730F', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Founder & Director</p>
+                      </div>
+                      <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
+                        <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#EAF7EE', color: '#1E7B3C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, margin: '0 auto 12px' }}>
+                          <i className="fas fa-user"></i>
+                        </div>
+                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{form.name}</h4>
+                        <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{selectedRole.title}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
 
             </div>
           </div>
