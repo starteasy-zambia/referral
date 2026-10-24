@@ -205,7 +205,7 @@ const LIVE_CODES = {
 const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style, type="button" }) => {
   const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
   const sizes = { sm: { padding: '8px 14px', fontSize: 12 }, md: { padding: '11px 20px', fontSize: 13.5 }, lg: { padding: '14px 24px', fontSize: 14.5 } };
-  const variants = { primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' }, dark: { background: '#0A1F12', color: '#fff' }, ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' }, success: { background: '#1E7B3C', color: '#fff' } };
+  const variants = { primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' }, dark: { background: '#0A1F12', color: '#fff' }, ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' }, success: { background: '#1E7B3C', color: '#fff' }, whatsapp: { background: '#25D366', color: '#fff' }, email: { background: '#1B6CA8', color: '#fff' } };
   return <button type={type} onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
 
@@ -431,7 +431,7 @@ function App() {
     setBusy(true);
     setTimeout(() => {
       setBusy(false);
-      setView('create-account');
+      setView('contract-signed'); // GO TO PDF/EMAIL SEND SCREEN
       window.scrollTo(0, 0);
     }, 1000);
   };
@@ -466,6 +466,12 @@ function App() {
       setItRequestSent(false);
     }, 4000);
   };
+
+  // Generate Email and WhatsApp strings for HR
+  const hrEmailSubject = encodeURIComponent(`Signed Agreement - ${form.name} (${selectedRole?.title})`);
+  const hrEmailBody = encodeURIComponent(`Hello StartEasy HR,\n\nI have signed my engagement agreement for the ${selectedRole?.title} role.\n\nDetails:\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nLocation: ${form.location}\n\nPlease find my signed agreement attached for your records.\n\nRegards,\n${form.name}`);
+  
+  const hrWhatsAppMsg = encodeURIComponent(`Hello StartEasy HR,\n\nI have signed my engagement agreement for the *${selectedRole?.title}* role.\n\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nLocation: ${form.location}\n\nI am sending my signed PDF document next.`);
 
   if (authLoading) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A1F12' }}><i className="fas fa-circle-notch spin" style={{ fontSize: 32, color: '#E8730F' }}></i></div>;
@@ -773,7 +779,7 @@ function App() {
           </div>
         )}
 
-        {/* ─── CONTRACT ─── */}
+        {/* ─── CONTRACT (EDITABLE) ─── */}
         {view === 'contract' && selectedRole && (
           <div className="fadein main-container">
             <div className="el printable">
@@ -880,10 +886,145 @@ function App() {
 
               <div className="no-print" style={{ width: '100%' }}>
                 <Btn onClick={signAgreement} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
-                  {busy ? <><i className="fas fa-circle-notch spin"></i> Processing…</> : 'Execute Agreement & Proceed to HR'}
+                  {busy ? <><i className="fas fa-circle-notch spin"></i> Processing…</> : 'Execute Agreement & Finalize'}
                 </Btn>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ─── CONTRACT SIGNED (SEND TO HR STEP) ─── */}
+        {view === 'contract-signed' && selectedRole && (
+          <div className="fadein main-container">
+            
+            {/* Action Box */}
+            <div className="no-print" style={{ maxWidth: 850, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <div style={{ width: 60, height: 60, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px' }}>
+                  <i className="fas fa-check"></i>
+                </div>
+                <h2 className="serif" style={{ fontSize: 28, color: '#0A1F12', margin: '0 0 8px' }}>Contract Executed!</h2>
+                <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.7)', margin: 0, lineHeight: 1.6 }}>
+                  Your Agreement of Engagement for the <strong>{selectedRole.title}</strong> role is ready.<br/>
+                  Please download, sign, and send a copy to HR before proceeding.
+                </p>
+              </div>
+
+              <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginBottom: 24 }}>
+                <Btn onClick={() => window.print()} size="lg" variant="dark" style={{ width: '100%' }}>
+                  <i className="fas fa-print"></i> 1. Print / Save PDF
+                </Btn>
+                <a href={`https://wa.me/260762499581?text=${hrWhatsAppMsg}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                  <Btn size="lg" variant="whatsapp" style={{ width: '100%' }}>
+                    <i className="fab fa-whatsapp"></i> 2. Send via WhatsApp
+                  </Btn>
+                </a>
+                <a href={`mailto:hr@starteasyzambia.com?subject=${hrEmailSubject}&body=${hrEmailBody}`} style={{ textDecoration: 'none' }}>
+                  <Btn size="lg" variant="email" style={{ width: '100%' }}>
+                    <i className="fas fa-envelope"></i> 2. Send via Email
+                  </Btn>
+                </a>
+              </div>
+
+              <div style={{ background: '#FFF9E6', border: '1px solid #F0E0A0', padding: 16, borderRadius: 8, marginBottom: 24, fontSize: 13, color: '#8A6828', lineHeight: 1.6 }}>
+                <strong>Important:</strong> If you choose email, please remember to <strong>attach the PDF</strong> you downloaded in Step 1 before hitting send.
+              </div>
+
+              <div style={{ borderTop: '1px solid #eee', paddingTop: 24, textAlign: 'center' }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#0A1F12', marginBottom: 16 }}>Once you have sent the agreement to HR, proceed to setup your account.</p>
+                <Btn onClick={() => { setView('create-account'); window.scrollTo(0,0); }} size="lg" variant="primary" style={{ width: '100%', maxWidth: 400 }}>
+                  3. Proceed to Create Account <i className="fas fa-arrow-right"></i>
+                </Btn>
+              </div>
+            </div>
+
+            {/* Printable Contract Preview */}
+            <div className="el printable" style={{ marginTop: 20 }}>
+              <div className="eh">
+                <div>
+                  <div className="brand">Start<em>Easy Zambia</em></div>
+                  <div className="sub">Founding Team Engagement</div>
+                </div>
+                <div>
+                  <div className="dt">AGREEMENT OF ENGAGEMENT</div>
+                  <div className="mt">
+                    {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </div>
+                </div>
+              </div>
+
+              <p>
+                This Agreement of Engagement is entered into by StartEasy Zambia (the "Company") and <strong>{form.name}</strong> (the "Appointee"). By digitally signing this document, the Appointee formally accepts the appointment, terms, and responsibilities outlined herein.
+              </p>
+
+              <h4>1. Appointment & Position</h4>
+              <p>The Company hereby appoints the Appointee to the position of <strong>{selectedRole.title}</strong>. {selectedRole.reporting}</p>
+
+              <h4>2. Role Summary</h4>
+              <p>{selectedRole.summary}</p>
+
+              <h4>3. Specific Duties & Responsibilities</h4>
+              <ul>
+                {selectedRole.responsibilities.map((item, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: fmt(item)}} />)}
+              </ul>
+
+              <h4>4. Performance Milestones (First 90 Days)</h4>
+              <ul>
+                <li><strong>Month 1:</strong> {selectedRole.month1}</li>
+                <li><strong>Month 2:</strong> {selectedRole.month2}</li>
+                <li><strong>Month 3:</strong> {selectedRole.month3}</li>
+              </ul>
+
+              <h4>5. Remuneration & Compensation</h4>
+              <ul>
+                {selectedRole.compensation.map((item, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: fmt(item)}} />)}
+              </ul>
+
+              <h4>6. Resources, Work Environment & Terms</h4>
+              <p><strong>Allocated Resources:</strong> {selectedRole.resources}</p>
+              <p><strong>Work Environment:</strong> {selectedRole.environment}</p>
+              <ul>
+                {selectedRole.terms.map((term, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: fmt(term)}} />)}
+                <li><strong>Confidentiality:</strong> You must keep all of our business plans, client information, and strategies completely confidential.</li>
+              </ul>
+
+              <h4>7. Appointee Details</h4>
+              <div className="form-grid-2">
+                <span>
+                  <strong>Full Legal Name:</strong><br/>
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{form.name}</div>
+                </span>
+                <span>
+                  <strong>Email Address:</strong><br/>
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{form.email}</div>
+                </span>
+                <span>
+                  <strong>Phone / WhatsApp:</strong><br/>
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{form.phone}</div>
+                </span>
+                <span>
+                  <strong>Current Location:</strong><br/>
+                  <div style={{ padding: '6px 0', borderBottom: '1px solid #ccc' }}>{form.location}</div>
+                </span>
+              </div>
+
+              <h4>8. Declaration & Acceptance</h4>
+              <p>I, the undersigned Appointee, hereby declare that I have read, understood, and voluntarily accept the terms, compensation structure, and 90-day priorities outlined in this Agreement of Engagement. I acknowledge that this is an Entrepreneurship/Intrapreneurship opportunity and not a standard employment contract.</p>
+
+              <div className="sign">
+                <div>
+                  <div className="sigval" style={{ color: '#1B6CA8' }}>Mwaba Lewis</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1F12', marginBottom: 4 }}>MWABA LEWIS</div>
+                  <div className="lbl">Founder, StartEasy Zambia</div>
+                </div>
+                <div>
+                  <div className="sigval" style={{ color: '#E8730F' }}>{form.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1F12', marginBottom: 4 }}>{form.name}</div>
+                  <div className="lbl">Appointee</div>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -893,13 +1034,11 @@ function App() {
             <div style={{ maxWidth: 500, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
               <div style={{ textAlign: 'center', marginBottom: 24 }}>
                 <div style={{ width: 60, height: 60, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px' }}>
-                  <i className="fas fa-check"></i>
+                  <i className="fas fa-lock"></i>
                 </div>
-                <h2 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: '0 0 8px' }}>Contract Signed!</h2>
+                <h2 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: '0 0 8px' }}>Create Account</h2>
                 <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: 0, lineHeight: 1.5 }}>
-                  Your Agreement of Engagement for the <strong>{selectedRole.title}</strong> role is executed.
-                  <br/><br/>
-                  To access your onboarding workspace, please create your secure portal account below.
+                  Set a password to access your onboarding workspace and dashboard.
                 </p>
               </div>
 
@@ -951,7 +1090,7 @@ function App() {
           </div>
         )}
 
-        {/* ─── DASHBOARD FALLBACK (If profile is missing) ─── */}
+        {/* ─── DASHBOARD FALLBACK ─── */}
         {view === 'dashboard' && !userData && (
           <div className="fadein main-container" style={{ minHeight: '60vh', justifyContent: 'center' }}>
             <div style={{ background: '#fff', padding: 40, borderRadius: 16, textAlign: 'center', maxWidth: 450, boxShadow: '0 20px 60px rgba(0,0,0,0.08)' }}>
