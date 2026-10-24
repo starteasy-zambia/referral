@@ -7,28 +7,19 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root {
   --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F; 
   --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --blue:#1B6CA8;
 }
 /* FIX FOR SHAKING */
-html, body { 
-  overflow-x: hidden; 
-  width: 100%; 
-  margin: 0; 
-  padding: 0;
-  box-sizing: border-box;
-}
-*, *::before, *::after {
-  box-sizing: inherit;
-}
-body { 
-  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-  -webkit-font-smoothing: antialiased; 
-  background: var(--light); 
-  color: var(--forest); 
-}
+html, body { overflow-x: hidden; width: 100%; margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: var(--light); color: var(--forest); }
 .serif { font-family: 'Playfair Display', Georgia, serif; }
 input:focus, textarea:focus { outline: none; border-color: var(--orange) !important; }
 .fadein { animation: fi .4s cubic-bezier(.22,.61,.36,1) both; }
@@ -63,7 +54,6 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 .el ul{margin:0 0 18px;padding-left:24px}
 .el li{margin-bottom:12px;font-size:13.5px; text-align: justify;}
 
-/* 2-COLUMN GRID THAT STACKS ON MOBILE */
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; width: 100%; }
 @media (max-width: 600px) { .form-grid-2 { grid-template-columns: 1fr; } }
 
@@ -94,7 +84,24 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 <script type="text/babel" data-presets="react">
-const { useState } = React;
+const { useState, useEffect } = React;
+
+// INITIALIZE FIREBASE
+// Replace with your actual Firebase config if different
+const firebaseConfig = {
+  apiKey: "AIzaSyDdEyxvsd2RjgKVYTGYJfYUB_637lV3n5I",
+  authDomain: "starteasy-zambia.firebaseapp.com",
+  projectId: "starteasy-zambia",
+  storageBucket: "starteasy-zambia.firebasestorage.app",
+  messagingSenderId: "54136399237",
+  appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // EXHAUSTIVELY DETAILED, PLAIN ENGLISH JOB DESCRIPTIONS & LEGAL TERMS
 const ROLES = {
@@ -194,14 +201,13 @@ const LIVE_CODES = {
   'INV-GRO-4M1X': 'growth_associate'
 };
 
-const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style }) => {
+const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style, type="button" }) => {
   const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
   const sizes = { sm: { padding: '8px 14px', fontSize: 12 }, md: { padding: '11px 20px', fontSize: 13.5 }, lg: { padding: '14px 24px', fontSize: 14.5 } };
   const variants = { primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' }, dark: { background: '#0A1F12', color: '#fff' }, ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' }, success: { background: '#1E7B3C', color: '#fff' } };
-  return <button onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
+  return <button type={type} onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
 
-// Helper to generate a mock PDF download so users don't get an alert
 const downloadMockPDF = (filename) => {
   const element = document.createElement("a");
   const file = new Blob(["This is a simulated document for StartEasy Zambia: " + filename], {type: 'application/pdf'});
@@ -219,14 +225,129 @@ function App() {
   const [codeError, setCodeError] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
+  // Contract State
   const [form, setForm] = useState({ name: '', email: '', phone: '', location: '' });
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-
-  const [hrStatus, setHrStatus] = useState('pending');
+  const [hrStatus, setHrStatus] = useState('pending'); 
   const [itRequest, setItRequest] = useState('');
   const [itRequestSent, setItRequestSent] = useState(false);
+
+  // Auth State
+  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  
+  // Auth Forms
+  const [authPassword, setAuthPassword] = useState('');
+  const [authConfirmPassword, setAuthConfirmPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+
+  // Listen to Firebase Auth State
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        // Fetch user data from Firestore
+        try {
+          const docRef = db.collection('se_appointees').doc(currentUser.uid);
+          const docSnap = await docRef.get();
+          if (docSnap.exists) {
+            setUserData(docSnap.data());
+            // If they are logged in, send them to dashboard view
+            setView('dashboard');
+          }
+        } catch (e) {
+          console.error("Error fetching user data:", e);
+        }
+      } else {
+        setUser(null);
+        setUserData(null);
+      }
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // --- AUTHENTICATION LOGIC ---
+
+  const handleCreateAccount = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    
+    if (authPassword.length < 6) return setAuthError('Password must be at least 6 characters.');
+    if (authPassword !== authConfirmPassword) return setAuthError('Passwords do not match.');
+    
+    setBusy(true);
+    try {
+      // 1. Create Auth User
+      const userCredential = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), authPassword);
+      
+      // 2. Save Appointee Data to Firestore
+      await db.collection('se_appointees').doc(userCredential.user.uid).set({
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim(),
+        location: form.location.trim(),
+        roleId: selectedRole.id,
+        roleTitle: selectedRole.title,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Auth listener will automatically redirect to dashboard
+    } catch (err) {
+      console.error(err);
+      if (err.code === 'auth/email-already-in-use') setAuthError('This email is already registered. Please login instead.');
+      else setAuthError(err.message || 'Failed to create account.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setBusy(true);
+    try {
+      await auth.signInWithEmailAndPassword(form.email.trim().toLowerCase(), authPassword);
+      // Auth listener handles redirect
+    } catch (err) {
+      console.error(err);
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        setAuthError('Invalid email or password.');
+      } else {
+        setAuthError(err.message || 'Login failed.');
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    if (!resetEmail.trim()) return setAuthError('Please enter your email address.');
+    setBusy(true);
+    try {
+      await auth.sendPasswordResetEmail(resetEmail.trim().toLowerCase());
+      setResetSent(true);
+    } catch (err) {
+      console.error(err);
+      setAuthError(err.message || 'Failed to send reset email.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    resetPortal();
+  };
+
+  // --- NAVIGATION LOGIC ---
 
   const validateCode = () => {
     setCodeError('');
@@ -250,25 +371,9 @@ function App() {
     if (!agreed) return setError('You must check the acceptance box to execute this agreement.');
 
     setBusy(true);
-
-    const agreementRecord = {
-      roleId: selectedRole.id,
-      roleTitle: selectedRole.title,
-      legalName: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      phone: form.phone.trim(),
-      location: form.location.trim(),
-      termsAccepted: true,
-      signedAt: new Date().toISOString()
-    };
-
-    const existingAgreements = JSON.parse(localStorage.getItem('se_agreements') || '[]');
-    existingAgreements.push(agreementRecord);
-    localStorage.setItem('se_agreements', JSON.stringify(existingAgreements));
-
     setTimeout(() => {
       setBusy(false);
-      setView('onboarding');
+      setView('create-account'); // GO TO ACCOUNT CREATION AFTER SIGNING
       window.scrollTo(0, 0);
     }, 1000);
   };
@@ -284,21 +389,11 @@ function App() {
     setHrStatus('pending');
     setItRequest('');
     setItRequestSent(false);
+    setAuthPassword('');
+    setAuthConfirmPassword('');
+    setAuthError('');
     setIsMenuOpen(false);
     window.scrollTo(0, 0);
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const submitToHR = () => {
-    setBusy(true);
-    setTimeout(() => {
-      setHrStatus('submitted');
-      setBusy(false);
-      window.scrollTo(0, 0);
-    }, 1500);
   };
 
   const submitITRequest = (e) => {
@@ -311,15 +406,17 @@ function App() {
     }, 4000);
   };
 
-  const hrEmailLink = `mailto:hr@starteasyzambia.com?subject=Signed Agreement - ${form.name} (${selectedRole?.title})&body=Dear StartEasy Zambia HR Team,%0D%0A%0D%0APlease find attached my signed Agreement of Engagement for the ${selectedRole?.title} role.%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone}%0D%0ALocation: ${form.location}%0D%0A%0D%0ABest regards,%0D%0A${form.name}`;
+  if (authLoading) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A1F12' }}><i className="fas fa-circle-notch fa-spin" style={{ fontSize: 32, color: '#E8730F' }}></i></div>;
+  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%' }}>
       
-      {/* HEADER WITH MENU */}
+      {/* HEADER WITH DYNAMIC MENU */}
       <header className="site-header no-print">
         <div className="header-content">
-          <div className="logo-group" onClick={resetPortal}>
+          <div className="logo-group" onClick={() => user ? setView('dashboard') : resetPortal()}>
             <div className="logo-mark">S</div>
             <div>
               <div className="logo-text-sub">Founding Team Portal</div>
@@ -334,21 +431,39 @@ function App() {
           </div>
         </div>
 
-        {/* DROPDOWN MENU */}
+        {/* DYNAMIC DROPDOWN MENU */}
         {isMenuOpen && (
           <div className="nav-menu fadein">
-            <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('gateway'); window.scrollTo(0,0); }}>
-              <i className="fas fa-sign-in-alt text-gray-500"></i> Login to HR Portal
-            </div>
-            <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('resources'); window.scrollTo(0,0); }}>
-              <i className="fas fa-book-open text-gray-500"></i> Guidance & Resources
-            </div>
-            <a href="mailto:hr@starteasyzambia.com" className="nav-item" style={{ color: '#0A1F12' }}>
-              <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
-            </a>
-            <div className="nav-item" onClick={resetPortal} style={{ borderTop: '1px solid #eee', color: '#B8564F' }}>
-              <i className="fas fa-sign-out-alt"></i> Exit Portal
-            </div>
+            {user ? (
+              // Logged In Menu
+              <>
+                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('dashboard'); window.scrollTo(0,0); }}>
+                  <i className="fas fa-columns text-gray-500"></i> My Dashboard
+                </div>
+                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('resources'); window.scrollTo(0,0); }}>
+                  <i className="fas fa-book-open text-gray-500"></i> Guidance & Resources
+                </div>
+                <a href="mailto:hr@starteasyzambia.com" className="nav-item" style={{ color: '#0A1F12' }}>
+                  <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
+                </a>
+                <div className="nav-item" onClick={handleLogout} style={{ borderTop: '1px solid #eee', color: '#B8564F' }}>
+                  <i className="fas fa-sign-out-alt"></i> Log Out
+                </div>
+              </>
+            ) : (
+              // Logged Out Menu
+              <>
+                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('login'); window.scrollTo(0,0); }}>
+                  <i className="fas fa-sign-in-alt text-gray-500"></i> Login to HR Portal
+                </div>
+                <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('resources'); window.scrollTo(0,0); }}>
+                  <i className="fas fa-book-open text-gray-500"></i> Guidance & Resources
+                </div>
+                <a href="mailto:hr@starteasyzambia.com" className="nav-item" style={{ color: '#0A1F12' }}>
+                  <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
+                </a>
+              </>
+            )}
           </div>
         )}
       </header>
@@ -375,17 +490,17 @@ function App() {
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>1</div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Verify Code</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Enter the unique invitation code sent to your email by the StartEasy Admin team.</p>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Enter the unique invitation code sent to your email.</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>2</div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Review Brief</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Read the detailed role description, expectations, and compensation structure.</p>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Read the detailed role description and exact compensation structure.</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>3</div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Sign & Onboard</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Digitally execute the agreement, submit to HR, and unlock your team workspace.</p>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Execute the agreement, create your account, and unlock your workspace.</p>
                 </div>
               </div>
 
@@ -408,6 +523,88 @@ function App() {
                 </Btn>
               </div>
             </section>
+          </div>
+        )}
+
+        {/* --- LOGIN PAGE (For returning users) --- */}
+        {view === 'login' && (
+          <div className="fadein main-container" style={{ minHeight: '80vh', justifyContent: 'center' }}>
+            <div style={{ maxWidth: 450, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <i className="fas fa-sign-in-alt" style={{ fontSize: 32, color: '#E8730F', marginBottom: 12 }}></i>
+                <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', margin: 0 }}>HR Portal Login</h2>
+                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: '8px 0 0' }}>Access your workspace and resources.</p>
+              </div>
+
+              <form onSubmit={handleLogin}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Email Address</label>
+                <input 
+                  type="email" 
+                  value={form.email} 
+                  onChange={e => setForm({...form, email: e.target.value})} 
+                  placeholder="Enter your registered email"
+                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
+                  required
+                />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Password</label>
+                <input 
+                  type="password" 
+                  value={authPassword} 
+                  onChange={e => setAuthPassword(e.target.value)} 
+                  placeholder="Enter your password"
+                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
+                  required
+                />
+                {authError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, fontWeight: 600 }}>{authError}</div>}
+                <Btn type="submit" disabled={busy} size="lg" variant="dark" style={{ width: '100%', marginBottom: 16 }}>
+                  {busy ? 'Logging in...' : 'Log In'}
+                </Btn>
+              </form>
+
+              <div style={{ textAlign: 'center' }}>
+                <button onClick={() => { setView('forgot-password'); setAuthError(''); setResetSent(false); }} style={{ background: 'none', border: 'none', color: '#E8730F', fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
+                  Forgot Password?
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- FORGOT PASSWORD PAGE --- */}
+        {view === 'forgot-password' && (
+          <div className="fadein main-container" style={{ minHeight: '80vh', justifyContent: 'center' }}>
+            <div style={{ maxWidth: 450, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <i className="fas fa-key" style={{ fontSize: 32, color: '#E8730F', marginBottom: 12 }}></i>
+                <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', margin: 0 }}>Reset Password</h2>
+                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: '8px 0 0' }}>We will send a reset link to your email.</p>
+              </div>
+
+              {resetSent ? (
+                <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 20, borderRadius: 8, textAlign: 'center' }}>
+                  <i className="fas fa-check-circle" style={{ fontSize: 24, marginBottom: 8, display: 'block' }}></i>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>If an account exists for <strong>{resetEmail}</strong>, a reset link has been sent. Please check your inbox (and spam folder).</p>
+                  <Btn onClick={() => setView('login')} variant="ghost" style={{ marginTop: 16, width: '100%' }}>Back to Login</Btn>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotPassword}>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Registered Email</label>
+                  <input 
+                    type="email" 
+                    value={resetEmail} 
+                    onChange={e => setResetEmail(e.target.value)} 
+                    placeholder="Enter your email"
+                    style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
+                    required
+                  />
+                  {authError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, fontWeight: 600 }}>{authError}</div>}
+                  <Btn type="submit" disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 12 }}>
+                    {busy ? 'Sending...' : 'Send Reset Link'}
+                  </Btn>
+                  <Btn onClick={() => setView('login')} variant="ghost" style={{ width: '100%' }}>Back to Login</Btn>
+                </form>
+              )}
+            </div>
           </div>
         )}
 
@@ -611,8 +808,67 @@ function App() {
           </div>
         )}
 
-        {/* --- HR ONBOARDING DASHBOARD --- */}
-        {view === 'onboarding' && (
+        {/* --- CREATE ACCOUNT (Immediate Post-Contract Onboarding) --- */}
+        {view === 'create-account' && selectedRole && (
+          <div className="fadein main-container" style={{ minHeight: '80vh', justifyContent: 'center' }}>
+            <div style={{ maxWidth: 500, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <div style={{ width: 60, height: 60, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px' }}>
+                  <i className="fas fa-check"></i>
+                </div>
+                <h2 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: '0 0 8px' }}>Contract Signed!</h2>
+                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: 0, lineHeight: 1.5 }}>
+                  Your Agreement of Engagement for the <strong>{selectedRole.title}</strong> role is executed. 
+                  <br/><br/>
+                  To access your onboarding workspace, please create your secure portal account below.
+                </p>
+              </div>
+
+              <form onSubmit={handleCreateAccount}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Registered Email</label>
+                <input 
+                  type="email" 
+                  value={form.email} 
+                  readOnly
+                  style={{ width: '100%', padding: 12, border: '1px solid #eee', background: '#f9f9f9', color: '#666', borderRadius: 8, marginBottom: 16 }} 
+                />
+                
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Create Password</label>
+                <input 
+                  type="password" 
+                  value={authPassword} 
+                  onChange={e => setAuthPassword(e.target.value)} 
+                  placeholder="Minimum 6 characters"
+                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
+                  required
+                />
+
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: '#0A1F12' }}>Confirm Password</label>
+                <input 
+                  type="password" 
+                  value={authConfirmPassword} 
+                  onChange={e => setAuthConfirmPassword(e.target.value)} 
+                  placeholder="Re-enter password"
+                  style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} 
+                  required
+                />
+
+                {authError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, fontWeight: 600 }}>{authError}</div>}
+
+                <Btn type="submit" disabled={busy} size="lg" variant="primary" style={{ width: '100%' }}>
+                  {busy ? 'Creating Account...' : 'Create Account & Enter Portal'}
+                </Btn>
+              </form>
+
+              <div style={{ textAlign: 'center', marginTop: 20 }}>
+                <p style={{ fontSize: 12, color: 'rgba(10,31,18,0.5)', margin: 0 }}>Already created an account? <span onClick={() => setView('login')} style={{ color: '#E8730F', cursor: 'pointer', fontWeight: 600 }}>Log in here</button></p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- HR ONBOARDING DASHBOARD (Protected View) --- */}
+        {view === 'dashboard' && userData && (
           <div className="fadein main-container" style={{ minHeight: '100vh' }}>
             <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
               
@@ -620,126 +876,93 @@ function App() {
                 <div style={{ width: 64, height: 64, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 16px' }}>
                   <i className="fas fa-handshake"></i>
                 </div>
-                <h1 className="serif" style={{ fontSize: 32, margin: '0 0 12px' }}>Welcome to the Team, {form.name.split(' ')[0]}!</h1>
+                <h1 className="serif" style={{ fontSize: 32, margin: '0 0 12px' }}>Welcome to the Team, {userData.name.split(' ')[0]}!</h1>
                 <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto', lineHeight: 1.6 }}>
-                  You are now officially part of the StartEasy Zambia founding team.
+                  You are now officially part of the StartEasy Zambia founding team as the <strong>{userData.roleTitle}</strong>.
                 </p>
               </div>
 
-              {hrStatus === 'pending' ? (
-                <div style={{ background: '#FFF9E6', border: '1px solid #F5A623', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center', width: '100%' }}>
-                  <i className="fas fa-file-signature" style={{ fontSize: 40, color: '#E8730F', marginBottom: 16 }}></i>
-                  <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}>Action Required: Submit to HR</h2>
-                  <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.8)', marginBottom: 24, lineHeight: 1.6, maxWidth: 600, margin: '0 auto 24px' }}>
-                    Your contract is signed, but your official HR file is not yet complete. Please click the button below to submit your digital agreement to the HR team for review and final approval.
-                  </p>
-                  
-                  <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
-                    <Btn onClick={handlePrint} variant="dark" size="lg">
-                      <i className="fas fa-print"></i> Print / Save PDF
-                    </Btn>
-                    <Btn onClick={submitToHR} disabled={busy} variant="primary" size="lg">
-                      {busy ? 'Submitting...' : 'Submit Contract to HR'}
-                    </Btn>
+              <div className="fadein" style={{ width: '100%' }}>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32, width: '100%' }}>
+                  <div style={{ background: '#0A1F12', borderRadius: 16, padding: 32, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <h3 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 12 }}>Message from the Founder</h3>
+                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: 20 }}>
+                      "Welcome aboard. We are building something truly special here at StartEasy Zambia. Your role is critical to our success. I look forward to working closely with you. Let's get to work."
+                    </p>
+                    <p style={{ fontSize: 14, fontWeight: 700 }}>— Mwaba Lewis, Founder</p>
                   </div>
 
-                  <p style={{ fontSize: 12.5, color: 'rgba(10,31,18,0.6)', margin: 0 }}>
-                    <em>Fallback: You can also manually email your saved PDF to <a href={hrEmailLink} style={{ color: '#E8730F', fontWeight: 700 }}>hr@starteasyzambia.com</a></em>
-                  </p>
-                </div>
-              ) : (
-                <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center', width: '100%' }}>
-                  <i className="fas fa-check-circle" style={{ fontSize: 40, color: '#1E7B3C', marginBottom: 16 }}></i>
-                  <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}>HR File Submitted Successfully</h2>
-                  <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.8)', marginBottom: 0, lineHeight: 1.6, maxWidth: 600, margin: '0 auto' }}>
-                    The HR team has received your contract. You now have full access to the StartEasy Zambia remote workspace below.
-                  </p>
-                </div>
-              )}
-
-              {hrStatus === 'submitted' && (
-                <div className="fadein" style={{ width: '100%' }}>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32, width: '100%' }}>
-                    <div style={{ background: '#0A1F12', borderRadius: 16, padding: 32, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                      <h3 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 12 }}>Message from the Founder</h3>
-                      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: 20 }}>
-                        "Welcome aboard. We are building something truly special here at StartEasy Zambia. Your role is critical to our success. I look forward to working closely with you. Let's get to work."
-                      </p>
-                      <p style={{ fontSize: 14, fontWeight: 700 }}>— Mwaba Lewis, Founder</p>
-                    </div>
-
-                    <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)' }}>
-                      <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}>Request IT Setup</h3>
-                      {itRequestSent ? (
-                        <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 16, borderRadius: 8, textAlign: 'center', fontSize: 14, fontWeight: 600 }}>
-                          <i className="fas fa-check-circle" style={{ marginBottom: 8, fontSize: 24, display: 'block' }}></i>
-                          Your request has been sent to HR!
-                        </div>
-                      ) : (
-                        <form onSubmit={submitITRequest}>
-                          <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 16 }}>Do you need a company email address, laptop, or software license?</p>
-                          <textarea 
-                            value={itRequest}
-                            onChange={e => setItRequest(e.target.value)}
-                            placeholder="e.g., I need a company email and a Zoom Pro license..."
-                            style={{ width: '100%', height: 80, padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16, fontFamily: 'inherit' }}
-                          />
-                          <Btn type="submit" variant="ghost" style={{ width: '100%' }}>Send Request</Btn>
-                        </form>
-                      )}
-                    </div>
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)' }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}>Request IT Setup</h3>
+                    {itRequestSent ? (
+                      <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 16, borderRadius: 8, textAlign: 'center', fontSize: 14, fontWeight: 600 }}>
+                        <i className="fas fa-check-circle" style={{ marginBottom: 8, fontSize: 24, display: 'block' }}></i>
+                        Your request has been sent to HR!
+                      </div>
+                    ) : (
+                      <form onSubmit={submitITRequest}>
+                        <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 16 }}>Do you need a company email address, laptop, or software license?</p>
+                        <textarea 
+                          value={itRequest}
+                          onChange={e => setItRequest(e.target.value)}
+                          placeholder="e.g., I need a company email and a Zoom Pro license..."
+                          style={{ width: '100%', height: 80, padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16, fontFamily: 'inherit' }}
+                        />
+                        <Btn type="submit" variant="ghost" style={{ width: '100%' }}>Send Request</Btn>
+                      </form>
+                    )}
                   </div>
+                </div>
 
-                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', width: '100%' }}>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <i className="fas fa-laptop-code" style={{ color: '#E8730F' }}></i> Your Remote Workspace
-                    </h2>
-                    
-                    <div style={{ display: 'grid', gap: 16 }}>
-                      {[
-                        { title: 'Team WhatsApp Group', desc: 'Join the internal group for instant communication.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/mock-invite-link', btn: 'Join WhatsApp' },
-                        { title: 'StartEasy Slack Workspace', desc: 'Our primary tool for project channels and daily updates.', icon: 'fa-slack', color: '#4A154B', link: 'https://slack.com/mock-invite', btn: 'Open Slack' },
-                        { title: 'Company Notion Wiki', desc: 'Access all SOPs, brand guidelines, and project boards.', icon: 'fa-book', color: '#000000', link: 'https://notion.so/mock-invite', btn: 'Open Notion' },
-                      ].map((task, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, border: '1px solid #eee', borderRadius: 8, flexWrap: 'wrap', gap: 16 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                            <div style={{ width: 44, height: 44, borderRadius: 10, background: `${task.color}15`, color: task.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-                              <i className={`fab ${task.icon}`}></i>
-                            </div>
-                            <div>
-                              <h4 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{task.title}</h4>
-                              <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{task.desc}</p>
-                            </div>
+                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', width: '100%' }}>
+                  <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <i className="fas fa-laptop-code" style={{ color: '#E8730F' }}></i> Your Remote Workspace
+                  </h2>
+                  
+                  <div style={{ display: 'grid', gap: 16 }}>
+                    {[
+                      { title: 'Team WhatsApp Group', desc: 'Join the internal group for instant communication.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/mock-invite-link', btn: 'Join WhatsApp' },
+                      { title: 'StartEasy Slack Workspace', desc: 'Our primary tool for project channels and daily updates.', icon: 'fa-slack', color: '#4A154B', link: 'https://slack.com/mock-invite', btn: 'Open Slack' },
+                      { title: 'Company Notion Wiki', desc: 'Access all SOPs, brand guidelines, and project boards.', icon: 'fa-book', color: '#000000', link: 'https://notion.so/mock-invite', btn: 'Open Notion' },
+                    ].map((task, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, border: '1px solid #eee', borderRadius: 8, flexWrap: 'wrap', gap: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 10, background: `${task.color}15`, color: task.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+                            <i className={`fab ${task.icon}`}></i>
                           </div>
-                          <a href={task.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                            <Btn size="md" variant="dark">{task.btn} <i className="fas fa-external-link-alt" style={{ fontSize: 12, marginLeft: 4 }}></i></Btn>
-                          </a>
+                          <div>
+                            <h4 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{task.title}</h4>
+                            <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{task.desc}</p>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32, width: '100%' }}>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                      <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
-                        <img src="https://ui-avatars.com/api/?name=Mwaba+Lewis&background=E8730F&color=fff&size=80" alt="Mwaba Lewis" style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
-                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Mwaba Lewis</h4>
-                        <p style={{ fontSize: 12, color: '#E8730F', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Founder</p>
+                        <a href={task.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                          <Btn size="md" variant="dark">{task.btn} <i className="fas fa-external-link-alt" style={{ fontSize: 12, marginLeft: 4 }}></i></Btn>
+                        </a>
                       </div>
-                      <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
-                        <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#EAF7EE', color: '#1E7B3C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, margin: '0 auto 12px' }}>
-                          <i className="fas fa-user"></i>
-                        </div>
-                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{form.name}</h4>
-                        <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{selectedRole.title}</p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-
                 </div>
-              )}
+
+                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32, width: '100%' }}>
+                  <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                    <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
+                      <img src="https://ui-avatars.com/api/?name=Mwaba+Lewis&background=E8730F&color=fff&size=80" alt="Mwaba Lewis" style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
+                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Mwaba Lewis</h4>
+                      <p style={{ fontSize: 12, color: '#E8730F', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Founder</p>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
+                      <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#EAF7EE', color: '#1E7B3C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, margin: '0 auto 12px' }}>
+                        <i className="fas fa-user"></i>
+                      </div>
+                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{userData.name}</h4>
+                      <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{userData.roleTitle}</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
 
             </div>
           </div>
