@@ -3,48 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StartEasy Zambia | Team & Partner Portal</title>
+<title>StartEasy Zambia | Join the Founding Team</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
 :root {
   --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F; 
-  --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --teal:#0E7C7B; --blue:#1B6CA8;
+  --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --blue:#1B6CA8;
 }
-body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: var(--light); color: var(--forest); overflow-x: hidden; margin: 0; }
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: var(--light); color: var(--forest); margin: 0; overflow-x: hidden; }
 .serif { font-family: 'Playfair Display', Georgia, serif; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--orange) !important; }
+input:focus, textarea:focus { outline: none; border-color: var(--orange) !important; }
 .fadein { animation: fi .4s cubic-bezier(.22,.61,.36,1) both; }
 @keyframes fi { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-.spin { animation: spin 1s linear infinite; display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* HEADER */
-.site-header { position: sticky; top: 0; z-index: 50; background: #0A1F12; border-bottom: 1px solid rgba(245,166,35,.1); padding: 0 16px; }
-.header-container { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; width: 100%; }
-.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; }
-.header-logo-mark { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,var(--orange),var(--orange-2)); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 800; font-size: 16px; }
-.header-logo-text { display: flex; flex-direction: column; text-align: left; line-height: 1; }
-.header-logo-sub { font-size: 8.5px; letter-spacing: .15em; text-transform: uppercase; font-weight: 700; color: rgba(255,255,255,.4); margin-bottom: 3px; }
-.header-logo-main { font-size: 15px; font-weight: 700; color: #fff; }
-.header-nav { display: flex; align-items: center; gap: 20px; }
-.header-link { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.6); padding: 6px 0; position: relative; text-decoration: none; white-space: nowrap; }
-.header-link.active { color: var(--orange-2); font-weight: 700; }
-.header-link.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: var(--orange-2); border-radius: 99px; }
-.header-btn { background: linear-gradient(135deg,var(--orange),var(--orange-2)); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
-.header-mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 8px; }
-@media (max-width: 900px) {
-  .header-nav { display: none; }
-  .header-btn { display: none; }
-  .header-mobile-toggle { display: block; }
-  .header-mobile-menu { background: #0A1F12; padding: 16px 24px 24px; border-top: 1px solid rgba(255,255,255,.1); display: flex; flex-direction: column; gap: 16px; position: absolute; top: 64px; left: 0; right: 0; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
-  .header-mobile-menu .header-link { font-size: 15px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
-  .header-mobile-menu .header-btn { display: block; width: 100%; text-align: center; padding: 14px; font-size: 15px; margin-top: 8px; }
-}
 
 /* ENGAGEMENT LETTER */
 .el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:34px 42px; font-size:13px; line-height:1.65; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 800px; margin: 0 auto; }
@@ -54,7 +26,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--o
 .el .eh .sub{font-size:10px;color:#8A6828;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
 .el .eh .dt{font-family:'Playfair Display',Georgia,serif;font-size:14px;font-weight:800;color:#E8730F;letter-spacing:1.2px;text-align:right}
 .el .eh .mt{font-size:11px;color:#666;text-align:right;margin-top:6px}
-.el h4{font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#0A1F12;font-weight:700;margin:22px 0 10px}
+.el h4{font-family:'Playfair Display',Georgia,serif;font-size:15px;color:#0A1F12;font-weight:700;margin:22px 0 10px; border-bottom: 1px solid #eee; padding-bottom: 6px;}
 .el h4:first-of-type{margin-top:0}
 .el p{margin:0 0 12px}
 .el ul{margin:0 0 14px;padding-left:22px}
@@ -69,7 +41,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--o
 .doc-input-line { border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size: 13px; color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none; width: 100%; margin-top: 4px; padding: 6px; }
 .doc-input-line:focus { background: #fff; border-bottom: 1px solid var(--orange); }
 @media (max-width: 600px) { .el { padding: 20px; } .el .sign { grid-template-columns: 1fr; gap: 20px; } .el .eh { flex-direction: column; gap: 10px; } .el .eh .dt, .el .eh .mt { text-align: left; } }
-@media print { body * { visibility: hidden; } .printable, .printable * { visibility: visible; } .printable { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: #fff; box-shadow: none; border: none; } .no-print { display: none !important; } }
 </style>
 </head>
 <body>
@@ -78,544 +49,373 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--o
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useCallback } = React;
+const { useState } = React;
 
-/* ---------------- CONFIG ---------------- */
-const CONFIG = {
-  firebase: {
-    apiKey: "AIzaSyDdEyxvsd2RjgKVYTGYJfYUB_637lV3n5I",
-    authDomain: "starteasy-zambia.firebaseapp.com",
-    projectId: "starteasy-zambia",
-    storageBucket: "starteasy-zambia.firebasestorage.app",
-    messagingSenderId: "54136399237",
-    appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
-  }
-};
-
-// PROFESSIONAL & STRATEGIC ROLE DEFINITIONS
+// EXTREMELY DETAILED FOUNDING TEAM ROLES
 const ROLES = {
-  referral_agent: { 
-    id: 'referral_agent', title: 'Referral Agent', type: 'Commission-Only',
-    desc: 'Drive brand advocacy by promoting StartEasy Zambia’s comprehensive business services to your network. Generate qualified leads and earn competitive commissions on successful conversions.',
-    whoIsItFor: 'Independent professionals, consultants, and industry influencers with established networks of entrepreneurs or SMEs seeking business solutions.',
-    responsibilities: [
-      'Strategically distribute your unique referral links across professional networks and social platforms.',
-      'Articulate the value proposition of StartEasy Zambia’s compliance and administrative services to prospective clients.',
-      'Facilitate the initial connection and guide prospects toward platform registration.'
+  cdmo: { 
+    id: 'cdmo', 
+    title: 'Chief Digital & Marketing Officer', 
+    type: 'Fractional or Full-Time (Equity + Retainer)',
+    pitch: 'We need an architect to build the StartEasy brand engine from scratch. You will define our digital presence, optimize our acquisition funnels, and position us as the premier business support platform in Zambia. This is a heavy execution role, not just a management position.',
+    day90Plan: [
+      "Month 1 (Foundation): Audit the current platform MVP. Define target personas (Local SMEs, Diaspora, Foreign Investors). Map out the comprehensive Go-To-Market digital strategy.",
+      "Month 2 (Activation): Overhaul the digital presence (website copy, LinkedIn strategy, lead magnets) to ensure the brand looks premium and trustworthy to high-net-worth clients.",
+      "Month 3 (Execution): Launch initial paid acquisition campaigns (Meta, LinkedIn) to drive high-quality leads into the platform. Analyze conversion metrics and adjust the funnel."
     ],
-    kpis: ['Link engagement (clicks)', 'Conversion rate (closed sales)', 'Total commission generated'],
+    compensation: "Hybrid Structure: A fixed monthly fractional retainer + a proposed equity stake (1% - 3%) subject to a 2-year vesting schedule + performance bonuses tied to specific Monthly Recurring Revenue (MRR) targets.",
+    resources: "You report directly to the CEO. You will have a lean budget for essential tools (Meta Ads, LinkedIn Sales Navigator, Canva) and execution support from our Growth Associate.",
+    environment: "Fully Remote. You can work from anywhere globally. Occasional travel to Zambia for major strategic milestones (e.g., investor pitches) is welcomed but not mandatory.",
     clauses: [
-      "You are engaging with StartEasy Zambia as an independent Referral Agent. This does not constitute an employment contract.",
-      "Compensation is strictly performance-based, calculated as a percentage of approved service fees generated through your referrals.",
-      "All referral activities must align with StartEasy Zambia's professional standards and anti-spam policies."
+      "You are joining as the Chief Digital & Marketing Officer (CDMO) of StartEasy Zambia on a fractional or full-time basis.",
+      "Compensation is a mix of a fixed retainer, equity, and performance-based bonuses as detailed above.",
+      "You are responsible for the digital Go-To-Market strategy, brand positioning, and user acquisition."
+    ]
+  },
+  director_finance: { 
+    id: 'director_finance', 
+    title: 'Director of Finance & Admin', 
+    type: 'Hybrid (Equity + Base Salary)',
+    pitch: 'You are the operational backbone. You will ensure strict regulatory compliance (PACRA, ZRA), oversee financial reporting, and build the administrative infrastructure that allows us to scale without breaking. You must know the Zambian corporate landscape inside and out.',
+    day90Plan: [
+      "Month 1 (Compliance Setup): Audit all current PACRA/ZRA filings. Establish robust internal financial controls. Set up the company payroll and invoicing structure.",
+      "Month 2 (Systems): Implement bookkeeping software. Establish monthly financial reporting dashboards for the CEO and Board.",
+      "Month 3 (Optimization): Streamline client onboarding workflows to ensure seamless handoffs between Sales and Operations. Ensure all contracts are legally sound."
+    ],
+    compensation: "Base Salary + Significant Equity Stake (4-year vesting schedule with a 1-year cliff).",
+    resources: "Full access to company bank accounts, legal counsel, and administrative tools. You will work closely with our external accounting partners.",
+    environment: "Hybrid. Primarily based in Lusaka, Zambia. You will need to be physically present for PACRA/ZRA submissions when necessary.",
+    clauses: [
+      "You are joining as the Director of Finance & Administration.",
+      "Your compensation includes a base salary and an equity stake, subject to a standard 4-year vesting schedule.",
+      "You are legally responsible for the financial integrity and regulatory compliance of StartEasy Zambia."
     ]
   },
   growth_associate: { 
-    id: 'growth_associate', title: 'Growth & Client Associate', type: 'Base + Commission',
-    desc: 'Execute proactive outbound sales strategies, manage client onboarding, and drive revenue growth by closing service agreements and ensuring exceptional client retention.',
-    whoIsItFor: 'Results-driven sales professionals with strong communication skills, resilience, and a proven track record in B2B client acquisition.',
-    responsibilities: [
-      'Conduct targeted outbound outreach (calls, emails, networking) to generate a robust sales pipeline.',
-      'Deliver compelling presentations of StartEasy Zambia’s service offerings and negotiate terms to close deals.',
-      'Manage the end-to-end client onboarding experience, ensuring seamless platform adoption.',
-      'Proactively manage client accounts to identify upselling opportunities and ensure high retention.'
+    id: 'growth_associate', 
+    title: 'Growth & Client Associate', 
+    type: 'Base + Uncapped Commission',
+    pitch: 'You are on the frontlines. You will execute aggressive outbound sales strategies, onboard new SMEs, and drive revenue growth by closing service agreements. If you can handle rejection and hustle hard, you will earn heavily here.',
+    day90Plan: [
+      "Month 1 (Training & Lists): Master the StartEasy service offerings. Build a targeted database of 500+ potential SME leads across Zambia.",
+      "Month 2 (Outreach): Execute 50+ calls/emails per day. Book discovery meetings for the CEO and Director of Finance.",
+      "Month 3 (Closing): Transition into closing your own deals. Manage the onboarding experience and upsell clients into premium compliance packages."
     ],
-    kpis: ['Qualified lead generation volume', 'Monthly recurring revenue (MRR) closed', 'Client retention and satisfaction metrics'],
+    compensation: "A modest fixed monthly retainer + an uncapped 10% - 15% commission on every deal you close.",
+    resources: "You will be provided with CRM access, cold-calling scripts, email templates, and direct mentorship from the executive team.",
+    environment: "Fully Remote, with flexible hours to overlap with Zambian business hours (CAT).",
     clauses: [
       "You are joining as a Growth & Client Associate on a hybrid compensation structure.",
       "Compensation includes a fixed monthly retainer plus uncapped commission on all closed deals.",
       "You are expected to maintain meticulous records of all client interactions within the CRM."
     ]
   },
-  cdmo: { 
-    id: 'cdmo', title: 'Chief Digital & Marketing Officer', type: 'Retainer + Equity',
-    desc: 'Spearhead the digital marketing strategy, oversee brand positioning, and manage multi-channel acquisition campaigns to scale user adoption across Zambia and the diaspora.',
-    whoIsItFor: 'Senior marketing executives with expertise in scaling SaaS platforms, optimizing conversion funnels, and building premium B2B brand equity.',
-    responsibilities: [
-      'Design and execute a comprehensive digital Go-To-Market strategy.',
-      'Oversee all digital advertising (Meta, LinkedIn, Google), content marketing, and PR initiatives.',
-      'Optimize the customer acquisition funnel to lower CAC (Customer Acquisition Cost) and increase LTV (Lifetime Value).',
-      'Lead brand positioning to ensure StartEasy Zambia is perceived as the premier business support platform.'
-    ],
-    kpis: ['User acquisition growth rate', 'Customer Acquisition Cost (CAC)', 'Inbound lead volume and conversion rates'],
-    clauses: [
-      "You are joining as the Chief Digital & Marketing Officer (CDMO) of StartEasy Zambia.",
-      "Compensation includes a fixed monthly retainer plus an equity stake, subject to a formal vesting schedule.",
-      "You hold strategic authority over the marketing budget and agency partnerships."
-    ]
-  },
-  director_finance: { 
-    id: 'director_finance', title: 'Director of Finance & Admin', type: 'Equity + Salary',
-    desc: 'Ensure strict regulatory compliance (PACRA, ZRA), oversee financial reporting, and optimize the company’s administrative and operational infrastructure.',
-    whoIsItFor: 'Experienced finance and operations leaders with deep knowledge of Zambian corporate law, tax compliance, and financial governance.',
-    responsibilities: [
-      'Manage all statutory filings, tax remittances, and ensure 100% compliance with Zambian regulatory bodies.',
-      'Oversee internal financial controls, budgeting, payroll, and monthly financial reporting.',
-      'Optimize administrative workflows to support rapid scaling and operational efficiency.',
-      'Safeguard company assets and ensure the integrity of all contractual agreements.'
-    ],
-    kpis: ['Zero compliance penalties or late filings', 'Accuracy and timeliness of financial reporting', 'Operational efficiency metrics'],
-    clauses: [
-      "You are joining as the Director of Finance & Administration.",
-      "Compensation includes a base salary and an equity stake, subject to a standard 4-year vesting schedule.",
-      "You are legally responsible for the financial integrity and regulatory compliance of StartEasy Zambia."
-    ]
-  },
   ceo: { 
-    id: 'ceo', title: 'Founder & CEO', type: 'Equity',
-    desc: 'Provide visionary leadership, drive capital raising initiatives, and oversee strategic execution across all departments to achieve sustainable growth.',
-    whoIsItFor: 'Visionary leaders with the capability to raise capital, manage executive teams, and navigate complex market dynamics.',
-    responsibilities: [
-      'Formulate long-term corporate strategy and set organizational goals.',
-      'Lead fundraising efforts, manage investor relations, and secure strategic partnerships.',
-      'Oversee the executive team, ensuring alignment and operational excellence across all departments.',
-      'Act as the primary public face and spokesperson for StartEasy Zambia.'
+    id: 'ceo', 
+    title: 'Founder & CEO', 
+    type: 'Equity Only',
+    pitch: 'The visionary leader. You will drive capital raising initiatives, manage investor relations, and oversee strategic execution across all departments. You must be willing to get your hands dirty while also pitching to VCs.',
+    day90Plan: [
+      "Month 1: Finalize the core founding team. Establish the legal structure. Lock in the Q3 fundraising strategy and update the investor pitch deck.",
+      "Month 2: Pitch to impact investors and venture capital firms. Secure initial runway to fund the CDMO and Growth Associate roles.",
+      "Month 3: Oversee the Go-To-Market launch alongside the team. Ensure all departments are aligned with company goals and KPIs."
     ],
-    kpis: ['Capital raised and runway extension', 'Overall company revenue growth', 'Valuation increase'],
+    compensation: "Primarily equity-based (Founder shares), with terms to be finalized in the Shareholders Agreement.",
+    resources: "Full control of company direction, board seats, and the strategic backing of M. Lewis Group / Basiwel Ventures.",
+    environment: "On-site in Lusaka, Zambia (or willing to relocate immediately).",
     clauses: [
       "You are joining as the Founder & CEO of StartEasy Zambia.",
-      "Compensation is primarily equity-based, with specific terms outlined in the Shareholders Agreement.",
-      "You report directly to the Board of Directors and hold ultimate accountability for company performance."
+      "You will be responsible for overall company strategy, fundraising, and team leadership.",
+      "Your compensation is primarily equity-based, detailed in the Shareholders Agreement."
     ]
   }
 };
 
-// HARDCODED CODES TO GUARANTEE IT WORKS IMMEDIATELY
-const LIVE_CODES = {
-  'INV-REF-9K2L': 'referral_agent',
-  'INV-GRO-4M1X': 'growth_associate',
-  'INV-CDM-7B3N': 'cdmo',
-  'INV-DIR-2P8Q': 'director_finance',
-  'INV-CEO-5R9T': 'ceo'
-};
-
-const SE_AGENTS = 'se_agents';
-
-/* ---------------- FIREBASE ---------------- */
-let db = null, auth = null, fbReady = false;
-try {
-  if (!firebase.apps.length) firebase.initializeApp(CONFIG.firebase);
-  db = firebase.firestore();
-  auth = firebase.auth();
-  fbReady = true;
-  auth.signInAnonymously().catch(() => {});
-} catch (e) { console.warn("Firebase not initialized."); }
-
-/* ---------------- UI COMPONENTS ---------------- */
 const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style }) => {
   const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
   const sizes = { sm: { padding: '8px 14px', fontSize: 12 }, md: { padding: '11px 20px', fontSize: 13.5 }, lg: { padding: '14px 24px', fontSize: 14.5 } };
   const variants = { primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' }, dark: { background: '#0A1F12', color: '#fff' }, ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' } };
   return <button onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
-const Spinner = ({ label }) => (<div style={{ padding: 80, textAlign: 'center' }}><i className="fas fa-circle-notch spin" style={{ fontSize: 28, color: '#E8730F' }}></i>{label && <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(10,31,18,.6)' }}>{label}</p>}</div>);
-
-function Nav({ route, go }) {
-  const [open, setOpen] = useState(false);
-  const handleNav = (r) => { setOpen(false); go(r); };
-  
-  return (
-    <header className="site-header">
-      <div className="header-container">
-        <button onClick={() => handleNav('')} className="header-logo">
-          <div className="header-logo-mark">S</div>
-          <div className="header-logo-text"><span className="header-logo-sub">Team Portal</span><span className="header-logo-main">StartEasy Zambia</span></div>
-        </button>
-        <nav className="header-nav">
-          <button onClick={() => handleNav('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
-          <button onClick={() => handleNav('roles')} className={`header-link ${route === 'roles' ? 'active' : ''}`}>Role Directory</button>
-          <button onClick={() => handleNav('join')} className="header-btn">Sign Agreement</button>
-        </nav>
-        <button onClick={() => setOpen(!open)} className="header-mobile-toggle"><i className={`fas ${open ? 'fa-times' : 'fa-bars'}`}></i></button>
-      </div>
-      {open && (
-        <div className="header-mobile-menu">
-          <button onClick={() => handleNav('')} className={`header-link`}>Home</button>
-          <button onClick={() => handleNav('roles')} className={`header-link`}>Role Directory</button>
-          <button onClick={() => handleNav('join')} className="header-btn">Sign Agreement</button>
-        </div>
-      )}
-    </header>
-  );
-}
-
-function Landing({ go }) {
-  return (
-    <div className="fadein">
-      <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <h1 className="serif" style={{ fontSize: 'clamp(2rem,5vw,3.2rem)', lineHeight: 1.1, marginBottom: 20 }}>
-            Build the future. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Own your role.</em>
-          </h1>
-          <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32 }}>
-            StartEasy Zambia is scaling. Review our Role Directory to understand the strategic expectations of our open positions, or enter your invitation code to execute your engagement agreement.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Btn size="lg" variant="primary" onClick={() => go('roles')}>View Role Directory</Btn>
-            <Btn size="lg" variant="ghost" onClick={() => go('join')}>Enter Invitation Code</Btn>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function RoleDirectory({ go }) {
-  return (
-    <div className="fadein" style={{ background: '#F5FAF6', minHeight: '100vh', paddingBottom: 60 }}>
-      <section style={{ background: '#0A1F12', color: '#fff', padding: '48px 24px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', marginBottom: 16 }}>Role Directory & Strategy</h1>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.7)', lineHeight: 1.7 }}>
-            Detailed overview of role expectations, strategic responsibilities, and key performance indicators.
-          </p>
-        </div>
-      </section>
-
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {Object.values(ROLES).map(role => (
-            <div key={role.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,.03)' }}>
-              
-              <div style={{ background: '#F8FAF6', padding: '20px 24px', borderBottom: '1px solid rgba(10,31,18,.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-                <div>
-                  <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', margin: 0 }}>{role.title}</h2>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#E8730F', textTransform: 'uppercase', letterSpacing: '.05em' }}>{role.type}</span>
-                </div>
-                <span style={{ background: '#0A1F12', color: '#fff', padding: '6px 12px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Invite Only</span>
-              </div>
-
-              <div style={{ padding: '24px' }}>
-                <div style={{ background: '#FFF9E6', padding: 16, borderRadius: 8, border: '1px solid #F0E0A0', marginBottom: 24 }}>
-                  <p style={{ fontSize: 15, color: '#0A1F12', margin: 0, fontWeight: 600 }}>
-                    <i className="fas fa-bullseye" style={{ color: '#E8730F', marginRight: 8 }}></i> 
-                    {role.desc}
-                  </p>
-                </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 24 }}>
-                  <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
-                      <i className="fas fa-user-tie" style={{ color: '#1E7B3C', marginRight: 6 }}></i> Ideal Candidate Profile
-                    </h4>
-                    <p style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', lineHeight: 1.6, margin: 0 }}>{role.whoIsItFor}</p>
-                  </div>
-
-                  <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
-                      <i className="fas fa-chart-line" style={{ color: '#1B6CA8', marginRight: 6 }}></i> Key Performance Indicators (KPIs)
-                    </h4>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {role.kpis.map((k, i) => <span key={i} style={{ background: '#EAF7EE', color: '#1E7B3C', padding: '6px 12px', borderRadius: 6, fontSize: 12.5, fontWeight: 600 }}>{k}</span>)}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: 24 }}>
-                  <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
-                    <i className="fas fa-tasks" style={{ color: '#E8730F', marginRight: 6 }}></i> Strategic Responsibilities
-                  </h4>
-                  <ul style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', paddingLeft: 20, lineHeight: 1.7, margin: 0 }}>
-                    {role.responsibilities.map((r, i) => <li key={i} style={{ marginBottom: 6 }}>{r}</li>)}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={{ textAlign: 'center', marginTop: 40 }}>
-          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.6)', marginBottom: 16 }}>To proceed with your engagement, you will require an invitation code from the StartEasy Zambia Admin.</p>
-          <Btn size="lg" variant="primary" onClick={() => go('join')}>Execute Agreement</Btn>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function JoinPage({ onAuth }) {
-  const [inviteCode, setInviteCode] = useState('');
-  const [validatedRole, setValidatedRole] = useState(null);
-  const [checking, setChecking] = useState(false);
-  const [codeError, setCodeError] = useState('');
-  
-  const [form, setForm] = useState({ name: '', email: '', phone: '', location: '', password: '' });
-  const [agreed, setAgreed] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
-
-  const validateCode = () => {
-    setCodeError('');
-    if (!inviteCode.trim()) return setCodeError('Please enter your invitation code.');
-    setChecking(true);
-    
-    const codeUpper = inviteCode.trim().toUpperCase();
-
-    // 1. Check the hardcoded MASTER CODES first. This guarantees it works instantly.
-    if (LIVE_CODES[codeUpper]) {
-      setValidatedRole(ROLES[LIVE_CODES[codeUpper]]);
-      setChecking(false);
-      return;
-    }
-
-    // 2. If not a master code, check database (Fallback)
-    setTimeout(async () => {
-      try {
-        if (fbReady) {
-          const docRef = await db.collection('se_invites').doc(codeUpper).get();
-          if (docRef.exists && docRef.data().status === 'active') {
-            setValidatedRole(ROLES[docRef.data().roleId]);
-          } else {
-            setCodeError('Invalid or already used invitation code.');
-          }
-        } else {
-          setCodeError('Invalid invitation code. Please check your spelling.');
-        }
-      } catch (e) {
-        setCodeError('System error. Please try again.');
-      } finally {
-        setChecking(false);
-      }
-    }, 400);
-  };
-
-  const submit = async () => {
-    setErr('');
-    if (!form.name.trim()) return setErr('Please type your full name on the signature line.');
-    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setErr('Please enter a valid email.');
-    if (!form.phone.trim() || form.phone.replace(/\D/g, '').length < 9) return setErr('Please enter a valid phone number.');
-    if (!form.location) return setErr('Please select your location.');
-    if (!form.password || form.password.length < 6) return setErr('Password must be at least 6 characters.');
-    if (!agreed) return setErr('You must check the agreement box to proceed.');
-
-    setBusy(true);
-    const codeUpper = inviteCode.trim().toUpperCase();
-
-    try {
-      if (fbReady) {
-        // Try to save to Firebase
-        try {
-          const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
-          await db.collection(SE_AGENTS).doc(cred.user.uid).set({
-            uid: cred.user.uid, displayName: form.name.trim(), email: form.email.trim().toLowerCase(),
-            phone: form.phone.trim(), location: form.location, role: validatedRole.id,
-            status: 'active', createdAt: Date.now()
-          });
-          if (!LIVE_CODES[codeUpper]) {
-            await db.collection('se_invites').doc(codeUpper).update({ status: 'used', usedBy: cred.user.uid });
-          }
-        } catch (firebaseError) {
-          console.warn("Firebase auth failed, falling back to local storage.", firebaseError);
-          throw new Error("Firebase auth failed.");
-        }
-      } else {
-         throw new Error("Firebase not initialized");
-      }
-    } catch (e) {
-      // SILENT FALLBACK: If Firebase fails, we save locally so the user still gets a dashboard
-      console.log("Using local storage fallback for new user.");
-      const fakeUid = 'user_' + Date.now();
-      localStorage.setItem('se_current_user', JSON.stringify({ 
-        uid: fakeUid, 
-        displayName: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
-        role: validatedRole.id
-      }));
-    } finally {
-      setBusy(false);
-      onAuth();
-    }
-  };
-
-  return (
-    <div style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
-      
-      {!validatedRole ? (
-        <div style={{ maxWidth: 450, margin: '60px auto', background: '#fff', padding: 32, borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,.05)' }}>
-          <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 8, textAlign: 'center' }}>Secure Role Access</h2>
-          <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', textAlign: 'center', marginBottom: 24 }}>
-            To prevent unauthorized signups, you must enter the specific invitation code provided by StartEasy Zambia Admin.
-          </p>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Invitation Code</label>
-          <input 
-            type="text" 
-            value={inviteCode} 
-            onChange={e => setInviteCode(e.target.value.toUpperCase())} 
-            placeholder="e.g. INV-CEO-5R9T"
-            style={{ width: '100%', padding: 12, border: '2px solid #E8730F', borderRadius: 8, fontSize: 16, textAlign: 'center', letterSpacing: 2, fontWeight: 700, marginBottom: 16 }} 
-          />
-          {codeError && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{codeError}</div>}
-          <Btn onClick={validateCode} disabled={checking} size="lg" variant="primary" style={{ width: '100%' }}>
-            {checking ? 'Verifying...' : 'Verify Code'}
-          </Btn>
-        </div>
-      ) : (
-        
-        <div className="el fadein printable">
-          <div className="eh">
-            <div>
-              <div className="brand">Start<em>Easy Zambia</em></div>
-              <div className="sub">Team & Partner Engagement</div>
-            </div>
-            <div>
-              <div className="dt">ENGAGEMENT AGREEMENT</div>
-              <div className="mt">
-                {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br/>
-                Role: {validatedRole.title}
-              </div>
-            </div>
-          </div>
-
-          <p><strong>Dear {form.name.trim() ? form.name.trim() : '___________________'},</strong></p>
-          
-          <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation as a <strong>{validatedRole.title}</strong>.</p>
-
-          <h4>1. Scope of Work & Strategic Responsibilities</h4>
-          <p>Your primary responsibilities will include:</p>
-          <ul>
-            {validatedRole.responsibilities.map((resp, idx) => <li key={idx}>{resp}</li>)}
-          </ul>
-
-          <h4>2. Key Performance Indicators (KPIs)</h4>
-          <p>Your performance will be measured against the following indicators:</p>
-          <ul>
-            {validatedRole.kpis.map((kpi, idx) => <li key={idx}>{kpi}</li>)}
-          </ul>
-
-          <h4>3. Compensation & Terms</h4>
-          <ul>
-            {validatedRole.clauses.map((clause, idx) => <li key={idx}>{clause}</li>)}
-          </ul>
-
-          <h4>4. Personal Details</h4>
-          <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
-            <span>
-              <strong>Email Address:</strong><br/>
-              <input className="doc-input-line" type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
-            </span>
-            <span>
-              <strong>Phone / WhatsApp:</strong><br/>
-              <input className="doc-input-line" placeholder="+260..." value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
-            </span>
-          </p>
-          <p style={{ marginTop: 12 }}>
-            <strong>Location:</strong><br/>
-            <select className="doc-input-line" value={form.location} onChange={e => setForm({...form, location: e.target.value})}>
-              <option value="">Choose location...</option>
-              {['Lusaka', 'Copperbelt', 'Southern', 'Central', 'Eastern', 'Northern', 'Western', 'North-Western', 'Luapula', 'Muchinga', 'Diaspora'].map(l => <option key={l} value={l}>{l}</option>)}
-            </select>
-          </p>
-
-          <h4>5. Acceptance</h4>
-          <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
-            <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-              <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
-              <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand my role as a {validatedRole.title}.</span>
-            </label>
-            
-            <div style={{ marginTop: 16 }}>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 4, textTransform: 'uppercase' }}>Create Portal Password:</label>
-              <input type="password" className="doc-input-line" placeholder="Min 6 characters" value={form.password} onChange={e => setForm({...form, password: e.target.value})} />
-            </div>
-          </div>
-
-          <div className="sign">
-            <div>
-              <div className="sigval">MWABA LEWIS</div>
-              <div className="lbl">For StartEasy Zambia</div>
-            </div>
-            <div>
-              <input className="siginput" placeholder="Type full name to sign" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-              <div className="lbl">For the {validatedRole.title}</div>
-            </div>
-          </div>
-
-          {err && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{err}</div>}
-
-          <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
-            {busy ? 'Processing...' : 'Digitally Sign & Create Account'}
-          </Btn>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Dashboard({ agent }) {
-  const roleInfo = ROLES[agent.role] || ROLES.referral_agent;
-
-  return (
-    <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', padding: '32px 16px' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div>
-            <h1 className="serif" style={{ fontSize: 28, color: '#0A1F12', margin: 0 }}>Welcome, {agent.displayName.split(' ')[0]}</h1>
-            <p style={{ fontSize: 14, color: '#E8730F', fontWeight: 700 }}>{roleInfo.title}</p>
-          </div>
-          <Btn onClick={() => { localStorage.removeItem('se_current_user'); window.location.hash = '#/'; window.location.reload(); }} variant="ghost" size="sm">Sign Out</Btn>
-        </div>
-
-        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Role Overview</h2>
-          <div style={{ background: '#FFF9E6', padding: 16, borderRadius: 8, border: '1px solid #F0E0A0', marginBottom: 24 }}>
-            <p style={{ fontSize: 15, color: '#0A1F12', margin: 0, fontWeight: 600 }}>{roleInfo.desc}</p>
-          </div>
-          
-          <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12 }}>Key Performance Indicators</h4>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-            {roleInfo.kpis.map((k, i) => <span key={i} style={{ background: '#EAF7EE', color: '#1E7B3C', padding: '6px 12px', borderRadius: 6, fontSize: 12.5, fontWeight: 600 }}>{k}</span>)}
-          </div>
-
-          <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12 }}>Strategic Responsibilities</h4>
-          <ul style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', paddingLeft: 20, margin: 0 }}>
-            {roleInfo.responsibilities.map((r, i) => <li key={i} style={{ marginBottom: 6 }}>{r}</li>)}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function App() {
-  const [hash, setHash] = useState(window.location.hash || '#/');
-  const [agent, setAgent] = useState(null);
-  const [bootChecked, setBootChecked] = useState(false);
+  const [view, setView] = useState('home'); 
+  const [selectedRole, setSelectedRole] = useState(null);
+  
+  const [form, setForm] = useState({ name: '', email: '', phone: '', motivation: '' });
+  const [agreed, setAgreed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const onHash = () => setHash(window.location.hash || '#/');
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
-  }, []);
+  const handleApplyClick = (role) => {
+    setSelectedRole(role);
+    setView('apply');
+    window.scrollTo(0, 0);
+  };
 
-  useEffect(() => {
-    // Check local storage for fake session
-    const localUser = localStorage.getItem('se_current_user');
-    if (localUser) setAgent(JSON.parse(localUser));
-    setBootChecked(true);
-  }, []);
+  const handleBack = () => {
+    setView('home');
+    setSelectedRole(null);
+    setForm({ name: '', email: '', phone: '', motivation: '' });
+    setAgreed(false);
+    setError('');
+  };
 
-  const raw = (hash || '#/').replace(/^#\/?/, '');
-  const route = raw.split('/').filter(Boolean)[0] || '';
+  const submitApplication = () => {
+    setError('');
+    if (!form.name.trim()) return setError('Please type your full name to sign.');
+    if (!form.email.trim() || !/^\S+@\S+\.\S+$/.test(form.email)) return setError('Please enter a valid email address.');
+    if (!form.phone.trim()) return setError('Please enter a valid phone number.');
+    if (!form.motivation.trim()) return setError('Please tell us briefly why you want to build StartEasy Zambia.');
+    if (!agreed) return setError('You must accept the T&Cs to proceed.');
 
-  const go = useCallback((r) => { window.location.hash = '#/' + r; window.scrollTo(0, 0); }, []);
-  const onAuth = () => { go('dashboard'); };
+    setBusy(true);
 
-  if (!bootChecked) return <Spinner />;
+    const applicationRecord = {
+      roleId: selectedRole.id,
+      roleTitle: selectedRole.title,
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+      phone: form.phone.trim(),
+      motivation: form.motivation.trim(),
+      acceptedTerms: true,
+      signedAt: new Date().toISOString()
+    };
 
-  let page = <Landing go={go} />;
-  if (route === 'roles') page = <RoleDirectory go={go} />;
-  else if (route === 'join') page = <JoinPage onAuth={onAuth} />;
-  else if (route === 'dashboard') {
-    if (!agent) page = <JoinPage onAuth={onAuth} />; // Redirect to join if not logged in
-    else page = <Dashboard agent={agent} />;
-  }
+    const existingApps = JSON.parse(localStorage.getItem('se_applications') || '[]');
+    existingApps.push(applicationRecord);
+    localStorage.setItem('se_applications', JSON.stringify(existingApps));
+
+    setTimeout(() => {
+      setBusy(false);
+      setView('success');
+    }, 800);
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Nav route={route} go={go} />
-      <main style={{ flex: 1 }}>{page}</main>
-      <footer style={{ background: '#0A1F12', padding: '40px 24px', textAlign: 'center' }}>
-        <p style={{ color: 'rgba(255,255,255,.5)', fontSize: 14, margin: 0 }}>© {new Date().getFullYear()} StartEasy Zambia. All rights reserved.</p>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* HEADER */}
+      <header style={{ background: '#0A1F12', padding: '16px 24px', borderBottom: '1px solid rgba(245,166,35,.1)' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={handleBack}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, fontFamily: 'Playfair Display' }}>S</div>
+            <div>
+              <div style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Founding Team</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>StartEasy Zambia</div>
+            </div>
+          </div>
+          {view === 'home' && (
+            <a href="#roles" style={{ color: '#F5A623', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>View Open Roles</a>
+          )}
+        </div>
+      </header>
+
+      {/* MAIN CONTENT */}
+      <main style={{ flex: 1 }}>
+        
+        {/* --- HOME VIEW --- */}
+        {view === 'home' && (
+          <div className="fadein">
+            {/* Hero */}
+            <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center' }}>
+              <div style={{ maxWidth: 800, margin: '0 auto' }}>
+                <span style={{ display: 'inline-block', background: 'rgba(232,115,15,0.2)', color: '#F5A623', padding: '6px 16px', borderRadius: 99, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>Entrepreneurship & Intrapreneurship</span>
+                <h1 className="serif" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', lineHeight: 1.1, marginBottom: 24 }}>
+                  Build StartEasy Zambia <em style={{ fontStyle: 'italic', color: '#F5A623' }}>From The Ground Up.</em>
+                </h1>
+                <p style={{ fontSize: 18, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', marginBottom: 32, maxWidth: 600, margin: '0 auto 40px' }}>
+                  We are a female-led tech startup. We are not offering standard salaried jobs right now. We are offering equity, commission, and the opportunity to build a legacy. We want founders and intrapreneurs who are ready to execute.
+                </p>
+                <a href="#roles" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', padding: '16px 32px', borderRadius: 8, fontSize: 16, fontWeight: 700, textDecoration: 'none' }}>
+                  View Founding Roles <i className="fas fa-arrow-down"></i>
+                </a>
+              </div>
+            </section>
+
+            {/* Roles Section (Highly Detailed) */}
+            <section id="roles" style={{ padding: '80px 24px', background: '#F5FAF6' }}>
+              <div style={{ maxWidth: 900, margin: '0 auto' }}>
+                <div style={{ textAlign: 'center', marginBottom: 48 }}>
+                  <h2 className="serif" style={{ fontSize: 32, color: '#0A1F12', marginBottom: 12 }}>Open Founding Positions</h2>
+                  <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.6)' }}>Review the exact expectations, compensation, and 90-day plans below.</p>
+                </div>
+
+                <div style={{ display: 'grid', gap: 32 }}>
+                  {Object.values(ROLES).map(role => (
+                    <div key={role.id} style={{ background: '#fff', padding: '32px 40px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 8px 30px rgba(0,0,0,0.03)' }}>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 24, borderBottom: '1px solid #eee', paddingBottom: 24 }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#E8730F', letterSpacing: '0.05em', marginBottom: 8 }}>{role.type}</div>
+                          <h3 className="serif" style={{ fontSize: 28, color: '#0A1F12', margin: '0 0 8px' }}>{role.title}</h3>
+                          <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.7)', margin: 0, lineHeight: 1.6, maxWidth: 600 }}>{role.pitch}</p>
+                        </div>
+                        <Btn size="lg" variant="dark" onClick={() => handleApplyClick(role)}>Apply & Sign T&Cs</Btn>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+                        {/* 90 Day Plan */}
+                        <div>
+                          <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}><i className="fas fa-calendar-alt" style={{ color: '#E8730F', marginRight: 8 }}></i> First 90-Day Priorities</h4>
+                          <ul style={{ fontSize: 13.5, color: 'rgba(10,31,18,0.8)', paddingLeft: 20, margin: 0, lineHeight: 1.6 }}>
+                            {role.day90Plan.map((item, i) => <li key={i} style={{ marginBottom: 8 }}>{item}</li>)}
+                          </ul>
+                        </div>
+
+                        {/* Compensation & Resources */}
+                        <div>
+                          <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}><i className="fas fa-wallet" style={{ color: '#1E7B3C', marginRight: 8 }}></i> Compensation Structure</h4>
+                          <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,0.8)', marginBottom: 16, lineHeight: 1.6 }}>{role.compensation}</p>
+                          
+                          <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}><i className="fas fa-tools" style={{ color: '#1B6CA8', marginRight: 8 }}></i> Resources & Environment</h4>
+                          <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,0.8)', marginBottom: 8, lineHeight: 1.6 }}>{role.resources}</p>
+                          <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,0.8)', margin: 0, lineHeight: 1.6 }}>{role.environment}</p>
+                        </div>
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* --- APPLY VIEW (The T&Cs & Signature) --- */}
+        {view === 'apply' && selectedRole && (
+          <div className="fadein" style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
+            
+            <div style={{ maxWidth: 800, margin: '0 auto 24px' }}>
+              <button onClick={handleBack} style={{ background: 'none', border: 'none', color: '#0A1F12', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <i className="fas fa-arrow-left"></i> Back to Roles
+              </button>
+            </div>
+
+            <div className="el printable">
+              <div className="eh">
+                <div>
+                  <div className="brand">Start<em>Easy Zambia</em></div>
+                  <div className="sub">Founding Team Engagement</div>
+                </div>
+                <div>
+                  <div className="dt">FOUNDERS' AGREEMENT</div>
+                  <div className="mt">
+                    {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br/>
+                    Role: {selectedRole.title}
+                  </div>
+                </div>
+              </div>
+
+              <p><strong>Dear Applicant,</strong></p>
+              
+              <p>Thank you for your interest in building StartEasy Zambia. By completing this form, you are formally accepting the Terms & Conditions, Responsibilities, and Compensation Structure of this founding role.</p>
+
+              <h4>1. Role & Scope</h4>
+              <p><strong>Position:</strong> {selectedRole.title}</p>
+              <p>{selectedRole.pitch}</p>
+
+              <h4>2. First 90-Day Priorities (Milestones)</h4>
+              <p>You agree to execute and deliver on the following initial milestones:</p>
+              <ul>
+                {selectedRole.day90Plan.map((item, idx) => <li key={idx}>{item}</li>)}
+              </ul>
+
+              <h4>3. Compensation & Resources</h4>
+              <p><strong>Compensation:</strong> {selectedRole.compensation}</p>
+              <p><strong>Resources Provided:</strong> {selectedRole.resources}</p>
+              <p><strong>Work Environment:</strong> {selectedRole.environment}</p>
+
+              <h4>4. Nature of Engagement</h4>
+              <ul>
+                <li>You are joining as a founding team member (Intrapreneur/Entrepreneur).</li>
+                <li><strong>This is NOT an employment contract.</strong> There is no standard salaried structure at this stage.</li>
+                {selectedRole.clauses.map((clause, idx) => <li key={idx}>{clause}</li>)}
+              </ul>
+
+              <h4>5. Applicant Details</h4>
+              <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
+                <span>
+                  <strong>Full Name:</strong><br/>
+                  <input className="doc-input-line" placeholder="Your full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+                </span>
+                <span>
+                  <strong>Email Address:</strong><br/>
+                  <input className="doc-input-line" type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+                </span>
+                <span style={{ gridColumn: '1/-1' }}>
+                  <strong>Phone / WhatsApp:</strong><br/>
+                  <input className="doc-input-line" placeholder="+260..." value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+                </span>
+              </p>
+
+              <h4>6. Why do you want to build StartEasy Zambia?</h4>
+              <textarea 
+                className="doc-input-line" 
+                placeholder="Tell us briefly why you are interested in this specific role and why you want to build from the ground up..." 
+                rows={3}
+                value={form.motivation} 
+                onChange={e => setForm({...form, motivation: e.target.value})}
+                style={{ resize: 'vertical' }}
+              />
+
+              <h4>7. Acceptance</h4>
+              <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
+                <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
+                  <span style={{ fontSize: 13, lineHeight: 1.5, color: '#0A1F12', fontWeight: 600 }}>
+                    I have read and agree to the 90-day priorities, compensation structure, and T&Cs outlined above. I understand this is an Entrepreneurship/Intrapreneurship opportunity, not standard salaried employment.
+                  </span>
+                </label>
+              </div>
+
+              <div className="sign">
+                <div>
+                  <div className="sigval">MWABA LEWIS</div>
+                  <div className="lbl">For StartEasy Zambia</div>
+                </div>
+                <div>
+                  <div className="sigval" style={{ borderBottom: form.name ? '1px solid #E8730F' : '1px solid #333' }}>
+                    {form.name || <span style={{color: 'rgba(10,31,18,0.2)'}}>Signature</span>}
+                  </div>
+                  <div className="lbl">For the Applicant (Digitally signed)</div>
+                </div>
+              </div>
+
+              {error && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{error}</div>}
+
+              <Btn onClick={submitApplication} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
+                {busy ? 'Processing Application...' : 'Sign & Submit Application'}
+              </Btn>
+            </div>
+          </div>
+        )}
+
+        {/* --- SUCCESS VIEW --- */}
+        {view === 'success' && (
+          <div className="fadein" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: '#F5FAF6' }}>
+            <div style={{ maxWidth: 500, background: '#fff', padding: 48, borderRadius: 16, textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid rgba(10,31,18,0.08)' }}>
+              <div style={{ width: 72, height: 72, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, margin: '0 auto 24px' }}>
+                <i className="fas fa-check"></i>
+              </div>
+              <h2 className="serif" style={{ fontSize: 28, color: '#0A1F12', marginBottom: 12 }}>Application Received</h2>
+              <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.7)', lineHeight: 1.6, marginBottom: 32 }}>
+                Thank you, <strong>{form.name}</strong>. Your T&Cs, 90-day plan, and compensation terms have been digitally signed for the <strong>{selectedRole?.title}</strong> role. 
+                <br/><br/>
+                Because this is a founding team position, we review every application personally. We will contact you at <strong>{form.email}</strong> within 48 hours to discuss next steps.
+              </p>
+              <Btn onClick={handleBack} size="lg" variant="dark" style={{ width: '100%' }}>Return to Home</Btn>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* FOOTER */}
+      <footer style={{ background: '#0A1F12', padding: '32px 24px', textAlign: 'center' }}>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0 }}>© {new Date().getFullYear()} StartEasy Zambia. All rights reserved.</p>
       </footer>
+
     </div>
   );
 }
