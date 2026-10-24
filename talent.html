@@ -12,14 +12,45 @@
   --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F; 
   --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --blue:#1B6CA8;
 }
-body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: var(--light); color: var(--forest); margin: 0; overflow-x: hidden; }
+/* FIX FOR SHAKING */
+html, body { 
+  overflow-x: hidden; 
+  width: 100%; 
+  margin: 0; 
+  padding: 0;
+  box-sizing: border-box;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+body { 
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+  -webkit-font-smoothing: antialiased; 
+  background: var(--light); 
+  color: var(--forest); 
+}
 .serif { font-family: 'Playfair Display', Georgia, serif; }
 input:focus, textarea:focus { outline: none; border-color: var(--orange) !important; }
 .fadein { animation: fi .4s cubic-bezier(.22,.61,.36,1) both; }
 @keyframes fi { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
+/* HEADER & NAVIGATION */
+.site-header { position: sticky; top: 0; z-index: 100; background: #0A1F12; padding: 16px 24px; border-bottom: 1px solid rgba(245,166,35,.1); width: 100%; }
+.header-content { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.logo-group { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.logo-mark { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#E8730F,#F5A623); color: #fff; display: flex; align-items: center; justify-content: center; fontWeight: 800; fontSize: 18px; font-family: 'Playfair Display', serif; }
+.logo-text-sub { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); font-weight: 700; }
+.logo-text-main { font-size: 16px; font-weight: 700; color: #fff; }
+
+.menu-toggle { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 4px; }
+.nav-menu { position: absolute; top: 70px; right: 24px; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 220px; overflow: hidden; display: flex; flex-direction: column; }
+.nav-item { padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #0A1F12; text-decoration: none; border-bottom: 1px solid #eee; transition: background 0.2s; cursor: pointer; }
+.nav-item:hover { background: #F5FAF6; }
+.nav-item:last-child { border-bottom: none; color: #B8564F; }
+
 /* FORMAL AGREEMENT STYLES */
-.el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:40px 50px; font-size:13.5px; line-height:1.8; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 850px; margin: 0 auto; }
+.main-container { width: 100%; max-width: 100vw; padding: 40px 16px; overflow-x: hidden; }
+.el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:40px 50px; font-size:13.5px; line-height:1.8; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 850px; width: 100%; margin: 0 auto; overflow-wrap: break-word; }
 .el .eh{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:3px solid #0A1F12;margin-bottom:24px;flex-wrap:wrap}
 .el .eh .brand{font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:800;color:#0A1F12;letter-spacing:1px}
 .el .eh .brand em{font-style:normal;color:#E8730F}
@@ -31,8 +62,15 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 .el p{margin:0 0 16px; text-align: justify;}
 .el ul{margin:0 0 18px;padding-left:24px}
 .el li{margin-bottom:12px;font-size:13.5px; text-align: justify;}
+
+/* 2-COLUMN GRID THAT STACKS ON MOBILE */
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; width: 100%; }
+@media (max-width: 600px) { .form-grid-2 { grid-template-columns: 1fr; } }
+
 .el .highlight-box{background:#F9FBFA; border-left:4px solid #E8730F; padding:18px; margin-bottom:24px; font-size:13.5px; font-weight:500;}
-.el .sign{margin-top:36px;padding-top:24px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.el .sign{margin-top:36px;padding-top:24px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:40px; width: 100%;}
+@media (max-width: 600px) { .el .sign { grid-template-columns: 1fr; gap: 24px; } }
+
 .el .sign .sigval{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding-bottom:8px;border-bottom:1px solid #333;margin-bottom:10px;min-height:40px}
 .el .sign .lbl{font-size:11px;color:#666;font-weight:600; text-transform:uppercase; letter-spacing:0.05em;}
 .el .ft{margin-top:36px;padding-top:16px;border-top:2px solid #0A1F12;font-size:11px;color:#666;line-height:1.6}
@@ -47,7 +85,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
   .no-print { display: none !important; }
 }
 
-@media (max-width: 600px) { .el { padding: 24px 20px; } .el .sign { grid-template-columns: 1fr; gap: 24px; } .el .eh { flex-direction: column; gap: 12px; } .el .eh .dt, .el .eh .mt { text-align: left; } }
+@media (max-width: 600px) { .el { padding: 24px 20px; } .el .eh { flex-direction: column; gap: 12px; } .el .eh .dt, .el .eh .mt { text-align: left; } }
 </style>
 </head>
 <body>
@@ -59,7 +97,6 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 const { useState } = React;
 
 // EXHAUSTIVELY DETAILED, PLAIN ENGLISH JOB DESCRIPTIONS & LEGAL TERMS
-// STRICTLY EQUITY & COMMISSION BASED - ZERO GUARANTEED PAY OR FIXED NUMBERS
 const ROLES = {
   cdmo: { 
     id: 'cdmo', 
@@ -169,6 +206,7 @@ function App() {
   const [inviteCode, setInviteCode] = useState('');
   const [selectedRole, setSelectedRole] = useState(null);
   const [codeError, setCodeError] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const [form, setForm] = useState({ name: '', email: '', phone: '', location: '' });
   const [agreed, setAgreed] = useState(false);
@@ -232,6 +270,7 @@ function App() {
     setCodeError('');
     setHrStatus('pending');
     setItRequest('');
+    setIsMenuOpen(false);
     window.scrollTo(0, 0);
   };
 
@@ -251,29 +290,51 @@ function App() {
   const hrEmailLink = `mailto:hr@starteasyzambia.com?subject=Signed Agreement - ${form.name} (${selectedRole?.title})&body=Dear StartEasy Zambia HR Team,%0D%0A%0D%0APlease find attached my signed Agreement of Engagement for the ${selectedRole?.title} role.%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone}%0D%0ALocation: ${form.location}%0D%0A%0D%0ABest regards,%0D%0A${form.name}`;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%' }}>
       
-      <header className="no-print" style={{ background: '#0A1F12', padding: '16px 24px', borderBottom: '1px solid rgba(245,166,35,.1)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={resetPortal}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, fontFamily: 'Playfair Display' }}>S</div>
+      {/* HEADER WITH MENU */}
+      <header className="site-header no-print">
+        <div className="header-content">
+          <div className="logo-group" onClick={resetPortal}>
+            <div className="logo-mark">S</div>
             <div>
-              <div style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Founding Team Portal</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>StartEasy Zambia</div>
+              <div className="logo-text-sub">Founding Team Portal</div>
+              <div className="logo-text-main">StartEasy Zambia</div>
             </div>
           </div>
-          {view !== 'gateway' && (
-            <button onClick={resetPortal} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}><i className="fas fa-sign-out-alt" style={{marginRight: 6}}></i> Exit Portal</button>
-          )}
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
+            </button>
+          </div>
         </div>
+
+        {/* DROPDOWN MENU */}
+        {isMenuOpen && (
+          <div className="nav-menu fadein">
+            <div className="nav-item" onClick={resetPortal}>
+              <i className="fas fa-home text-gray-500"></i> Home (Gateway)
+            </div>
+            <div className="nav-item" onClick={() => { setIsMenuOpen(false); window.scrollTo(0,0); if(view === 'gateway') alert('You are already at the login gateway.'); else resetPortal(); }}>
+              <i className="fas fa-sign-in-alt text-gray-500"></i> Login to HR Portal
+            </div>
+            <a href="mailto:hr@starteasyzambia.com" className="nav-item" style={{ color: '#0A1F12' }}>
+              <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
+            </a>
+            <div className="nav-item" onClick={() => setIsMenuOpen(false)} style={{ borderTop: '1px solid #eee' }}>
+              <i className="fas fa-times"></i> Close Menu
+            </div>
+          </div>
+        )}
       </header>
 
-      <main style={{ flex: 1, background: '#F5FAF6' }}>
+      <main style={{ flex: 1, background: '#F5FAF6', width: '100%', overflowX: 'hidden' }}>
         
         {/* --- LANDING PAGE --- */}
         {view === 'gateway' && (
-          <div className="fadein">
-            <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center' }}>
+          <div className="fadein" style={{ width: '100%' }}>
+            <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center', width: '100%' }}>
               <div style={{ maxWidth: 800, margin: '0 auto' }}>
                 <span style={{ display: 'inline-block', background: 'rgba(232,115,15,0.2)', color: '#F5A623', padding: '6px 16px', borderRadius: 99, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>Official Partner Portal</span>
                 <h1 className="serif" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', lineHeight: 1.1, marginBottom: 24 }}>
@@ -285,7 +346,7 @@ function App() {
               </div>
             </section>
 
-            <section style={{ padding: '60px 24px', maxWidth: 1000, margin: '0 auto' }}>
+            <section style={{ padding: '60px 24px', maxWidth: 1000, margin: '0 auto', width: '100%' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24, marginBottom: 60 }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>1</div>
@@ -328,7 +389,7 @@ function App() {
 
         {/* --- BRIEF --- */}
         {view === 'brief' && selectedRole && (
-          <div className="fadein" style={{ padding: '40px 16px' }}>
+          <div className="fadein main-container">
             <div style={{ maxWidth: 850, margin: '0 auto', background: '#fff', padding: '40px 50px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
               
               <div style={{ borderBottom: '2px solid #eee', paddingBottom: 24, marginBottom: 24 }}>
@@ -378,7 +439,7 @@ function App() {
 
         {/* --- CONTRACT --- */}
         {view === 'contract' && selectedRole && (
-          <div className="fadein" style={{ padding: '40px 16px' }}>
+          <div className="fadein main-container">
             <div className="el printable">
               <div className="eh">
                 <div>
@@ -433,7 +494,7 @@ function App() {
               </ul>
 
               <h4>7. Appointee Details (For Execution)</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
+              <div className="form-grid-2">
                 <span>
                   <strong>Full Legal Name:</strong><br/>
                   <input className="doc-input-line" placeholder="Enter full legal name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
@@ -481,7 +542,7 @@ function App() {
 
               {error && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{error}</div>}
 
-              <div className="no-print">
+              <div className="no-print" style={{ width: '100%' }}>
                 <Btn onClick={signAgreement} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
                   {busy ? 'Processing...' : 'Execute Agreement & Proceed to HR'}
                 </Btn>
@@ -492,10 +553,10 @@ function App() {
 
         {/* --- HR ONBOARDING DASHBOARD --- */}
         {view === 'onboarding' && (
-          <div className="fadein" style={{ padding: '40px 16px', minHeight: '100vh' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div className="fadein main-container" style={{ minHeight: '100vh' }}>
+            <div style={{ maxWidth: 900, margin: '0 auto', width: '100%' }}>
               
-              <div style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', padding: '40px', borderRadius: 16, textAlign: 'center', marginBottom: 32, color: '#fff', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+              <div style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', padding: '40px', borderRadius: 16, textAlign: 'center', marginBottom: 32, color: '#fff', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', width: '100%' }}>
                 <div style={{ width: 64, height: 64, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 16px' }}>
                   <i className="fas fa-handshake"></i>
                 </div>
@@ -506,7 +567,7 @@ function App() {
               </div>
 
               {hrStatus === 'pending' ? (
-                <div style={{ background: '#FFF9E6', border: '1px solid #F5A623', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center' }}>
+                <div style={{ background: '#FFF9E6', border: '1px solid #F5A623', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center', width: '100%' }}>
                   <i className="fas fa-file-signature" style={{ fontSize: 40, color: '#E8730F', marginBottom: 16 }}></i>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}>Action Required: Submit to HR</h2>
                   <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.8)', marginBottom: 24, lineHeight: 1.6, maxWidth: 600, margin: '0 auto 24px' }}>
@@ -527,7 +588,7 @@ function App() {
                   </p>
                 </div>
               ) : (
-                <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center' }}>
+                <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center', width: '100%' }}>
                   <i className="fas fa-check-circle" style={{ fontSize: 40, color: '#1E7B3C', marginBottom: 16 }}></i>
                   <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}>HR File Submitted Successfully</h2>
                   <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.8)', marginBottom: 0, lineHeight: 1.6, maxWidth: 600, margin: '0 auto' }}>
@@ -537,9 +598,9 @@ function App() {
               )}
 
               {hrStatus === 'submitted' && (
-                <div className="fadein">
+                <div className="fadein" style={{ width: '100%' }}>
                   
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32, width: '100%' }}>
                     <div style={{ background: '#0A1F12', borderRadius: 16, padding: 32, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <h3 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 12 }}>Message from the Founder</h3>
                       <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: 20 }}>
@@ -561,7 +622,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', width: '100%' }}>
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                       <i className="fas fa-laptop-code" style={{ color: '#E8730F' }}></i> Your Remote Workspace
                     </h2>
@@ -590,7 +651,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32 }}>
+                  <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32, width: '100%' }}>
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                       <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
@@ -617,7 +678,7 @@ function App() {
 
       </main>
 
-      <footer className="no-print" style={{ background: '#0A1F12', padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+      <footer className="no-print" style={{ background: '#0A1F12', padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', width: '100%' }}>
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0 }}>© {new Date().getFullYear()} StartEasy Zambia. All rights reserved.</p>
       </footer>
 
