@@ -38,12 +38,12 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 .site-header { position: sticky; top: 0; z-index: 100; background: #0A1F12; padding: 16px 24px; border-bottom: 1px solid rgba(245,166,35,.1); width: 100%; }
 .header-content { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
 .logo-group { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-.logo-mark { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#E8730F,#F5A623); color: #fff; display: flex; align-items: center; justify-content: center; fontWeight: 800; fontSize: 18px; font-family: 'Playfair Display', serif; }
+.logo-mark { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#E8730F,#F5A623); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; font-family: 'Playfair Display', serif; }
 .logo-text-sub { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); font-weight: 700; }
 .logo-text-main { font-size: 16px; font-weight: 700; color: #fff; }
 
 .menu-toggle { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 4px; }
-.nav-menu { position: absolute; top: 70px; right: 24px; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 240px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(10,31,18,0.1); }
+.nav-menu { position: absolute; top: 70px; right: 24px; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 250px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(10,31,18,0.1); }
 .nav-item { padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #0A1F12; text-decoration: none; border-bottom: 1px solid #eee; transition: background 0.2s; cursor: pointer; }
 .nav-item:hover { background: #F5FAF6; }
 .nav-item:last-child { border-bottom: none; color: #B8564F; }
@@ -201,6 +201,17 @@ const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, st
   return <button onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
 
+// Helper to generate a mock PDF download so users don't get an alert
+const downloadMockPDF = (filename) => {
+  const element = document.createElement("a");
+  const file = new Blob(["This is a simulated document for StartEasy Zambia: " + filename], {type: 'application/pdf'});
+  element.href = URL.createObjectURL(file);
+  element.download = filename.replace(/\s+/g, '_') + ".pdf";
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+};
+
 function App() {
   const [view, setView] = useState('gateway'); 
   const [inviteCode, setInviteCode] = useState('');
@@ -215,6 +226,7 @@ function App() {
 
   const [hrStatus, setHrStatus] = useState('pending');
   const [itRequest, setItRequest] = useState('');
+  const [itRequestSent, setItRequestSent] = useState(false);
 
   const validateCode = () => {
     setCodeError('');
@@ -271,6 +283,7 @@ function App() {
     setCodeError('');
     setHrStatus('pending');
     setItRequest('');
+    setItRequestSent(false);
     setIsMenuOpen(false);
     window.scrollTo(0, 0);
   };
@@ -286,6 +299,16 @@ function App() {
       setBusy(false);
       window.scrollTo(0, 0);
     }, 1500);
+  };
+
+  const submitITRequest = (e) => {
+    e.preventDefault();
+    if(!itRequest.trim()) return;
+    setItRequestSent(true);
+    setTimeout(() => {
+      setItRequest('');
+      setItRequestSent(false);
+    }, 4000);
   };
 
   const hrEmailLink = `mailto:hr@starteasyzambia.com?subject=Signed Agreement - ${form.name} (${selectedRole?.title})&body=Dear StartEasy Zambia HR Team,%0D%0A%0D%0APlease find attached my signed Agreement of Engagement for the ${selectedRole?.title} role.%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone}%0D%0ALocation: ${form.location}%0D%0A%0D%0ABest regards,%0D%0A${form.name}`;
@@ -314,8 +337,8 @@ function App() {
         {/* DROPDOWN MENU */}
         {isMenuOpen && (
           <div className="nav-menu fadein">
-            <div className="nav-item" onClick={resetPortal}>
-              <i className="fas fa-home text-gray-500"></i> Home (Gateway)
+            <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('gateway'); window.scrollTo(0,0); }}>
+              <i className="fas fa-sign-in-alt text-gray-500"></i> Login to HR Portal
             </div>
             <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('resources'); window.scrollTo(0,0); }}>
               <i className="fas fa-book-open text-gray-500"></i> Guidance & Resources
@@ -324,7 +347,7 @@ function App() {
               <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
             </a>
             <div className="nav-item" onClick={resetPortal} style={{ borderTop: '1px solid #eee', color: '#B8564F' }}>
-              <i className="fas fa-sign-out-alt"></i> Exit / Sign Out
+              <i className="fas fa-sign-out-alt"></i> Exit Portal
             </div>
           </div>
         )}
@@ -414,7 +437,7 @@ function App() {
                         <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{doc.desc} • {doc.type} ({doc.size})</p>
                       </div>
                     </div>
-                    <Btn onClick={() => alert(`Simulated Download: ${doc.title}`)} size="md" variant="ghost">
+                    <Btn onClick={() => downloadMockPDF(doc.title)} size="md" variant="ghost">
                       <i className="fas fa-download"></i> Download
                     </Btn>
                   </div>
@@ -648,14 +671,23 @@ function App() {
 
                     <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)' }}>
                       <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}>Request IT Setup</h3>
-                      <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 16 }}>Do you need a company email address, laptop, or software license?</p>
-                      <textarea 
-                        value={itRequest}
-                        onChange={e => setItRequest(e.target.value)}
-                        placeholder="e.g., I need a company email and a Zoom Pro license..."
-                        style={{ width: '100%', height: 80, padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16, fontFamily: 'inherit' }}
-                      />
-                      <Btn onClick={() => { alert("IT Request sent to HR!"); setItRequest(''); }} variant="ghost" style={{ width: '100%' }}>Send Request</Btn>
+                      {itRequestSent ? (
+                        <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 16, borderRadius: 8, textAlign: 'center', fontSize: 14, fontWeight: 600 }}>
+                          <i className="fas fa-check-circle" style={{ marginBottom: 8, fontSize: 24, display: 'block' }}></i>
+                          Your request has been sent to HR!
+                        </div>
+                      ) : (
+                        <form onSubmit={submitITRequest}>
+                          <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 16 }}>Do you need a company email address, laptop, or software license?</p>
+                          <textarea 
+                            value={itRequest}
+                            onChange={e => setItRequest(e.target.value)}
+                            placeholder="e.g., I need a company email and a Zoom Pro license..."
+                            style={{ width: '100%', height: 80, padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16, fontFamily: 'inherit' }}
+                          />
+                          <Btn type="submit" variant="ghost" style={{ width: '100%' }}>Send Request</Btn>
+                        </form>
+                      )}
                     </div>
                   </div>
 
