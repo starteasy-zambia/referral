@@ -38,7 +38,6 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 .el .ft{margin-top:36px;padding-top:16px;border-top:2px solid #0A1F12;font-size:11px;color:#666;line-height:1.6}
 .doc-input-line { border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size:14px; color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none; width: 100%; margin-top: 4px; padding: 8px; transition: all 0.2s;}
 .doc-input-line:focus { background: #fff; border-bottom: 2px solid var(--orange); }
-.doc-static { border-bottom: 1px solid #ddd; padding: 8px 4px; font-size: 14px; font-weight: 600; color: #333; }
 
 /* PRINT STYLES */
 @media print {
@@ -60,6 +59,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 const { useState } = React;
 
 // EXHAUSTIVELY DETAILED, PLAIN ENGLISH JOB DESCRIPTIONS & LEGAL TERMS
+// STRICTLY EQUITY & COMMISSION BASED - ZERO GUARANTEED PAY
 const ROLES = {
   cdmo: { 
     id: 'cdmo', 
@@ -77,13 +77,14 @@ const ROLES = {
     month2: 'You will execute a complete overhaul of the website copy. You will set up our LinkedIn company page and publish 3 high-value posts per week. You will create the digital assets for our next major service launch. You will set up our Google Analytics and Meta Pixel tracking.',
     month3: 'You will launch our first major paid advertising campaigns. You will run A/B tests on different ad creatives. You will analyze the Customer Acquisition Cost (CAC) and adjust the campaigns to ensure we are not spending more to get a customer than they are paying us.',
     compensation: [
-      "**Fixed Retainer:** You will receive a guaranteed monthly payment of $1,000 USD (or the agreed ZMW equivalent) to cover your core 15 hours per week.",
-      "**Equity Stake:** You will be granted a 2.5% ownership stake in StartEasy Zambia. This stake will be subject to a 2-year vesting schedule. You will earn 1/24th of this stake for every full month you work with us.",
-      "**Performance Bonus:** If we hit our monthly revenue target of $10,000 USD, you will receive an additional $500 bonus for that month. If we hit $25,000 USD, you will receive a $1,500 bonus."
+      "**Equity Stake:** You will be granted a 2.5% ownership stake in StartEasy Zambia. This stake is subject to a 2-year vesting schedule. You will earn 1/24th of this stake for every full month you work with us.",
+      "**Performance Bonus:** If the company hits a monthly revenue target of $10,000 USD, you will receive a $500 bonus for that month. If the company hits $25,000 USD, you will receive a $1,500 bonus. This is strictly performance-based.",
+      "**No Base Pay:** There is no fixed salary, hourly wage, or guaranteed monthly retainer. Your financial success is directly tied to the company's growth and your equity valuation."
     ],
     resources: 'You will have a monthly budget of $500 for essential tools like Canva Pro, LinkedIn Sales Navigator, and ad credits. You will have direct access to the CEO for approvals and strategy. You will have our Growth Associate to help execute your campaigns.',
     environment: 'You can work from anywhere in the world. You are not required to relocate. We only ask that you attend one 30-minute video call with the CEO every Monday at 10:00 AM Central Africa Time (CAT).',
     terms: [
+      "**No Employment Relationship:** This Agreement does not create an employer-employee relationship. You are an independent founder/contractor.",
       "**Confidentiality:** You must not share our marketing strategies, financial data, or client lists with anyone outside the company.",
       "**Intellectual Property:** Any logos, website copy, or ad creatives you create for StartEasy Zambia belong entirely to the company, even if you leave.",
       "**Termination:** Either party can end this agreement with 30 days written notice. If you leave before your 2-year vesting is complete, you will only keep the equity you have already vested."
@@ -97,23 +98,24 @@ const ROLES = {
     responsibilities: [
       "**Government Compliance:** You will manage all interactions with PACRA and ZRA. You will ensure our annual returns and tax filings are submitted accurately and on time.",
       "**Bookkeeping & Accounting:** You will manage our financial software (e.g., QuickBooks or Xero). You will record all incoming client payments and all outgoing business expenses.",
-      "**Payroll Management:** You will calculate and process the monthly payments for all staff and contractors, ensuring the correct taxes are deducted.",
+      "**Payroll Management:** You will calculate and process the payments for all contractors, ensuring the correct taxes are deducted.",
       "**Client Contract Management:** You will review all client service agreements before they are signed to ensure they protect the company legally.",
       "**Financial Reporting:** You will prepare a monthly financial report showing our Profit & Loss, Cash Flow, and Balance Sheet. You will present this to the CEO on the first Tuesday of every month."
     ],
-    month1: 'You will conduct a full audit of our current PACRA and ZRA status to ensure there are no outstanding penalties. You will establish a strict internal financial control policy. You will set up our official payroll system.',
+    month1: 'You will conduct a full audit of our current PACRA and ZRA status to ensure there are no outstanding penalties. You will establish a strict internal financial control policy. You will set up our official invoicing system.',
     month2: 'You will implement a cloud-based bookkeeping system. You will digitize all past receipts and invoices. You will create a simple dashboard that shows the CEO exactly how much cash we have in the bank at any given time.',
     month3: 'You will map out the entire client onboarding journey from a financial perspective. You will ensure that when a client pays, the money is tracked, the service is delivered, and the revenue is recorded in the CRM without any manual errors.',
     compensation: [
-      "**Base Salary:** You will receive a guaranteed monthly salary of K15,000 ZMW (or the agreed equivalent).",
       "**Equity Stake:** You will be granted a 4% ownership stake in StartEasy Zambia. This stake will be subject to a 4-year vesting schedule with a 1-year cliff.",
-      "**Annual Bonus:** You will be eligible for an annual performance bonus based on the company's overall profitability and your zero-penalty compliance record."
+      "**Performance Bonus:** You will be eligible for an annual performance bonus based on the company's overall profitability and your zero-penalty compliance record.",
+      "**No Base Pay:** There is no fixed salary, hourly wage, or guaranteed monthly retainer. Your financial success is directly tied to the company's growth and your equity valuation."
     ],
     resources: 'You will have full access to the company bank accounts and our external legal counsel. You will be provided with any accounting software you require.',
     environment: 'You must be based in Lusaka, Zambia. You will work from our office or remotely, but you must be physically available to go to PACRA or ZRA offices to resolve issues or submit documents in person when required.',
     terms: [
+      "**No Employment Relationship:** This Agreement does not create an employer-employee relationship. You are an independent founder/contractor.",
       "**Fiduciary Duty:** You have a legal obligation to act in the best financial interest of StartEasy Zambia at all times.",
-      "**Confidentiality:** You will have access to sensitive financial data and salaries. You must never disclose this information.",
+      "**Confidentiality:** You will have access to sensitive financial data. You must never disclose this information.",
       "**Termination:** This agreement requires 60 days written notice for termination from either party."
     ]
   },
@@ -133,14 +135,15 @@ const ROLES = {
     month2: 'You will hit your daily outreach targets (40 calls/50 emails per day). You will book at least 20 discovery meetings for the CEO and Director of Finance. You will begin closing your first small deals.',
     month3: 'You will be fully responsible for your own pipeline. You will close at least 5 deals per week. You will implement a system to follow up with cold leads every two weeks.',
     compensation: [
-      "**Fixed Stipend:** You will receive a small monthly stipend of K3,000 ZMW to cover your internet and phone data costs.",
-      "**Commission (Sales):** You will earn a 15% commission on the total value of any service package you sell.",
+      "**Commission (Sales):** You will earn a 15% commission on the total value of any service package you sell. For example, if you sell a K1,000 registration package, you earn K150.",
       "**Commission (Recurring):** You will earn a 10% recurring commission on all monthly subscriptions you sell, for as long as that client continues to pay.",
-      "**Bonuses:** If you close 10 deals in a single month, you receive an extra K1,000 bonus. There is no limit to your earnings."
+      "**Bonuses:** If you close 10 deals in a single month, you receive an extra K1,000 bonus. There is no limit to your earnings.",
+      "**No Base Pay:** There is no fixed salary, hourly wage, stipend, or guaranteed monthly retainer. Your income is 100% based on the sales you close."
     ],
     resources: 'You will be provided with a company laptop, a dedicated phone line, and access to our CRM. You will receive weekly training from the CEO on sales tactics.',
     environment: 'You can work remotely, but you must be based in Zambia so you can make calls during standard business hours (08:00 to 17:00 CAT). You may be required to attend occasional in-person networking events in Lusaka.',
     terms: [
+      "**No Employment Relationship:** This Agreement does not create an employer-employee relationship. You are an independent contractor.",
       "**Clawback Policy:** Commission is only paid out after the client has paid us and the 7-day refund window has passed.",
       "**Non-Solicitation:** You cannot attempt to steal StartEasy clients for another competing business while working here or for 1 year after you leave.",
       "**Termination:** This is a performance-based role. If you fail to meet your daily outreach targets for 3 consecutive weeks, the company reserves the right to terminate this agreement immediately."
@@ -172,8 +175,7 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  // HR Onboarding State
-  const [hrStatus, setHrStatus] = useState('pending'); // 'pending' or 'submitted'
+  const [hrStatus, setHrStatus] = useState('pending');
   const [itRequest, setItRequest] = useState('');
 
   const validateCode = () => {
@@ -268,7 +270,7 @@ function App() {
 
       <main style={{ flex: 1, background: '#F5FAF6' }}>
         
-        {/* --- GATEWAY --- */}
+        {/* --- LANDING PAGE --- */}
         {view === 'gateway' && (
           <div className="fadein">
             <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center' }}>
@@ -493,7 +495,6 @@ function App() {
           <div className="fadein" style={{ padding: '40px 16px', minHeight: '100vh' }}>
             <div style={{ maxWidth: 900, margin: '0 auto' }}>
               
-              {/* Welcome Banner */}
               <div style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', padding: '40px', borderRadius: 16, textAlign: 'center', marginBottom: 32, color: '#fff', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
                 <div style={{ width: 64, height: 64, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 16px' }}>
                   <i className="fas fa-handshake"></i>
@@ -504,7 +505,6 @@ function App() {
                 </p>
               </div>
 
-              {/* HR Status Section */}
               {hrStatus === 'pending' ? (
                 <div style={{ background: '#FFF9E6', border: '1px solid #F5A623', borderRadius: 16, padding: 32, marginBottom: 32, textAlign: 'center' }}>
                   <i className="fas fa-file-signature" style={{ fontSize: 40, color: '#E8730F', marginBottom: 16 }}></i>
@@ -536,11 +536,9 @@ function App() {
                 </div>
               )}
 
-              {/* LOCKED WORKSPACE (Only shows if HR submitted) */}
               {hrStatus === 'submitted' && (
                 <div className="fadein">
                   
-                  {/* Welcome Video & Message */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 32 }}>
                     <div style={{ background: '#0A1F12', borderRadius: 16, padding: 32, color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <h3 className="serif" style={{ fontSize: 22, color: '#F5A623', marginBottom: 12 }}>Message from the CEO</h3>
@@ -563,7 +561,6 @@ function App() {
                     </div>
                   </div>
 
-                  {/* The Tech Stack / Tools */}
                   <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                       <i className="fas fa-laptop-code" style={{ color: '#E8730F' }}></i> Your Remote Workspace
@@ -593,7 +590,6 @@ function App() {
                     </div>
                   </div>
 
-                  {/* Team Directory */}
                   <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32 }}>
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
