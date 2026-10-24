@@ -95,96 +95,98 @@ const CONFIG = {
     messagingSenderId: "54136399237",
     appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
   },
-  mainSiteUrl: 'https://www.starteasyzambia.com',
   adminEmail: 'admin@starteasyzambia.com', // Set your Admin email here
 };
 
-// EXPANDED ROLE DEFINITIONS (SELF-ORIENTATION DIRECTORY)
+// DETAILED, PLAIN ENGLISH ROLE DEFINITIONS
 const ROLES = {
   referral_agent: { 
     id: 'referral_agent', title: 'Referral Agent', type: 'Commission-Only',
-    desc: 'Promote StartEasy services and earn a commission for every successful referral.',
-    whoIsItFor: 'Perfect for influencers, community leaders, or freelancers who have a network of businesses or entrepreneurs.',
+    desc: 'You tell people about StartEasy. When they use your link to buy a service, you get paid.',
+    whoIsItFor: 'Anyone with a network. This is great for accountants, freelancers, community leaders, or influencers who talk to business owners regularly.',
     responsibilities: [
-      'Share your unique referral links with your network.',
-      'Encourage businesses to use StartEasy for compliance, registration, or directory services.',
-      'Guide prospective clients on how to navigate the StartEasy platform.'
+      'Share your unique referral link on WhatsApp, LinkedIn, and social media.',
+      'Talk to business owners and explain how StartEasy can save them time with compliance and registration.',
+      'Answer basic questions and encourage them to sign up using your link.'
     ],
-    kpis: ['Number of link clicks', 'Number of completed sales/payments', 'Total commission earned'],
+    kpis: ['How many people clicked your link', 'How many people actually paid for a service', 'Total commission you earned'],
     clauses: [
-      "You are joining as an independent Referral Agent. This is NOT an employment contract.",
-      "You earn a percentage of the StartEasy service fee. Commissions clear after 7 days.",
-      "You must not engage in spam or self-referral. All referral links are tracked securely."
+      "You are an independent Referral Agent. This is NOT a job with a salary.",
+      "You only get paid a commission when the person you referred actually pays StartEasy.",
+      "You must not spam people or use fake accounts to refer yourself."
     ]
   },
   growth_associate: { 
-    id: 'growth_associate', title: 'Growth & Client Associate', type: 'Base + Commission',
-    desc: 'A hands-on role focused on proactive outreach, client onboarding, and driving immediate revenue.',
-    whoIsItFor: 'Sales-driven individuals with strong communication skills who thrive on closing deals and helping clients succeed.',
+    id: 'growth_associate', title: 'Growth & Client Associate', type: 'Base Pay + Commission',
+    desc: 'You are on the phone and email every day. You find leads, pitch our services, and close deals.',
+    whoIsItFor: 'Someone who loves talking to people, hates losing a sale, and is very comfortable making cold calls and sending emails.',
     responsibilities: [
-      'Conduct outbound outreach (calls, emails, LinkedIn) to generate leads.',
-      'Onboard new SMEs and clients onto the platform.',
-      'Manage client relationships, upsell premium services, and ensure high retention.'
+      'Call and email lists of businesses to introduce StartEasy.',
+      'Explain our services clearly (like business registration and tax filing) and convince them to buy.',
+      'Follow up with people who showed interest but haven\'t paid yet.',
+      'Help new clients get set up on the platform and keep them happy.'
     ],
-    kpis: ['Number of qualified leads generated', 'Total closed deals (Revenue)', 'Client retention rate'],
+    kpis: ['How many calls/emails you make per day', 'How much money you bring in (Revenue)', 'How many clients stay with us (Retention)'],
     clauses: [
-      "You are joining as a Growth & Client Associate on a hybrid compensation model.",
-      "Your compensation includes a fixed retainer plus uncapped commission on all closed deals.",
-      "You are expected to maintain a high standard of professionalism during all client interactions."
+      "You get a small base pay every month, plus a commission for every deal you close.",
+      "You must maintain a professional attitude on all calls and emails.",
+      "You are expected to track your leads in our system."
     ]
   },
   cdmo: { 
     id: 'cdmo', title: 'Chief Digital & Marketing Officer', type: 'Retainer + Equity',
-    desc: 'The strategic architect of the StartEasy brand, responsible for digital growth and user acquisition.',
-    whoIsItFor: 'Senior marketing leaders with experience scaling tech platforms, B2B brands, or startups.',
+    desc: 'You are in charge of getting the word out. You run the ads, manage social media, and make our brand look premium.',
+    whoIsItFor: 'A marketing expert who knows how to run Facebook/LinkedIn ads, build a brand, and get thousands of users to sign up.',
     responsibilities: [
-      'Design and execute the full digital Go-To-Market strategy.',
-      'Build brand awareness across Zambia and the diaspora.',
-      'Manage digital ad spend, optimize conversion funnels, and oversee content strategy.'
+      'Create and run digital advertising campaigns (Meta, LinkedIn, Google).',
+      'Manage our social media pages and post engaging content.',
+      'Make sure our website and brand look professional and trustworthy.',
+      'Figure out where our customers are online and target them.'
     ],
-    kpis: ['Monthly active users', 'Customer Acquisition Cost (CAC)', 'Inbound lead generation growth'],
+    kpis: ['How many new users sign up each month', 'How much it costs us to get one new user (CAC)', 'Website traffic growth'],
     clauses: [
-      "You are joining as the Chief Digital & Marketing Officer (CDMO).",
-      "Your compensation includes a monthly retainer plus a proposed equity stake, subject to a vesting schedule.",
-      "Your primary focus is building the digital marketing engine and driving user acquisition."
+      "You get a monthly retainer (fixed pay) plus a percentage of ownership (equity) in the company.",
+      "You have the authority to manage the marketing budget.",
+      "You must report on campaign performance weekly."
     ]
   },
   director_finance: { 
     id: 'director_finance', title: 'Director of Finance & Admin', type: 'Equity + Salary',
-    desc: 'The operational backbone of the startup, ensuring compliance, financial health, and smooth administration.',
-    whoIsItFor: 'Detail-oriented finance professionals or operations managers who understand the Zambian regulatory landscape.',
+    desc: 'You handle the paperwork. You deal with PACRA, ZRA, taxes, and make sure the company is following all the rules.',
+    whoIsItFor: 'A highly organized finance or admin person who understands Zambian tax laws, PACRA filings, and bookkeeping.',
     responsibilities: [
-      'Oversee business registration, tax compliance (ZRA), and PACRA filings.',
-      'Manage company budgets, payroll, and financial reporting.',
-      'Ensure all operational and administrative processes are running efficiently.'
+      'Submit tax returns to ZRA on time and manage our tax compliance.',
+      'Handle all company registration paperwork (PACRA).',
+      'Track money coming in and money going out (bookkeeping).',
+      'Make sure client files and contracts are organized.'
     ],
-    kpis: ['100% compliance with ZRA/PACRA', 'Accurate and timely financial reporting', 'Efficient operational workflow'],
+    kpis: ['Zero late filings or tax penalties', 'Accurate financial reports every month', 'Clean and organized records'],
     clauses: [
-      "You are joining as the Director of Finance & Administration.",
-      "Your compensation includes a salary and an equity stake, subject to a 4-year vesting schedule with a 1-year cliff.",
-      "You are responsible for maintaining the financial and regulatory integrity of StartEasy Zambia."
+      "You get a salary plus ownership (equity) in the company.",
+      "You are legally responsible for ensuring our financial records are accurate.",
+      "You must protect client data and company funds."
     ]
   },
   ceo: { 
     id: 'ceo', title: 'Founder & CEO', type: 'Equity',
-    desc: 'The visionary leader responsible for the overall direction, fundraising, and success of the company.',
-    whoIsItFor: 'Founders and high-level executives with the drive to lead a tech startup to scale.',
+    desc: 'You are the captain of the ship. You raise money, talk to investors, and make sure the whole team is moving in the right direction.',
+    whoIsItFor: 'A visionary leader who can handle pressure, raise capital, and manage a growing executive team.',
     responsibilities: [
-      'Set the overall company strategy and vision.',
-      'Lead fundraising efforts and manage investor relations.',
-      'Oversee the executive team and ensure all departments are aligned with company goals.'
+      'Pitch to investors and secure funding for the company.',
+      'Hire and manage the executive team (Marketing, Finance, Sales).',
+      'Set the big goals for the year and track our progress.',
+      'Make the final decision on major partnerships.'
     ],
-    kpis: ['Company valuation growth', 'Fundraising milestones', 'Overall revenue growth'],
+    kpis: ['Money raised from investors', 'Overall company revenue growth', 'Company valuation increase'],
     clauses: [
-      "You are joining as the Founder & CEO of StartEasy Zambia.",
-      "You will be responsible for overall company strategy, fundraising, and team leadership.",
-      "Your compensation is primarily equity-based, with terms to be finalized in the Shareholders Agreement."
+      "Your main compensation is equity (ownership) in the company.",
+      "You report directly to the board of directors.",
+      "You have final say on day-to-day company operations."
     ]
   }
 };
 
 const SE_AGENTS = 'se_agents';
-const SE_COMMISSIONS = 'se_commissions';
 const SE_INVITES = 'se_invites';
 
 /* ---------------- FIREBASE ---------------- */
@@ -198,7 +200,6 @@ try {
 } catch (e) { console.error(e); }
 
 /* ---------------- HELPERS ---------------- */
-const fmtZmw = n => 'K' + (Number(n) || 0).toFixed(2);
 const copyText = async t => {
   try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(t); return true; } return false; } catch (e) { return false; }
 };
@@ -276,7 +277,6 @@ function Nav({ route, go, agent, onSignOut }) {
   );
 }
 
-/* ---------------- PAGES ---------------- */
 function Landing({ go }) {
   return (
     <div className="fadein">
@@ -286,7 +286,7 @@ function Landing({ go }) {
             Build the future. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Own your role.</em>
           </h1>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32 }}>
-            StartEasy Zambia is scaling. Read our Role Directory to understand how you can contribute, or enter your invitation code to sign your engagement agreement.
+            StartEasy Zambia is scaling. Read our Role Directory to understand exactly what you will be doing day-to-day, or enter your invitation code to sign your contract.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Btn size="lg" variant="primary" onClick={() => go('roles')}>View Role Directory</Btn>
@@ -303,9 +303,9 @@ function RoleDirectory({ go }) {
     <div className="fadein" style={{ background: '#F5FAF6', minHeight: '100vh', paddingBottom: 60 }}>
       <section style={{ background: '#0A1F12', color: '#fff', padding: '48px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', marginBottom: 16 }}>Role Directory & Orientation</h1>
+          <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', marginBottom: 16 }}>Role Directory</h1>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,.7)', lineHeight: 1.7 }}>
-            Understand exactly what is expected before you apply or sign. 
+            Plain English explanations of what each role does, who it's for, and how success is measured.
           </p>
         </div>
       </section>
@@ -314,42 +314,55 @@ function RoleDirectory({ go }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {Object.values(ROLES).map(role => (
             <div key={role.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,.03)' }}>
+              
               <div style={{ background: '#F8FAF6', padding: '20px 24px', borderBottom: '1px solid rgba(10,31,18,.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                 <div>
-                  <h2 className="serif" style={{ fontSize: 20, color: '#0A1F12', margin: 0 }}>{role.title}</h2>
+                  <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', margin: 0 }}>{role.title}</h2>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#E8730F', textTransform: 'uppercase', letterSpacing: '.05em' }}>{role.type}</span>
                 </div>
                 <span style={{ background: '#0A1F12', color: '#fff', padding: '6px 12px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Invite Only</span>
               </div>
+
               <div style={{ padding: '24px' }}>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', marginBottom: 16 }}>{role.desc}</p>
+                <div style={{ background: '#FFF9E6', padding: 16, borderRadius: 8, border: '1px solid #F0E0A0', marginBottom: 24 }}>
+                  <p style={{ fontSize: 15, color: '#0A1F12', margin: 0, fontWeight: 600 }}>
+                    <i className="fas fa-info-circle" style={{ color: '#E8730F', marginRight: 8 }}></i> 
+                    {role.desc}
+                  </p>
+                </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(250px,1fr))', gap: 20 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 24 }}>
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}><i className="fas fa-user-check" style={{ color: '#1E7B3C', marginRight: 6 }}></i> Who is this for?</h4>
-                    <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.6 }}>{role.whoIsItFor}</p>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
+                      <i className="fas fa-user-check" style={{ color: '#1E7B3C', marginRight: 6 }}></i> Who is this for?
+                    </h4>
+                    <p style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', lineHeight: 1.6, margin: 0 }}>{role.whoIsItFor}</p>
                   </div>
-                  
+
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}><i className="fas fa-tasks" style={{ color: '#E8730F', marginRight: 6 }}></i> Key Responsibilities</h4>
-                    <ul style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', paddingLeft: 20, lineHeight: 1.6, margin: 0 }}>
-                      {role.responsibilities.map((r, i) => <li key={i} style={{ marginBottom: 4 }}>{r}</li>)}
-                    </ul>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
+                      <i className="fas fa-chart-line" style={{ color: '#1B6CA8', marginRight: 6 }}></i> How Success is Measured
+                    </h4>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {role.kpis.map((k, i) => <span key={i} style={{ background: '#EAF7EE', color: '#1E7B3C', padding: '6px 12px', borderRadius: 6, fontSize: 12.5, fontWeight: 600 }}>{k}</span>)}
+                    </div>
                   </div>
                 </div>
 
-                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px dashed rgba(10,31,18,.1)' }}>
-                  <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}><i className="fas fa-chart-line" style={{ color: '#1B6CA8', marginRight: 6 }}></i> Key Performance Indicators (KPIs)</h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {role.kpis.map((k, i) => <span key={i} style={{ background: '#EAF7EE', color: '#1E7B3C', padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600 }}>{k}</span>)}
-                  </div>
+                <div style={{ marginTop: 24 }}>
+                  <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
+                    <i className="fas fa-tasks" style={{ color: '#E8730F', marginRight: 6 }}></i> What You Will Actually Do (Daily Tasks)
+                  </h4>
+                  <ul style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', paddingLeft: 20, lineHeight: 1.7, margin: 0 }}>
+                    {role.responsibilities.map((r, i) => <li key={i} style={{ marginBottom: 6 }}>{r}</li>)}
+                  </ul>
                 </div>
               </div>
             </div>
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: 40 }}>
-          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.6)', marginBottom: 16 }}>Have your invite code ready?</p>
+          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.6)', marginBottom: 16 }}>Understand the role you want? You will need an invite code from Admin.</p>
           <Btn size="lg" variant="primary" onClick={() => go('join')}>Proceed to Sign Agreement</Btn>
         </div>
       </section>
@@ -467,13 +480,13 @@ function JoinPage({ onAuth }) {
           
           <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation as a <strong>{validatedRole.title}</strong>.</p>
 
-          <h4>1. Scope of Work & Responsibilities</h4>
-          <p>Your primary responsibilities will include:</p>
+          <h4>1. What You Will Do (Scope of Work)</h4>
+          <p>Your daily responsibilities will include:</p>
           <ul>
             {validatedRole.responsibilities.map((resp, idx) => <li key={idx}>{resp}</li>)}
           </ul>
 
-          <h4>2. Performance Expectations (KPIs)</h4>
+          <h4>2. How Success is Measured (KPIs)</h4>
           <p>Your performance will be measured against the following indicators:</p>
           <ul>
             {validatedRole.kpis.map((kpi, idx) => <li key={idx}>{kpi}</li>)}
@@ -700,10 +713,18 @@ function Dashboard({ onSignOut, agent }) {
 
         <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Your Role Overview</h2>
-          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', marginBottom: 16 }}>{roleInfo.desc}</p>
-          <h4 style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}>Key Performance Indicators</h4>
-          <ul style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', paddingLeft: 20, margin: 0 }}>
-            {roleInfo.kpis.map((kpi, i) => <li key={i} style={{ marginBottom: 4 }}>{kpi}</li>)}
+          <div style={{ background: '#FFF9E6', padding: 16, borderRadius: 8, border: '1px solid #F0E0A0', marginBottom: 24 }}>
+            <p style={{ fontSize: 15, color: '#0A1F12', margin: 0, fontWeight: 600 }}>{roleInfo.desc}</p>
+          </div>
+          
+          <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12 }}>What Success Looks Like (KPIs)</h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+            {roleInfo.kpis.map((k, i) => <span key={i} style={{ background: '#EAF7EE', color: '#1E7B3C', padding: '6px 12px', borderRadius: 6, fontSize: 12.5, fontWeight: 600 }}>{k}</span>)}
+          </div>
+
+          <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 12 }}>Your Daily Tasks</h4>
+          <ul style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', paddingLeft: 20, margin: 0 }}>
+            {roleInfo.responsibilities.map((r, i) => <li key={i} style={{ marginBottom: 6 }}>{r}</li>)}
           </ul>
         </div>
       </div>
