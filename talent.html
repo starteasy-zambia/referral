@@ -43,13 +43,13 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 .logo-text-main { font-size: 16px; font-weight: 700; color: #fff; }
 
 .menu-toggle { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 4px; }
-.nav-menu { position: absolute; top: 70px; right: 24px; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 220px; overflow: hidden; display: flex; flex-direction: column; }
+.nav-menu { position: absolute; top: 70px; right: 24px; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 240px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(10,31,18,0.1); }
 .nav-item { padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: #0A1F12; text-decoration: none; border-bottom: 1px solid #eee; transition: background 0.2s; cursor: pointer; }
 .nav-item:hover { background: #F5FAF6; }
 .nav-item:last-child { border-bottom: none; color: #B8564F; }
 
 /* FORMAL AGREEMENT STYLES */
-.main-container { width: 100%; max-width: 100vw; padding: 40px 16px; overflow-x: hidden; }
+.main-container { width: 100%; max-width: 100vw; padding: 40px 16px; overflow-x: hidden; display: flex; flex-direction: column; align-items: center;}
 .el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:40px 50px; font-size:13.5px; line-height:1.8; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 850px; width: 100%; margin: 0 auto; overflow-wrap: break-word; }
 .el .eh{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:3px solid #0A1F12;margin-bottom:24px;flex-wrap:wrap}
 .el .eh .brand{font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:800;color:#0A1F12;letter-spacing:1px}
@@ -223,6 +223,7 @@ function App() {
       setSelectedRole(ROLES[LIVE_CODES[codeUpper]]);
       setView('brief');
       window.scrollTo(0, 0);
+      setIsMenuOpen(false);
     } else {
       setCodeError('Invalid or expired invitation code. Please contact StartEasy Zambia Admin.');
     }
@@ -316,14 +317,14 @@ function App() {
             <div className="nav-item" onClick={resetPortal}>
               <i className="fas fa-home text-gray-500"></i> Home (Gateway)
             </div>
-            <div className="nav-item" onClick={() => { setIsMenuOpen(false); window.scrollTo(0,0); if(view === 'gateway') alert('You are already at the login gateway.'); else resetPortal(); }}>
-              <i className="fas fa-sign-in-alt text-gray-500"></i> Login to HR Portal
+            <div className="nav-item" onClick={() => { setIsMenuOpen(false); setView('resources'); window.scrollTo(0,0); }}>
+              <i className="fas fa-book-open text-gray-500"></i> Guidance & Resources
             </div>
             <a href="mailto:hr@starteasyzambia.com" className="nav-item" style={{ color: '#0A1F12' }}>
               <i className="fas fa-envelope text-gray-500"></i> Contact HR Support
             </a>
-            <div className="nav-item" onClick={() => setIsMenuOpen(false)} style={{ borderTop: '1px solid #eee' }}>
-              <i className="fas fa-times"></i> Close Menu
+            <div className="nav-item" onClick={resetPortal} style={{ borderTop: '1px solid #eee', color: '#B8564F' }}>
+              <i className="fas fa-sign-out-alt"></i> Exit / Sign Out
             </div>
           </div>
         )}
@@ -384,6 +385,42 @@ function App() {
                 </Btn>
               </div>
             </section>
+          </div>
+        )}
+
+        {/* --- GUIDANCE & RESOURCES --- */}
+        {view === 'resources' && (
+          <div className="fadein main-container">
+            <div style={{ maxWidth: 900, width: '100%', margin: '0 auto' }}>
+              <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                <h1 className="serif" style={{ fontSize: 36, color: '#0A1F12', marginBottom: 12 }}>Guidance & Resources</h1>
+                <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.6)', maxWidth: 600, margin: '0 auto' }}>Access the official documents, handbooks, and SOPs required for your role.</p>
+              </div>
+
+              <div style={{ display: 'grid', gap: 16 }}>
+                {[
+                  { title: 'StartEasy Zambia Employee Handbook', desc: 'The complete guide to our culture, policies, and expectations.', size: '2.4 MB', type: 'PDF' },
+                  { title: 'Brand Guidelines 2026', desc: 'Official logos, color codes, and typography rules.', size: '8.1 MB', type: 'PDF' },
+                  { title: 'Remote Work & IT Policy', desc: 'Guidelines for secure remote access and equipment usage.', size: '1.2 MB', type: 'PDF' },
+                  { title: 'Compliance & PACRA Checklist', desc: 'The exact steps and required documents for company registration.', size: '950 KB', type: 'PDF' },
+                ].map((doc, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 24, background: '#fff', border: '1px solid #eee', borderRadius: 12, flexWrap: 'wrap', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{ width: 48, height: 48, borderRadius: 10, background: '#F5FAF6', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
+                        <i className="fas fa-file-pdf"></i>
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{doc.title}</h4>
+                        <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{doc.desc} • {doc.type} ({doc.size})</p>
+                      </div>
+                    </div>
+                    <Btn onClick={() => alert(`Simulated Download: ${doc.title}`)} size="md" variant="ghost">
+                      <i className="fas fa-download"></i> Download
+                    </Btn>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
