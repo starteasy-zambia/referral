@@ -212,7 +212,7 @@ function App() {
 
     setTimeout(() => {
       setBusy(false);
-      setIsSigned(true); // Keeps them on the page but locks the contract
+      setView('onboarding'); // Redirect to HR Onboarding Page
       window.scrollTo(0, 0);
     }, 1000);
   };
@@ -247,7 +247,7 @@ function App() {
               <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>StartEasy Zambia</div>
             </div>
           </div>
-          {view !== 'gateway' && !isSigned && (
+          {view !== 'gateway' && (
             <button onClick={resetPortal} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}><i className="fas fa-sign-out-alt" style={{marginRight: 6}}></i> Exit Portal</button>
           )}
         </div>
@@ -255,7 +255,7 @@ function App() {
 
       <main style={{ flex: 1, background: '#F5FAF6' }}>
         
-        {/* --- NEW PROFESSIONAL LANDING PAGE --- */}
+        {/* --- LANDING PAGE --- */}
         {view === 'gateway' && (
           <div className="fadein">
             <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center' }}>
@@ -271,8 +271,6 @@ function App() {
             </section>
 
             <section style={{ padding: '60px 24px', maxWidth: 1000, margin: '0 auto' }}>
-              
-              {/* 3 Step Process */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24, marginBottom: 60 }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>1</div>
@@ -286,12 +284,11 @@ function App() {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>3</div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Sign & Send</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Digitally execute the agreement, print a PDF copy, and email it to the HR team.</p>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Sign & Onboard</h3>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Digitally execute the agreement, print a PDF copy, and join the team workspace.</p>
                 </div>
               </div>
 
-              {/* Login Box */}
               <div style={{ maxWidth: 450, margin: '0 auto', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
                 <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', margin: '0 0 8px', textAlign: 'center' }}>Secure Login</h2>
                 <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: '0 0 24px', textAlign: 'center' }}>Enter your invitation code to proceed.</p>
@@ -314,6 +311,7 @@ function App() {
           </div>
         )}
 
+        {/* --- BRIEF PAGE --- */}
         {view === 'brief' && selectedRole && (
           <div className="fadein" style={{ padding: '40px 16px' }}>
             <div style={{ maxWidth: 850, margin: '0 auto', background: '#fff', padding: '40px 50px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
@@ -363,9 +361,9 @@ function App() {
           </div>
         )}
 
+        {/* --- CONTRACT PAGE --- */}
         {view === 'contract' && selectedRole && (
           <div className="fadein" style={{ padding: '40px 16px' }}>
-            
             <div className="el printable">
               <div className="eh">
                 <div>
@@ -379,12 +377,6 @@ function App() {
                   </div>
                 </div>
               </div>
-
-              {isSigned && (
-                <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', color: '#1E7B3C', padding: 16, borderRadius: 8, marginBottom: 24, textAlign: 'center', fontWeight: 700, fontSize: 16 }}>
-                  <i className="fas fa-check-circle" style={{ marginRight: 8 }}></i> This document has been digitally executed and is legally binding.
-                </div>
-              )}
 
               <p>
                 This Agreement of Engagement is entered into by StartEasy Zambia (the "Company") and <strong>{form.name.trim() ? form.name.trim() : '[Applicant Full Legal Name]'}</strong> (the "Appointee"). By digitally signing this document, the Appointee formally accepts the appointment, terms, and responsibilities outlined herein.
@@ -429,33 +421,32 @@ function App() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
                 <span>
                   <strong>Full Legal Name:</strong><br/>
-                  {isSigned ? <div className="doc-static">{form.name}</div> : <input className="doc-input-line" placeholder="Enter full legal name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />}
+                  <input className="doc-input-line" placeholder="Enter full legal name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
                 </span>
                 <span>
                   <strong>Email Address:</strong><br/>
-                  {isSigned ? <div className="doc-static">{form.email}</div> : <input className="doc-input-line" type="email" placeholder="Enter email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />}
+                  <input className="doc-input-line" type="email" placeholder="Enter email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
                 </span>
                 <span>
                   <strong>Phone / WhatsApp:</strong><br/>
-                  {isSigned ? <div className="doc-static">{form.phone}</div> : <input className="doc-input-line" placeholder="Enter phone number" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />}
+                  <input className="doc-input-line" placeholder="Enter phone number" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
                 </span>
                 <span>
                   <strong>Current Location (City/Country):</strong><br/>
-                  {isSigned ? <div className="doc-static">{form.location}</div> : <input className="doc-input-line" placeholder="e.g. Lusaka, Zambia" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />}
+                  <input className="doc-input-line" placeholder="e.g. Lusaka, Zambia" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
                 </span>
               </div>
 
               <h4>8. Declaration & Acceptance</h4>
               <div className="highlight-box">
-                <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: isSigned ? 'default' : 'pointer' }}>
-                  <input type="checkbox" checked={agreed} disabled={isSigned} onChange={e => setAgreed(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: '#E8730F', flexShrink: 0 }} />
+                <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: '#E8730F', flexShrink: 0 }} />
                   <span style={{ fontSize: 13.5, lineHeight: 1.6, color: '#0A1F12', fontWeight: 600 }}>
                     I, the undersigned Appointee, hereby declare that I have read, understood, and voluntarily accept the terms, compensation structure, and 90-day priorities outlined in this Agreement of Engagement. I acknowledge that this is an Entrepreneurship/Intrapreneurship opportunity and not a standard employment contract.
                   </span>
                 </label>
               </div>
 
-              {/* PROFESSIONAL SIGNATURE BLOCK */}
               <div className="sign">
                 <div>
                   <div className="sigval" style={{ color: '#1B6CA8' }}>Mwaba Lewis</div>
@@ -473,36 +464,100 @@ function App() {
                 </div>
               </div>
 
-              {error && !isSigned && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{error}</div>}
+              {error && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{error}</div>}
 
-              {/* EXECUTION BUTTONS */}
-              {!isSigned ? (
-                <div className="no-print">
-                  <Btn onClick={signAgreement} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
-                    {busy ? 'Processing Execution...' : 'Execute Agreement'}
+              <div className="no-print">
+                <Btn onClick={signAgreement} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
+                  {busy ? 'Processing...' : 'Execute Agreement & Proceed to HR'}
+                </Btn>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- HR ONBOARDING DASHBOARD --- */}
+        {view === 'onboarding' && (
+          <div className="fadein" style={{ padding: '40px 16px', minHeight: '100vh' }}>
+            <div style={{ maxWidth: 900, margin: '0 auto' }}>
+              
+              {/* Welcome Banner */}
+              <div style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', padding: '40px', borderRadius: 16, textAlign: 'center', marginBottom: 32, color: '#fff', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+                <div style={{ width: 64, height: 64, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 16px' }}>
+                  <i className="fas fa-handshake"></i>
+                </div>
+                <h1 className="serif" style={{ fontSize: 32, margin: '0 0 12px' }}>Welcome to the Team, {form.name.split(' ')[0]}!</h1>
+                <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', maxWidth: 600, margin: '0 auto', lineHeight: 1.6 }}>
+                  Your Agreement of Engagement for the <strong>{selectedRole?.title}</strong> role has been successfully executed. You are now officially part of the StartEasy Zambia founding team.
+                </p>
+              </div>
+
+              {/* Step 1: Finalize HR File */}
+              <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginBottom: 32, boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ background: '#E8730F', color: '#fff', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>1</span>
+                  Finalize Your HR File
+                </h2>
+                <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.7)', marginBottom: 24, lineHeight: 1.6 }}>
+                  Please click the button below to save a PDF copy of your signed agreement, and email it directly to our HR team at <strong>hr@starteasyzambia.com</strong>. This is required to finalize your file.
+                </p>
+                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                  <Btn onClick={handlePrint} size="lg" variant="dark" style={{ flex: 1, minWidth: 200 }}>
+                    <i className="fas fa-print"></i> Print / Save as PDF
                   </Btn>
-                </div>
-              ) : (
-                <div className="no-print" style={{ background: '#F0F9F4', border: '1px solid #C1E6D0', borderRadius: 12, padding: 24, marginTop: 32, textAlign: 'center' }}>
-                  <h3 className="serif" style={{ fontSize: 20, color: '#1E7B3C', margin: '0 0 8px' }}>Agreement Successfully Executed</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 24, lineHeight: 1.6 }}>
-                    Please complete the final step below. You must save a PDF copy of this agreement and email it to our HR team at <strong>hr@starteasyzambia.com</strong>.
-                  </p>
-                  <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <Btn onClick={handlePrint} size="lg" variant="dark" style={{ flex: 1, minWidth: 200 }}>
-                      <i className="fas fa-print"></i> Print / Save as PDF
+                  <a href={hrEmailLink} style={{ textDecoration: 'none', flex: 1, minWidth: 200 }}>
+                    <Btn size="lg" variant="primary" style={{ width: '100%' }}>
+                      <i className="fas fa-envelope"></i> Email Signed Copy to HR
                     </Btn>
-                    <a href={hrEmailLink} style={{ textDecoration: 'none', flex: 1, minWidth: 200 }}>
-                      <Btn size="lg" variant="success" style={{ width: '100%' }}>
-                        <i className="fas fa-envelope"></i> Email Signed Copy to HR
-                      </Btn>
-                    </a>
-                  </div>
-                  <p style={{ fontSize: 12, color: 'rgba(10,31,18,0.5)', marginTop: 16 }}>
-                    <em>Note: The email button will open your default email app. You must attach the PDF you just saved.</em>
-                  </p>
+                  </a>
                 </div>
-              )}
+              </div>
+
+              {/* Step 2: Onboarding Checklist */}
+              <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginBottom: 32, boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ background: '#1E7B3C', color: '#fff', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>2</span>
+                  Onboarding Checklist
+                </h2>
+                <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.7)', marginBottom: 24, lineHeight: 1.6 }}>
+                  Complete these steps to get fully set up in our systems and start collaborating with the team.
+                </p>
+                
+                <div style={{ display: 'grid', gap: 16 }}>
+                  {[
+                    { title: 'Join Team WhatsApp Group', desc: 'For daily quick updates and team banter.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/mock-invite-link' },
+                    { title: 'Access Slack Workspace', desc: 'Our primary tool for project communication.', icon: 'fa-slack', color: '#4A154B', link: 'https://slack.com/mock-invite' },
+                    { title: 'Set Up Notion Account', desc: 'Access the company wiki, SOPs, and project boards.', icon: 'fa-book', color: '#000000', link: 'https://notion.so/mock-invite' },
+                    { title: 'Update Your Profile', desc: 'Add your photo and bio to the internal team directory.', icon: 'fa-user-circle', color: '#E8730F', link: '#' }
+                  ].map((task, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, border: '1px solid #eee', borderRadius: 8, flexWrap: 'wrap', gap: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 8, background: `${task.color}15`, color: task.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                          <i className={`fab ${task.icon}`}></i>
+                        </div>
+                        <div>
+                          <h4 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 4px', color: '#0A1F12' }}>{task.title}</h4>
+                          <p style={{ fontSize: 13, color: 'rgba(10,31,18,0.6)', margin: 0 }}>{task.desc}</p>
+                        </div>
+                      </div>
+                      <a href={task.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                        <Btn size="sm" variant="ghost">Join <i className="fas fa-external-link-alt" style={{ fontSize: 10 }}></i></Btn>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Step 3: Contact HR */}
+              <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', textAlign: 'center' }}>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0A1F12', marginBottom: 8 }}>Need assistance?</h2>
+                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', marginBottom: 20 }}>The HR Team is here to help you settle in.</p>
+                <a href="mailto:hr@starteasyzambia.com" style={{ textDecoration: 'none' }}>
+                  <Btn size="md" variant="success" style={{ padding: '12px 32px' }}>
+                    <i className="fas fa-envelope"></i> Contact HR Team
+                  </Btn>
+                </a>
+              </div>
+
             </div>
           </div>
         )}
