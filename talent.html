@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StartEasy Zambia | Secure Team Portal</title>
+<title>StartEasy Zambia | Founding Team Portal</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -38,6 +38,16 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 .el .ft{margin-top:36px;padding-top:16px;border-top:2px solid #0A1F12;font-size:11px;color:#666;line-height:1.6}
 .doc-input-line { border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size:14px; color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none; width: 100%; margin-top: 4px; padding: 8px; transition: all 0.2s;}
 .doc-input-line:focus { background: #fff; border-bottom: 2px solid var(--orange); }
+.doc-static { border-bottom: 1px solid #ddd; padding: 8px 4px; font-size: 14px; font-weight: 600; color: #333; }
+
+/* PRINT STYLES */
+@media print {
+  body * { visibility: hidden; }
+  .printable, .printable * { visibility: visible; }
+  .printable { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; box-shadow: none; border: none; }
+  .no-print { display: none !important; }
+}
+
 @media (max-width: 600px) { .el { padding: 24px 20px; } .el .sign { grid-template-columns: 1fr; gap: 24px; } .el .eh { flex-direction: column; gap: 12px; } .el .eh .dt, .el .eh .mt { text-align: left; } }
 </style>
 </head>
@@ -54,11 +64,8 @@ const ROLES = {
   cdmo: { 
     id: 'cdmo', 
     title: 'Chief Digital & Marketing Officer', 
-    
     summary: 'You are the chief architect of our public image and customer acquisition. Your job is to ensure that every Zambian entrepreneur, diaspora investor, and local SME knows who we are, trusts us, and signs up on our platform. You will own the entire digital funnel, from the first ad they see to the moment they create an account.',
-    
-    reporting: 'You will report directly to the Founder and Chief Executive Officer. You will work closely with the Growth Associate who will execute your outreach plans.',
-    
+    reporting: 'You will report directly to the Founder and Chief Executive Officer.',
     responsibilities: [
       "**Platform Management:** You will oversee the design, copy, and user experience of the StartEasy Zambia website. You must ensure it looks premium, loads quickly, and makes it easy for people to buy our services.",
       "**Advertising Execution:** You will create, manage, and optimize paid ad campaigns on Meta (Facebook/Instagram) and LinkedIn. You will be given a budget and must ensure we get a high return on investment.",
@@ -66,21 +73,16 @@ const ROLES = {
       "**Lead Generation Strategy:** You will design the lead magnets (e.g., free compliance checklists, downloadable guides) that encourage people to give us their email addresses.",
       "**Analytics & Reporting:** You will use Google Analytics and platform insights to track how many people visit our site, where they drop off, and how many actually pay us. You will report these numbers to the CEO every Friday."
     ],
-    
     month1: 'You will conduct a full audit of our current website and marketing materials. You will create our Core Brand Guidelines (colors, fonts, tone of voice). You will map out our three primary customer profiles and write a 30-page Go-To-Market strategy document detailing exactly how we will reach them.',
     month2: 'You will execute a complete overhaul of the website copy. You will set up our LinkedIn company page and publish 3 high-value posts per week. You will create the digital assets for our next major service launch. You will set up our Google Analytics and Meta Pixel tracking.',
     month3: 'You will launch our first major paid advertising campaigns. You will run A/B tests on different ad creatives. You will analyze the Customer Acquisition Cost (CAC) and adjust the campaigns to ensure we are not spending more to get a customer than they are paying us.',
-    
     compensation: [
       "**Fixed Retainer:** You will receive a guaranteed monthly payment of $1,000 USD (or the agreed ZMW equivalent) to cover your core 15 hours per week.",
       "**Equity Stake:** You will be granted a 2.5% ownership stake in StartEasy Zambia. This stake will be subject to a 2-year vesting schedule. You will earn 1/24th of this stake for every full month you work with us.",
       "**Performance Bonus:** If we hit our monthly revenue target of $10,000 USD, you will receive an additional $500 bonus for that month. If we hit $25,000 USD, you will receive a $1,500 bonus."
     ],
-    
     resources: 'You will have a monthly budget of $500 for essential tools like Canva Pro, LinkedIn Sales Navigator, and ad credits. You will have direct access to the CEO for approvals and strategy. You will have our Growth Associate to help execute your campaigns.',
-    
     environment: 'You can work from anywhere in the world. You are not required to relocate. We only ask that you attend one 30-minute video call with the CEO every Monday at 10:00 AM Central Africa Time (CAT).',
-    
     terms: [
       "**Confidentiality:** You must not share our marketing strategies, financial data, or client lists with anyone outside the company.",
       "**Intellectual Property:** Any logos, website copy, or ad creatives you create for StartEasy Zambia belong entirely to the company, even if you leave.",
@@ -90,33 +92,25 @@ const ROLES = {
   director_finance: { 
     id: 'director_finance', 
     title: 'Director of Finance & Administration', 
-    
     summary: 'You are the legal and financial guardian of StartEasy Zambia. Your job is to keep us out of trouble with the government, ensure our taxes are paid perfectly, keep track of every cent we spend, and build the operational systems that allow us to scale from 10 clients to 10,000 clients without breaking.',
-    
     reporting: 'You will report directly to the Founder and Chief Executive Officer.',
-    
     responsibilities: [
-      "**Government Compliance:** You will manage all interactions with PACRA (Patents and Companies Registration Agency) and ZRA (Zambia Revenue Authority). You will ensure our annual returns and tax filings are submitted accurately and on time.",
+      "**Government Compliance:** You will manage all interactions with PACRA and ZRA. You will ensure our annual returns and tax filings are submitted accurately and on time.",
       "**Bookkeeping & Accounting:** You will manage our financial software (e.g., QuickBooks or Xero). You will record all incoming client payments and all outgoing business expenses.",
       "**Payroll Management:** You will calculate and process the monthly payments for all staff and contractors, ensuring the correct taxes are deducted.",
       "**Client Contract Management:** You will review all client service agreements before they are signed to ensure they protect the company legally.",
       "**Financial Reporting:** You will prepare a monthly financial report showing our Profit & Loss, Cash Flow, and Balance Sheet. You will present this to the CEO on the first Tuesday of every month."
     ],
-    
-    month1: 'You will conduct a full audit of our current PACRA and ZRA status to ensure there are no outstanding penalties. You will establish a strict internal financial control policy (who can approve spending, how receipts are stored). You will set up our official payroll system.',
+    month1: 'You will conduct a full audit of our current PACRA and ZRA status to ensure there are no outstanding penalties. You will establish a strict internal financial control policy. You will set up our official payroll system.',
     month2: 'You will implement a cloud-based bookkeeping system. You will digitize all past receipts and invoices. You will create a simple dashboard that shows the CEO exactly how much cash we have in the bank at any given time.',
     month3: 'You will map out the entire client onboarding journey from a financial perspective. You will ensure that when a client pays, the money is tracked, the service is delivered, and the revenue is recorded in the CRM without any manual errors.',
-    
     compensation: [
       "**Base Salary:** You will receive a guaranteed monthly salary of K15,000 ZMW (or the agreed equivalent).",
-      "**Equity Stake:** You will be granted a 4% ownership stake in StartEasy Zambia. This stake will be subject to a 4-year vesting schedule with a 1-year cliff. You will earn 1/48th of this stake for every full month you work. After your 12th month, you will officially own 1% of the company outright.",
+      "**Equity Stake:** You will be granted a 4% ownership stake in StartEasy Zambia. This stake will be subject to a 4-year vesting schedule with a 1-year cliff.",
       "**Annual Bonus:** You will be eligible for an annual performance bonus based on the company's overall profitability and your zero-penalty compliance record."
     ],
-    
-    resources: 'You will have full access to the company bank accounts and our external legal counsel. You will be provided with any accounting software you require. You will have an administrative assistant to help you organize physical paperwork.',
-    
+    resources: 'You will have full access to the company bank accounts and our external legal counsel. You will be provided with any accounting software you require.',
     environment: 'You must be based in Lusaka, Zambia. You will work from our office or remotely, but you must be physically available to go to PACRA or ZRA offices to resolve issues or submit documents in person when required.',
-    
     terms: [
       "**Fiduciary Duty:** You have a legal obligation to act in the best financial interest of StartEasy Zambia at all times.",
       "**Confidentiality:** You will have access to sensitive financial data and salaries. You must never disclose this information.",
@@ -126,43 +120,34 @@ const ROLES = {
   growth_associate: { 
     id: 'growth_associate', 
     title: 'Growth & Client Associate', 
-    
     summary: 'You are the engine of our revenue. Your job is to speak to as many business owners as possible, explain how StartEasy Zambia can save them time and money, and convince them to pay for our services. You are not just answering emails; you are actively hunting for new clients every single day.',
-    
     reporting: 'You will report directly to the Founder and Chief Executive Officer.',
-    
     responsibilities: [
       "**Outbound Prospecting:** You will use LinkedIn, Facebook Groups, and local business directories to find the contact details of at least 50 new businesses every single day.",
       "**Cold Calling & Emailing:** You will call or email these businesses using the scripts provided to you. You must make at least 40 dials or send 50 personalized emails per day.",
-      "**CRM Management:** You will use our CRM software (e.g., HubSpot) to track every single conversation. You must log the outcome of every call (e.g., 'No answer', 'Not interested', 'Meeting booked').",
+      "**CRM Management:** You will use our CRM software (e.g., HubSpot) to track every single conversation. You must log the outcome of every call.",
       "**Client Onboarding:** When a client pays, you will be their first point of contact. You will send them the welcome email, collect their required documents, and hand them over to the operations team.",
-      "**Upselling:** You will call existing clients every 30 days to ensure they are happy and to sell them additional services (e.g., upgrading their supplier listing to Premium)."
+      "**Upselling:** You will call existing clients every 30 days to ensure they are happy and to sell them additional services."
     ],
-    
     month1: 'You will memorize our pricing and service offerings perfectly. You will build a database of 1,000 potential business leads in Zambia. You will practice your phone scripts with the CEO until you are confident.',
     month2: 'You will hit your daily outreach targets (40 calls/50 emails per day). You will book at least 20 discovery meetings for the CEO and Director of Finance. You will begin closing your first small deals.',
     month3: 'You will be fully responsible for your own pipeline. You will close at least 5 deals per week. You will implement a system to follow up with cold leads every two weeks.',
-    
     compensation: [
       "**Fixed Stipend:** You will receive a small monthly stipend of K3,000 ZMW to cover your internet and phone data costs.",
-      "**Commission (Sales):** You will earn a 15% commission on the total value of any service package you sell. For example, if you sell a K1,000 registration package, you earn K150. If you sell a K10,000 procurement package, you earn K1,500.",
-      "**Commission (Recurring):** You will earn a 10% recurring commission on all monthly subscriptions (like Premium Listings) you sell, for as long as that client continues to pay.",
-      "**Bonuses:** If you close 10 deals in a single month, you receive an extra K1,000 bonus. If you close 20 deals, you receive an extra K3,000 bonus. There is no limit to your earnings."
+      "**Commission (Sales):** You will earn a 15% commission on the total value of any service package you sell.",
+      "**Commission (Recurring):** You will earn a 10% recurring commission on all monthly subscriptions you sell, for as long as that client continues to pay.",
+      "**Bonuses:** If you close 10 deals in a single month, you receive an extra K1,000 bonus. There is no limit to your earnings."
     ],
-    
     resources: 'You will be provided with a company laptop, a dedicated phone line, and access to our CRM. You will receive weekly training from the CEO on sales tactics.',
-    
     environment: 'You can work remotely, but you must be based in Zambia so you can make calls during standard business hours (08:00 to 17:00 CAT). You may be required to attend occasional in-person networking events in Lusaka.',
-    
     terms: [
-      "**Clawback Policy:** Commission is only paid out after the client has paid us and the 7-day refund window has passed. If a client cancels and requests a refund, the commission will be deducted from your next payout.",
+      "**Clawback Policy:** Commission is only paid out after the client has paid us and the 7-day refund window has passed.",
       "**Non-Solicitation:** You cannot attempt to steal StartEasy clients for another competing business while working here or for 1 year after you leave.",
       "**Termination:** This is a performance-based role. If you fail to meet your daily outreach targets for 3 consecutive weeks, the company reserves the right to terminate this agreement immediately."
     ]
   }
 };
 
-// SECURE INVITATION CODES
 const LIVE_CODES = {
   'INV-CDM-7B3N': 'cdmo',
   'INV-DIR-2P8Q': 'director_finance',
@@ -172,7 +157,7 @@ const LIVE_CODES = {
 const Btn = ({ children, onClick, variant = 'primary', size = 'md', disabled, style }) => {
   const base = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontWeight: 700, transition: 'all .2s', opacity: disabled ? 0.55 : 1, whiteSpace: 'nowrap' };
   const sizes = { sm: { padding: '8px 14px', fontSize: 12 }, md: { padding: '11px 20px', fontSize: 13.5 }, lg: { padding: '14px 24px', fontSize: 14.5 } };
-  const variants = { primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' }, dark: { background: '#0A1F12', color: '#fff' }, ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' } };
+  const variants = { primary: { background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff' }, dark: { background: '#0A1F12', color: '#fff' }, ghost: { background: '#fff', color: '#0A1F12', border: '1px solid rgba(10,31,18,.15)' }, success: { background: '#1E7B3C', color: '#fff' } };
   return <button onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>{children}</button>;
 };
 
@@ -184,16 +169,15 @@ function App() {
   
   const [form, setForm] = useState({ name: '', email: '', phone: '', location: '' });
   const [agreed, setAgreed] = useState(false);
+  const [isSigned, setIsSigned] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   const validateCode = () => {
     setCodeError('');
     const codeUpper = inviteCode.trim().toUpperCase();
-    
     if (LIVE_CODES[codeUpper]) {
-      const roleFromCode = ROLES[LIVE_CODES[codeUpper]];
-      setSelectedRole(roleFromCode);
+      setSelectedRole(ROLES[LIVE_CODES[codeUpper]]);
       setView('brief');
       window.scrollTo(0, 0);
     } else {
@@ -228,7 +212,7 @@ function App() {
 
     setTimeout(() => {
       setBusy(false);
-      setView('success');
+      setIsSigned(true); // Keeps them on the page but locks the contract
       window.scrollTo(0, 0);
     }, 1000);
   };
@@ -239,15 +223,22 @@ function App() {
     setSelectedRole(null);
     setForm({name:'', email:'', phone:'', location:''});
     setAgreed(false);
+    setIsSigned(false);
     setError('');
     setCodeError('');
     window.scrollTo(0, 0);
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const hrEmailLink = `mailto:hr@starteasyzambia.com?subject=Signed Agreement - ${form.name} (${selectedRole?.title})&body=Dear StartEasy Zambia HR Team,%0D%0A%0D%0APlease find attached my signed Agreement of Engagement for the ${selectedRole?.title} role.%0D%0A%0D%0AName: ${form.name}%0D%0AEmail: ${form.email}%0D%0APhone: ${form.phone}%0D%0ALocation: ${form.location}%0D%0A%0D%0AI have printed/saved a PDF copy of this agreement and attached it to this email as requested.%0D%0A%0D%0ABest regards,%0D%0A${form.name}`;
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      <header style={{ background: '#0A1F12', padding: '16px 24px', borderBottom: '1px solid rgba(245,166,35,.1)', position: 'sticky', top: 0, zIndex: 100 }}>
+      <header className="no-print" style={{ background: '#0A1F12', padding: '16px 24px', borderBottom: '1px solid rgba(245,166,35,.1)', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={resetPortal}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#E8730F,#F5A623)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, fontFamily: 'Playfair Display' }}>S</div>
@@ -256,7 +247,7 @@ function App() {
               <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>StartEasy Zambia</div>
             </div>
           </div>
-          {view !== 'gateway' && view !== 'success' && (
+          {view !== 'gateway' && !isSigned && (
             <button onClick={resetPortal} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}><i className="fas fa-sign-out-alt" style={{marginRight: 6}}></i> Exit Portal</button>
           )}
         </div>
@@ -264,32 +255,62 @@ function App() {
 
       <main style={{ flex: 1, background: '#F5FAF6' }}>
         
+        {/* --- NEW PROFESSIONAL LANDING PAGE --- */}
         {view === 'gateway' && (
-          <div className="fadein" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <div style={{ maxWidth: 450, width: '100%', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
-              <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                <i className="fas fa-shield-alt" style={{ fontSize: 36, color: '#E8730F', marginBottom: 16 }}></i>
-                <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: '0 0 8px' }}>Secure Portal Access</h1>
-                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: 0, lineHeight: 1.5 }}>
-                  Enter the specific invitation code provided to you by the StartEasy Zambia Admin to review your role brief and formal engagement agreement.
+          <div className="fadein">
+            <section style={{ background: 'linear-gradient(135deg,#0A1F12 0%,#123A1F 100%)', color: '#fff', padding: '80px 24px', textAlign: 'center' }}>
+              <div style={{ maxWidth: 800, margin: '0 auto' }}>
+                <span style={{ display: 'inline-block', background: 'rgba(232,115,15,0.2)', color: '#F5A623', padding: '6px 16px', borderRadius: 99, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>Official Partner Portal</span>
+                <h1 className="serif" style={{ fontSize: 'clamp(2.5rem,6vw,4rem)', lineHeight: 1.1, marginBottom: 24 }}>
+                  Welcome to the <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Founding Team.</em>
+                </h1>
+                <p style={{ fontSize: 18, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', marginBottom: 40, maxWidth: 650, margin: '0 auto 40px' }}>
+                  This is a secure portal for shortlisted candidates. If you have received an invitation code, enter it below to review your role brief and execute your formal engagement agreement.
                 </p>
               </div>
+            </section>
 
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Invitation Code</label>
-              <input 
-                type="text" 
-                value={inviteCode} 
-                onChange={e => setInviteCode(e.target.value.toUpperCase())} 
-                placeholder="e.g. INV-CDM-XXXX"
-                style={{ width: '100%', padding: 16, border: '2px solid #E8730F', borderRadius: 8, fontSize: 18, textAlign: 'center', letterSpacing: 2, fontWeight: 700, marginBottom: 16, background: '#FFF9E6' }} 
-              />
+            <section style={{ padding: '60px 24px', maxWidth: 1000, margin: '0 auto' }}>
               
-              {codeError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{codeError}</div>}
-              
-              <Btn onClick={validateCode} size="lg" variant="dark" style={{ width: '100%' }}>
-                Access Role Brief & Agreement
-              </Btn>
-            </div>
+              {/* 3 Step Process */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 24, marginBottom: 60 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>1</div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Verify Code</h3>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Enter the unique invitation code sent to your email by the StartEasy Admin team.</p>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>2</div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Review Brief</h3>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Read the detailed role description, expectations, and exact compensation structure.</p>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#fff', border: '2px solid #E8730F', color: '#E8730F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 16px', fontWeight: 800 }}>3</div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Sign & Send</h3>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', lineHeight: 1.6 }}>Digitally execute the agreement, print a PDF copy, and email it to the HR team.</p>
+                </div>
+              </div>
+
+              {/* Login Box */}
+              <div style={{ maxWidth: 450, margin: '0 auto', background: '#fff', padding: 40, borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', border: '1px solid rgba(10,31,18,.08)' }}>
+                <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', margin: '0 0 8px', textAlign: 'center' }}>Secure Login</h2>
+                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', margin: '0 0 24px', textAlign: 'center' }}>Enter your invitation code to proceed.</p>
+
+                <input 
+                  type="text" 
+                  value={inviteCode} 
+                  onChange={e => setInviteCode(e.target.value.toUpperCase())} 
+                  placeholder="e.g. INV-CDM-XXXX"
+                  style={{ width: '100%', padding: 16, border: '2px solid #E8730F', borderRadius: 8, fontSize: 18, textAlign: 'center', letterSpacing: 2, fontWeight: 700, marginBottom: 16, background: '#FFF9E6' }} 
+                />
+                
+                {codeError && <div style={{ color: '#B8564F', fontSize: 13, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{codeError}</div>}
+                
+                <Btn onClick={validateCode} size="lg" variant="dark" style={{ width: '100%' }}>
+                  Unlock Your Role Brief
+                </Btn>
+              </div>
+            </section>
           </div>
         )}
 
@@ -359,7 +380,12 @@ function App() {
                 </div>
               </div>
 
-              {/* DYNAMIC PREAMBLE */}
+              {isSigned && (
+                <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C', color: '#1E7B3C', padding: 16, borderRadius: 8, marginBottom: 24, textAlign: 'center', fontWeight: 700, fontSize: 16 }}>
+                  <i className="fas fa-check-circle" style={{ marginRight: 8 }}></i> This document has been digitally executed and is legally binding.
+                </div>
+              )}
+
               <p>
                 This Agreement of Engagement is entered into by StartEasy Zambia (the "Company") and <strong>{form.name.trim() ? form.name.trim() : '[Applicant Full Legal Name]'}</strong> (the "Appointee"). By digitally signing this document, the Appointee formally accepts the appointment, terms, and responsibilities outlined herein.
               </p>
@@ -400,29 +426,29 @@ function App() {
               </ul>
 
               <h4>7. Appointee Details (For Execution)</h4>
-              <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
                 <span>
                   <strong>Full Legal Name:</strong><br/>
-                  <input className="doc-input-line" placeholder="Enter full legal name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+                  {isSigned ? <div className="doc-static">{form.name}</div> : <input className="doc-input-line" placeholder="Enter full legal name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />}
                 </span>
                 <span>
                   <strong>Email Address:</strong><br/>
-                  <input className="doc-input-line" type="email" placeholder="Enter email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+                  {isSigned ? <div className="doc-static">{form.email}</div> : <input className="doc-input-line" type="email" placeholder="Enter email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />}
                 </span>
                 <span>
                   <strong>Phone / WhatsApp:</strong><br/>
-                  <input className="doc-input-line" placeholder="Enter phone number" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+                  {isSigned ? <div className="doc-static">{form.phone}</div> : <input className="doc-input-line" placeholder="Enter phone number" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />}
                 </span>
                 <span>
                   <strong>Current Location (City/Country):</strong><br/>
-                  <input className="doc-input-line" placeholder="e.g. Lusaka, Zambia" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />
+                  {isSigned ? <div className="doc-static">{form.location}</div> : <input className="doc-input-line" placeholder="e.g. Lusaka, Zambia" value={form.location} onChange={e => setForm({...form, location: e.target.value})} />}
                 </span>
-              </p>
+              </div>
 
               <h4>8. Declaration & Acceptance</h4>
               <div className="highlight-box">
-                <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: '#E8730F', flexShrink: 0 }} />
+                <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: isSigned ? 'default' : 'pointer' }}>
+                  <input type="checkbox" checked={agreed} disabled={isSigned} onChange={e => setAgreed(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: '#E8730F', flexShrink: 0 }} />
                   <span style={{ fontSize: 13.5, lineHeight: 1.6, color: '#0A1F12', fontWeight: 600 }}>
                     I, the undersigned Appointee, hereby declare that I have read, understood, and voluntarily accept the terms, compensation structure, and 90-day priorities outlined in this Agreement of Engagement. I acknowledge that this is an Entrepreneurship/Intrapreneurship opportunity and not a standard employment contract.
                   </span>
@@ -447,35 +473,43 @@ function App() {
                 </div>
               </div>
 
-              {error && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{error}</div>}
+              {error && !isSigned && <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 6, marginTop: 20, fontSize: 13, fontWeight: 600 }}>{error}</div>}
 
-              <Btn onClick={signAgreement} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
-                {busy ? 'Processing Execution...' : 'Execute Agreement'}
-              </Btn>
-            </div>
-          </div>
-        )}
-
-        {view === 'success' && (
-          <div className="fadein" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <div style={{ maxWidth: 500, background: '#fff', padding: 48, borderRadius: 16, textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid rgba(10,31,18,0.08)' }}>
-              <div style={{ width: 72, height: 72, background: '#EAF7EE', color: '#1E7B3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, margin: '0 auto 24px' }}>
-                <i className="fas fa-file-signature"></i>
-              </div>
-              <h2 className="serif" style={{ fontSize: 28, color: '#0A1F12', marginBottom: 12 }}>Agreement Executed</h2>
-              <p style={{ fontSize: 15, color: 'rgba(10,31,18,0.7)', lineHeight: 1.6, marginBottom: 32 }}>
-                Thank you, <strong>{form.name}</strong>. Your formal Agreement of Engagement for the <strong>{selectedRole?.title}</strong> role has been successfully signed and recorded. 
-                <br/><br/>
-                You are now officially onboarded to the founding team. A copy of this signed agreement has been sent to your email at <strong>{form.email}</strong> for your records.
-              </p>
-              <Btn onClick={resetPortal} size="lg" variant="dark" style={{ width: '100%' }}>Return to Portal Home</Btn>
+              {/* EXECUTION BUTTONS */}
+              {!isSigned ? (
+                <div className="no-print">
+                  <Btn onClick={signAgreement} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginTop: 24 }}>
+                    {busy ? 'Processing Execution...' : 'Execute Agreement'}
+                  </Btn>
+                </div>
+              ) : (
+                <div className="no-print" style={{ background: '#F0F9F4', border: '1px solid #C1E6D0', borderRadius: 12, padding: 24, marginTop: 32, textAlign: 'center' }}>
+                  <h3 className="serif" style={{ fontSize: 20, color: '#1E7B3C', margin: '0 0 8px' }}>Agreement Successfully Executed</h3>
+                  <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.7)', marginBottom: 24, lineHeight: 1.6 }}>
+                    Please complete the final step below. You must save a PDF copy of this agreement and email it to our HR team at <strong>hr@starteasyzambia.com</strong>.
+                  </p>
+                  <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <Btn onClick={handlePrint} size="lg" variant="dark" style={{ flex: 1, minWidth: 200 }}>
+                      <i className="fas fa-print"></i> Print / Save as PDF
+                    </Btn>
+                    <a href={hrEmailLink} style={{ textDecoration: 'none', flex: 1, minWidth: 200 }}>
+                      <Btn size="lg" variant="success" style={{ width: '100%' }}>
+                        <i className="fas fa-envelope"></i> Email Signed Copy to HR
+                      </Btn>
+                    </a>
+                  </div>
+                  <p style={{ fontSize: 12, color: 'rgba(10,31,18,0.5)', marginTop: 16 }}>
+                    <em>Note: The email button will open your default email app. You must attach the PDF you just saved.</em>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
       </main>
 
-      <footer style={{ background: '#0A1F12', padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+      <footer className="no-print" style={{ background: '#0A1F12', padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0 }}>© {new Date().getFullYear()} StartEasy Zambia. All rights reserved.</p>
       </footer>
 
