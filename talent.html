@@ -19,24 +19,24 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 @keyframes fi { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* FORMAL AGREEMENT STYLES */
-.el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:40px 50px; font-size:13.5px; line-height:1.7; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 850px; margin: 0 auto; }
+.el { background:#fff; border:1px solid #D0D0D0; border-radius:8px; padding:40px 50px; font-size:13.5px; line-height:1.8; color:#222; box-shadow: 0 10px 30px rgba(0,0,0,.05); max-width: 850px; margin: 0 auto; }
 .el .eh{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:3px solid #0A1F12;margin-bottom:24px;flex-wrap:wrap}
 .el .eh .brand{font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:800;color:#0A1F12;letter-spacing:1px}
 .el .eh .brand em{font-style:normal;color:#E8730F}
 .el .eh .sub{font-size:10.5px;color:#8A6828;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
 .el .eh .dt{font-family:'Playfair Display',Georgia,serif;font-size:15px;font-weight:800;color:#E8730F;letter-spacing:1.2px;text-align:right}
 .el .eh .mt{font-size:11.5px;color:#666;text-align:right;margin-top:6px}
-.el h4{font-family:'Playfair Display',Georgia,serif;font-size:16px;color:#0A1F12;font-weight:700;margin:24px 0 10px; border-bottom: 1px solid #eee; padding-bottom: 6px;}
+.el h4{font-family:'Playfair Display',Georgia,serif;font-size:16.5px;color:#0A1F12;font-weight:700;margin:28px 0 12px; border-bottom: 1px solid #eee; padding-bottom: 6px;}
 .el h4:first-of-type{margin-top:0}
-.el p{margin:0 0 14px; text-align: justify;}
-.el ul{margin:0 0 16px;padding-left:24px}
-.el li{margin-bottom:8px;font-size:13px; text-align: justify;}
-.el .highlight-box{background:#F9FBFA; border-left:4px solid #E8730F; padding:16px; margin-bottom:20px; font-size:13px; font-weight:500;}
-.el .sign{margin-top:30px;padding-top:24px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.el p{margin:0 0 16px; text-align: justify;}
+.el ul{margin:0 0 18px;padding-left:24px}
+.el li{margin-bottom:12px;font-size:13.5px; text-align: justify;}
+.el .highlight-box{background:#F9FBFA; border-left:4px solid #E8730F; padding:18px; margin-bottom:24px; font-size:13.5px; font-weight:500;}
+.el .sign{margin-top:36px;padding-top:24px;border-top:1px solid #E0E0E0;display:grid;grid-template-columns:1fr 1fr;gap:40px}
 .el .sign .sigval{font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:700;color:#0A1F12;letter-spacing:.04em;font-style:italic;padding-bottom:8px;border-bottom:1px solid #333;margin-bottom:10px;min-height:40px}
 .el .sign .lbl{font-size:11px;color:#666;font-weight:600; text-transform:uppercase; letter-spacing:0.05em;}
-.el .ft{margin-top:30px;padding-top:16px;border-top:2px solid #0A1F12;font-size:11px;color:#666;line-height:1.6}
-.doc-input-line { border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size: 14px; color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none; width: 100%; margin-top: 4px; padding: 8px; transition: all 0.2s;}
+.el .ft{margin-top:36px;padding-top:16px;border-top:2px solid #0A1F12;font-size:11px;color:#666;line-height:1.6}
+.doc-input-line { border-bottom: 1px dashed #999; padding: 0 4px; font-family: inherit; font-size:14px; color: var(--forest); background: #F9FBFA; border-top: none; border-left: none; border-right: none; width: 100%; margin-top: 4px; padding: 8px; transition: all 0.2s;}
 .doc-input-line:focus { background: #fff; border-bottom: 2px solid var(--orange); }
 @media (max-width: 600px) { .el { padding: 24px 20px; } .el .sign { grid-template-columns: 1fr; gap: 24px; } .el .eh { flex-direction: column; gap: 12px; } .el .eh .dt, .el .eh .mt { text-align: left; } }
 </style>
@@ -49,75 +49,115 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 <script type="text/babel" data-presets="react">
 const { useState } = React;
 
-// DETAILED LEGAL TERMS FOR THE CONTRACT
+// EXHAUSTIVELY DETAILED, PLAIN ENGLISH JOB DESCRIPTIONS & LEGAL TERMS
 const ROLES = {
   cdmo: { 
     id: 'cdmo', 
     title: 'Chief Digital & Marketing Officer', 
-    pitch: 'The Appointee will serve as the primary architect for the StartEasy brand engine, tasked with defining the digital presence, optimizing acquisition funnels, and positioning the company as the premier business support platform in Zambia.',
-    reportingTo: 'Founder & Chief Executive Officer',
-    day90Plan: [
-      "Month 1 (Foundation): Audit the current platform MVP. Define target personas (Local SMEs, Diaspora, Foreign Investors). Map out the comprehensive Go-To-Market digital strategy.",
-      "Month 2 (Activation): Overhaul the digital presence (website copy, LinkedIn strategy, lead magnets) to ensure the brand looks premium and trustworthy to high-net-worth clients.",
-      "Month 3 (Execution): Launch initial paid acquisition campaigns (Meta, LinkedIn) to drive high-quality leads into the platform. Analyze conversion metrics and adjust the funnel."
+    
+    summary: 'You are the chief architect of our public image and customer acquisition. Your job is to ensure that every Zambian entrepreneur, diaspora investor, and local SME knows who we are, trusts us, and signs up on our platform. You will own the entire digital funnel, from the first ad they see to the moment they create an account.',
+    
+    reporting: 'You will report directly to the Founder and Chief Executive Officer. You will work closely with the Growth Associate who will execute your outreach plans.',
+    
+    responsibilities: [
+      "**Platform Management:** You will oversee the design, copy, and user experience of the StartEasy Zambia website. You must ensure it looks premium, loads quickly, and makes it easy for people to buy our services.",
+      "**Advertising Execution:** You will create, manage, and optimize paid ad campaigns on Meta (Facebook/Instagram) and LinkedIn. You will be given a budget and must ensure we get a high return on investment.",
+      "**Content Creation:** You will write or oversee the creation of all blog posts, social media updates, and email newsletters. You must communicate complex topics (like PACRA compliance) in simple, engaging language.",
+      "**Lead Generation Strategy:** You will design the lead magnets (e.g., free compliance checklists, downloadable guides) that encourage people to give us their email addresses.",
+      "**Analytics & Reporting:** You will use Google Analytics and platform insights to track how many people visit our site, where they drop off, and how many actually pay us. You will report these numbers to the CEO every Friday."
     ],
-    compensationDetails: [
-      "Fixed Retainer: The Appointee shall receive a fixed monthly fractional retainer, the amount of which has been mutually agreed upon prior to execution of this agreement.",
-      "Equity Stake: The Appointee is eligible for a proposed equity stake ranging between 1% and 3% of StartEasy Zambia, subject to a standard 2-year vesting schedule.",
-      "Performance Bonuses: The Appointee will be eligible for performance bonuses tied to specific Monthly Recurring Revenue (MRR) targets, to be reviewed at the end of the first 90-day period."
+    
+    month1: 'You will conduct a full audit of our current website and marketing materials. You will create our Core Brand Guidelines (colors, fonts, tone of voice). You will map out our three primary customer profiles and write a 30-page Go-To-Market strategy document detailing exactly how we will reach them.',
+    month2: 'You will execute a complete overhaul of the website copy. You will set up our LinkedIn company page and publish 3 high-value posts per week. You will create the digital assets for our next major service launch. You will set up our Google Analytics and Meta Pixel tracking.',
+    month3: 'You will launch our first major paid advertising campaigns. You will run A/B tests on different ad creatives. You will analyze the Customer Acquisition Cost (CAC) and adjust the campaigns to ensure we are not spending more to get a customer than they are paying us.',
+    
+    compensation: [
+      "**Fixed Retainer:** You will receive a guaranteed monthly payment of $1,000 USD (or the agreed ZMW equivalent) to cover your core 15 hours per week.",
+      "**Equity Stake:** You will be granted a 2.5% ownership stake in StartEasy Zambia. This stake will be subject to a 2-year vesting schedule. You will earn 1/24th of this stake for every full month you work with us.",
+      "**Performance Bonus:** If we hit our monthly revenue target of $10,000 USD, you will receive an additional $500 bonus for that month. If we hit $25,000 USD, you will receive a $1,500 bonus."
     ],
-    resources: "The Appointee will report directly to the CEO, will be allocated a lean budget for essential digital tools (e.g., Meta Ads, LinkedIn Sales Navigator), and will receive execution support from the Growth & Client Associate.",
-    environment: "The Appointee will operate on a fully remote basis and may work from any global location. Occasional travel to Zambia for major strategic milestones is welcomed but not mandatory.",
-    clauses: [
-      "This is an Intrapreneurship engagement. The Appointee acknowledges that this is not a standard employment contract and there is no guaranteed salaried structure beyond the agreed fractional retainer.",
-      "The Appointee agrees to maintain strict confidentiality regarding all StartEasy Zambia business strategies, client data, and proprietary information.",
-      "The Appointee retains full authority over the digital marketing budget and agency partnerships, subject to alignment with the CEO."
+    
+    resources: 'You will have a monthly budget of $500 for essential tools like Canva Pro, LinkedIn Sales Navigator, and ad credits. You will have direct access to the CEO for approvals and strategy. You will have our Growth Associate to help execute your campaigns.',
+    
+    environment: 'You can work from anywhere in the world. You are not required to relocate. We only ask that you attend one 30-minute video call with the CEO every Monday at 10:00 AM Central Africa Time (CAT).',
+    
+    terms: [
+      "**Confidentiality:** You must not share our marketing strategies, financial data, or client lists with anyone outside the company.",
+      "**Intellectual Property:** Any logos, website copy, or ad creatives you create for StartEasy Zambia belong entirely to the company, even if you leave.",
+      "**Termination:** Either party can end this agreement with 30 days written notice. If you leave before your 2-year vesting is complete, you will only keep the equity you have already vested."
     ]
   },
   director_finance: { 
     id: 'director_finance', 
     title: 'Director of Finance & Administration', 
-    pitch: 'The Appointee will serve as the operational backbone of StartEasy Zambia, tasked with ensuring strict regulatory compliance, overseeing financial reporting, and building the administrative infrastructure required for scalable growth.',
-    reportingTo: 'Founder & Chief Executive Officer',
-    day90Plan: [
-      "Month 1 (Compliance Setup): Audit all current PACRA/ZRA filings. Establish robust internal financial controls. Set up the company payroll and invoicing structure.",
-      "Month 2 (Systems): Implement bookkeeping software. Establish monthly financial reporting dashboards for the CEO and Board.",
-      "Month 3 (Optimization): Streamline client onboarding workflows to ensure seamless handoffs between Sales and Operations. Ensure all contracts are legally sound."
+    
+    summary: 'You are the legal and financial guardian of StartEasy Zambia. Your job is to keep us out of trouble with the government, ensure our taxes are paid perfectly, keep track of every cent we spend, and build the operational systems that allow us to scale from 10 clients to 10,000 clients without breaking.',
+    
+    reporting: 'You will report directly to the Founder and Chief Executive Officer.',
+    
+    responsibilities: [
+      "**Government Compliance:** You will manage all interactions with PACRA (Patents and Companies Registration Agency) and ZRA (Zambia Revenue Authority). You will ensure our annual returns and tax filings are submitted accurately and on time.",
+      "**Bookkeeping & Accounting:** You will manage our financial software (e.g., QuickBooks or Xero). You will record all incoming client payments and all outgoing business expenses.",
+      "**Payroll Management:** You will calculate and process the monthly payments for all staff and contractors, ensuring the correct taxes are deducted.",
+      "**Client Contract Management:** You will review all client service agreements before they are signed to ensure they protect the company legally.",
+      "**Financial Reporting:** You will prepare a monthly financial report showing our Profit & Loss, Cash Flow, and Balance Sheet. You will present this to the CEO on the first Tuesday of every month."
     ],
-    compensationDetails: [
-      "Base Salary: The Appointee shall receive a base monthly salary, the amount of which has been mutually agreed upon prior to execution of this agreement.",
-      "Equity Stake: The Appointee is eligible for a significant equity stake in StartEasy Zambia, subject to a standard 4-year vesting schedule with a 1-year cliff.",
-      "Benefits: Any statutory benefits or allowances will be detailed in an accompanying schedule."
+    
+    month1: 'You will conduct a full audit of our current PACRA and ZRA status to ensure there are no outstanding penalties. You will establish a strict internal financial control policy (who can approve spending, how receipts are stored). You will set up our official payroll system.',
+    month2: 'You will implement a cloud-based bookkeeping system. You will digitize all past receipts and invoices. You will create a simple dashboard that shows the CEO exactly how much cash we have in the bank at any given time.',
+    month3: 'You will map out the entire client onboarding journey from a financial perspective. You will ensure that when a client pays, the money is tracked, the service is delivered, and the revenue is recorded in the CRM without any manual errors.',
+    
+    compensation: [
+      "**Base Salary:** You will receive a guaranteed monthly salary of K15,000 ZMW (or the agreed equivalent).",
+      "**Equity Stake:** You will be granted a 4% ownership stake in StartEasy Zambia. This stake will be subject to a 4-year vesting schedule with a 1-year cliff. You will earn 1/48th of this stake for every full month you work. After your 12th month, you will officially own 1% of the company outright.",
+      "**Annual Bonus:** You will be eligible for an annual performance bonus based on the company's overall profitability and your zero-penalty compliance record."
     ],
-    resources: "The Appointee will have full access to company bank accounts, external legal counsel, and administrative tools. They will work closely with external accounting partners.",
-    environment: "The Appointee will operate on a hybrid basis, primarily based in Lusaka, Zambia, and will be required to be physically present for PACRA/ZRA submissions when necessary.",
-    clauses: [
-      "This engagement is subject to a successful background check and verification of professional credentials.",
-      "The Appointee is legally responsible for the financial integrity, accurate record-keeping, and regulatory compliance of StartEasy Zambia.",
-      "The Appointee agrees to maintain strict confidentiality regarding all financial records and client data."
+    
+    resources: 'You will have full access to the company bank accounts and our external legal counsel. You will be provided with any accounting software you require. You will have an administrative assistant to help you organize physical paperwork.',
+    
+    environment: 'You must be based in Lusaka, Zambia. You will work from our office or remotely, but you must be physically available to go to PACRA or ZRA offices to resolve issues or submit documents in person when required.',
+    
+    terms: [
+      "**Fiduciary Duty:** You have a legal obligation to act in the best financial interest of StartEasy Zambia at all times.",
+      "**Confidentiality:** You will have access to sensitive financial data and salaries. You must never disclose this information.",
+      "**Termination:** This agreement requires 60 days written notice for termination from either party."
     ]
   },
   growth_associate: { 
     id: 'growth_associate', 
     title: 'Growth & Client Associate', 
-    pitch: 'The Appointee will serve on the frontlines of StartEasy Zambia, tasked with executing aggressive outbound sales strategies, onboarding new SMEs, and driving revenue growth by closing service agreements.',
-    reportingTo: 'Founder & Chief Executive Officer / Director of Finance',
-    day90Plan: [
-      "Month 1 (Training & Lists): Master the StartEasy service offerings. Build a targeted database of 500+ potential SME leads across Zambia.",
-      "Month 2 (Outreach): Execute 50+ calls/emails per day. Book discovery meetings for the CEO and Director of Finance.",
-      "Month 3 (Closing): Transition into closing your own deals. Manage the onboarding experience and upsell clients into premium compliance packages."
+    
+    summary: 'You are the engine of our revenue. Your job is to speak to as many business owners as possible, explain how StartEasy Zambia can save them time and money, and convince them to pay for our services. You are not just answering emails; you are actively hunting for new clients every single day.',
+    
+    reporting: 'You will report directly to the Founder and Chief Executive Officer.',
+    
+    responsibilities: [
+      "**Outbound Prospecting:** You will use LinkedIn, Facebook Groups, and local business directories to find the contact details of at least 50 new businesses every single day.",
+      "**Cold Calling & Emailing:** You will call or email these businesses using the scripts provided to you. You must make at least 40 dials or send 50 personalized emails per day.",
+      "**CRM Management:** You will use our CRM software (e.g., HubSpot) to track every single conversation. You must log the outcome of every call (e.g., 'No answer', 'Not interested', 'Meeting booked').",
+      "**Client Onboarding:** When a client pays, you will be their first point of contact. You will send them the welcome email, collect their required documents, and hand them over to the operations team.",
+      "**Upselling:** You will call existing clients every 30 days to ensure they are happy and to sell them additional services (e.g., upgrading their supplier listing to Premium)."
     ],
-    compensationDetails: [
-      "Fixed Retainer: The Appointee shall receive a modest fixed monthly retainer to cover administrative time, the amount of which has been mutually agreed upon.",
-      "Commission Structure: The Appointee is entitled to an uncapped commission ranging from 10% to 15% on all closed deals generated by the Appointee, payable upon successful client payment.",
-      "No Cap: There is no limit to the commission the Appointee can earn, provided targets and sales are legitimate and approved."
+    
+    month1: 'You will memorize our pricing and service offerings perfectly. You will build a database of 1,000 potential business leads in Zambia. You will practice your phone scripts with the CEO until you are confident.',
+    month2: 'You will hit your daily outreach targets (40 calls/50 emails per day). You will book at least 20 discovery meetings for the CEO and Director of Finance. You will begin closing your first small deals.',
+    month3: 'You will be fully responsible for your own pipeline. You will close at least 5 deals per week. You will implement a system to follow up with cold leads every two weeks.',
+    
+    compensation: [
+      "**Fixed Stipend:** You will receive a small monthly stipend of K3,000 ZMW to cover your internet and phone data costs.",
+      "**Commission (Sales):** You will earn a 15% commission on the total value of any service package you sell. For example, if you sell a K1,000 registration package, you earn K150. If you sell a K10,000 procurement package, you earn K1,500.",
+      "**Commission (Recurring):** You will earn a 10% recurring commission on all monthly subscriptions (like Premium Listings) you sell, for as long as that client continues to pay.",
+      "**Bonuses:** If you close 10 deals in a single month, you receive an extra K1,000 bonus. If you close 20 deals, you receive an extra K3,000 bonus. There is no limit to your earnings."
     ],
-    resources: "The Appointee will be provided with CRM access, cold-calling scripts, email templates, and direct mentorship from the executive team.",
-    environment: "The Appointee will operate on a fully remote basis, with flexible hours to overlap with Zambian business hours (CAT).",
-    clauses: [
-      "This is an Intrapreneurship engagement. The Appointee acknowledges this is not an employment contract.",
-      "The Appointee must maintain meticulous records of all client interactions within the designated CRM system.",
-      "Commission is only payable on deals that are fully paid for by the client and have passed the standard 7-day clearing period."
+    
+    resources: 'You will be provided with a company laptop, a dedicated phone line, and access to our CRM. You will receive weekly training from the CEO on sales tactics.',
+    
+    environment: 'You can work remotely, but you must be based in Zambia so you can make calls during standard business hours (08:00 to 17:00 CAT). You may be required to attend occasional in-person networking events in Lusaka.',
+    
+    terms: [
+      "**Clawback Policy:** Commission is only paid out after the client has paid us and the 7-day refund window has passed. If a client cancels and requests a refund, the commission will be deducted from your next payout.",
+      "**Non-Solicitation:** You cannot attempt to steal StartEasy clients for another competing business while working here or for 1 year after you leave.",
+      "**Termination:** This is a performance-based role. If you fail to meet your daily outreach targets for 3 consecutive weeks, the company reserves the right to terminate this agreement immediately."
     ]
   }
 };
@@ -255,37 +295,45 @@ function App() {
 
         {view === 'brief' && selectedRole && (
           <div className="fadein" style={{ padding: '40px 16px' }}>
-            <div style={{ maxWidth: 800, margin: '0 auto', background: '#fff', padding: '40px 50px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
+            <div style={{ maxWidth: 850, margin: '0 auto', background: '#fff', padding: '40px 50px', borderRadius: 16, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
               
               <div style={{ borderBottom: '2px solid #eee', paddingBottom: 24, marginBottom: 24 }}>
                 <h1 className="serif" style={{ fontSize: 36, color: '#0A1F12', margin: '0 0 16px' }}>{selectedRole.title}</h1>
-                <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.7)', margin: 0, lineHeight: 1.6 }}>{selectedRole.pitch}</p>
+                <p style={{ fontSize: 16, color: 'rgba(10,31,18,0.7)', margin: 0, lineHeight: 1.7 }}>{selectedRole.summary}</p>
+                <p style={{ fontSize: 14, color: 'rgba(10,31,18,0.6)', marginTop: 12, fontWeight: 600 }}>{selectedRole.reporting}</p>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 32 }}>
                 <div>
-                  <h4 style={{ fontSize: 15, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}><i className="fas fa-calendar-alt" style={{ color: '#E8730F', marginRight: 8 }}></i> First 90-Day Priorities</h4>
+                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-list-check" style={{ color: '#E8730F', marginRight: 8 }}></i> Specific Duties & Responsibilities</h4>
                   <ul style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', paddingLeft: 20, margin: 0, lineHeight: 1.7 }}>
-                    {selectedRole.day90Plan.map((item, i) => <li key={i} style={{ marginBottom: 10 }}>{item}</li>)}
+                    {selectedRole.responsibilities.map((item, i) => <li key={i} style={{ marginBottom: 10 }} dangerouslySetInnerHTML={{__html: item}} />)}
                   </ul>
                 </div>
 
                 <div>
-                  <h4 style={{ fontSize: 15, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}><i className="fas fa-wallet" style={{ color: '#1E7B3C', marginRight: 8 }}></i> Compensation Structure</h4>
-                  <div style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 24, lineHeight: 1.7, background: '#F9FBFA', padding: 16, borderRadius: 8 }}>
-                    <ul style={{ paddingLeft: 20, margin: 0 }}>
-                      {selectedRole.compensationDetails.map((item, i) => <li key={i} style={{ marginBottom: 8 }}>{item}</li>)}
-                    </ul>
+                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-calendar-alt" style={{ color: '#E8730F', marginRight: 8 }}></i> Your First 90 Days (Milestones)</h4>
+                  <div style={{ background: '#F9FBFA', padding: 16, borderRadius: 8 }}>
+                    <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 12, lineHeight: 1.7 }}><strong>Month 1:</strong> {selectedRole.month1}</p>
+                    <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 12, lineHeight: 1.7 }}><strong>Month 2:</strong> {selectedRole.month2}</p>
+                    <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 0, lineHeight: 1.7 }}><strong>Month 3:</strong> {selectedRole.month3}</p>
                   </div>
+                </div>
+
+                <div>
+                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-wallet" style={{ color: '#1E7B3C', marginRight: 8 }}></i> Exact Compensation Structure</h4>
+                  <ul style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 24, lineHeight: 1.7, background: '#F9FBFA', padding: '16px 16px 16px 36px', borderRadius: 8 }}>
+                    {selectedRole.compensation.map((item, i) => <li key={i} style={{ marginBottom: 8 }} dangerouslySetInnerHTML={{__html: item}} />)}
+                  </ul>
                   
-                  <h4 style={{ fontSize: 15, fontWeight: 800, color: '#0A1F12', marginBottom: 12 }}><i className="fas fa-tools" style={{ color: '#1B6CA8', marginRight: 8 }}></i> Resources & Environment</h4>
+                  <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0A1F12', marginBottom: 16 }}><i className="fas fa-tools" style={{ color: '#1B6CA8', marginRight: 8 }}></i> Resources & Environment</h4>
                   <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', marginBottom: 12, lineHeight: 1.7 }}>{selectedRole.resources}</p>
-                  <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', margin: 0, lineHeight: 1.7 }}><strong>Work Environment:</strong> {selectedRole.environment}</p>
+                  <p style={{ fontSize: 14.5, color: 'rgba(10,31,18,0.8)', margin: 0, lineHeight: 1.7 }}>{selectedRole.environment}</p>
                 </div>
               </div>
 
               <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid #eee', textAlign: 'center' }}>
-                <p style={{ fontSize: 15, color: '#0A1F12', fontWeight: 600, marginBottom: 16 }}>By proceeding, you confirm you have read and understood the role requirements above.</p>
+                <p style={{ fontSize: 15, color: '#0A1F12', fontWeight: 600, marginBottom: 16 }}>By proceeding, you confirm you have read and understood the detailed role requirements above.</p>
                 <Btn onClick={() => { setView('contract'); window.scrollTo(0, 0); }} size="lg" variant="primary" style={{ width: '100%', maxWidth: 400 }}>
                   Proceed to Formal Agreement <i className="fas fa-arrow-right"></i>
                 </Btn>
@@ -311,36 +359,44 @@ function App() {
                 </div>
               </div>
 
-              <p>This Agreement of Engagement (the "Agreement") is entered into by StartEasy Zambia (the "Company") and the individual whose details are set forth in Section 6 below (the "Appointee"). By digitally signing this document, the Appointee formally accepts the appointment, terms, and responsibilities outlined herein.</p>
+              <p>This Agreement of Engagement is entered into by StartEasy Zambia (the "Company") and the individual whose details are set forth in Section 7 below (the "Appointee"). By digitally signing this document, the Appointee formally accepts the appointment, terms, and responsibilities outlined herein.</p>
 
               <h4>1. Appointment & Position</h4>
-              <p>The Company hereby appoints the Appointee to the position of <strong>{selectedRole.title}</strong>. The Appointee shall report directly to the {selectedRole.reportingTo}. By accepting this appointment, the Appointee agrees to fulfill the duties and responsibilities associated with this executive role to the best of their ability.</p>
+              <p>The Company hereby appoints the Appointee to the position of <strong>{selectedRole.title}</strong>. {selectedRole.reporting}</p>
 
-              <h4>2. Scope of Work & Responsibilities</h4>
-              <p>{selectedRole.pitch}</p>
-              <p>The Appointee agrees to execute and deliver on the following initial 90-day milestones:</p>
+              <h4>2. Role Summary</h4>
+              <p>{selectedRole.summary}</p>
+
+              <h4>3. Specific Duties & Responsibilities</h4>
+              <p>The Appointee agrees to perform the following specific duties:</p>
               <ul>
-                {selectedRole.day90Plan.map((item, idx) => <li key={idx}>{item}</li>)}
+                {selectedRole.responsibilities.map((item, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: item}} />)}
               </ul>
 
-              <h4>3. Remuneration & Compensation</h4>
-              <p>The Appointee's compensation for services rendered is structured as follows:</p>
+              <h4>4. Performance Milestones (First 90 Days)</h4>
+              <p>The Appointee agrees to execute and deliver on the following initial milestones:</p>
               <ul>
-                {selectedRole.compensationDetails.map((item, idx) => <li key={idx}>{item}</li>)}
+                <li><strong>Month 1:</strong> {selectedRole.month1}</li>
+                <li><strong>Month 2:</strong> {selectedRole.month2}</li>
+                <li><strong>Month 3:</strong> {selectedRole.month3}</li>
               </ul>
 
-              <h4>4. Resources & Work Environment</h4>
+              <h4>5. Remuneration & Compensation</h4>
+              <p>The Appointee's compensation for services rendered is structured strictly as follows:</p>
+              <ul>
+                {selectedRole.compensation.map((item, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: item}} />)}
+              </ul>
+
+              <h4>6. Resources, Work Environment & Terms</h4>
               <p><strong>Allocated Resources:</strong> {selectedRole.resources}</p>
               <p><strong>Work Environment:</strong> {selectedRole.environment}</p>
-
-              <h4>5. Nature of Engagement & Terms</h4>
+              <p><strong>Binding Terms:</strong></p>
               <ul>
-                <li>The Appointee is joining as a founding team member (Intrapreneur/Entrepreneur).</li>
-                <li><strong>This is NOT an employment contract.</strong> There is no standard salaried structure at this stage.</li>
-                {selectedRole.clauses.map((clause, idx) => <li key={idx}>{clause}</li>)}
+                {selectedRole.terms.map((term, idx) => <li key={idx} dangerouslySetInnerHTML={{__html: term}} />)}
+                <li><strong>Confidentiality:</strong> You must keep all of our business plans, client information, and strategies completely confidential.</li>
               </ul>
 
-              <h4>6. Appointee Details (For Execution)</h4>
+              <h4>7. Appointee Details (For Execution)</h4>
               <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
                 <span>
                   <strong>Full Legal Name:</strong><br/>
@@ -360,11 +416,11 @@ function App() {
                 </span>
               </p>
 
-              <h4>7. Declaration & Acceptance</h4>
+              <h4>8. Declaration & Acceptance</h4>
               <div className="highlight-box">
                 <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
                   <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: '#E8730F', flexShrink: 0 }} />
-                  <span style={{ fontSize: 13, lineHeight: 1.6, color: '#0A1F12', fontWeight: 600 }}>
+                  <span style={{ fontSize: 13.5, lineHeight: 1.6, color: '#0A1F12', fontWeight: 600 }}>
                     I, the undersigned Appointee, hereby declare that I have read, understood, and voluntarily accept the terms, compensation structure, and 90-day priorities outlined in this Agreement of Engagement. I acknowledge that this is an Entrepreneurship/Intrapreneurship opportunity and not a standard employment contract.
                   </span>
                 </label>
