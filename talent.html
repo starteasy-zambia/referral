@@ -99,53 +99,93 @@ const CONFIG = {
   adminEmail: 'admin@starteasyzambia.com', // Set your Admin email here
 };
 
-// ROLE DEFINITIONS
+// EXPANDED ROLE DEFINITIONS (SELF-ORIENTATION DIRECTORY)
 const ROLES = {
   referral_agent: { 
     id: 'referral_agent', title: 'Referral Agent', type: 'Commission-Only',
-    desc: 'Share StartEasy links and earn commissions on successful referrals.',
+    desc: 'Promote StartEasy services and earn a commission for every successful referral.',
+    whoIsItFor: 'Perfect for influencers, community leaders, or freelancers who have a network of businesses or entrepreneurs.',
+    responsibilities: [
+      'Share your unique referral links with your network.',
+      'Encourage businesses to use StartEasy for compliance, registration, or directory services.',
+      'Guide prospective clients on how to navigate the StartEasy platform.'
+    ],
+    kpis: ['Number of link clicks', 'Number of completed sales/payments', 'Total commission earned'],
     clauses: [
       "You are joining as an independent Referral Agent. This is NOT an employment contract.",
-      "You earn a percentage of the StartEasy service fee. Commissions clear after 7 days."
+      "You earn a percentage of the StartEasy service fee. Commissions clear after 7 days.",
+      "You must not engage in spam or self-referral. All referral links are tracked securely."
     ]
   },
   growth_associate: { 
     id: 'growth_associate', title: 'Growth & Client Associate', type: 'Base + Commission',
-    desc: 'Drive client success, manage outreach, and earn commission on closed deals.',
+    desc: 'A hands-on role focused on proactive outreach, client onboarding, and driving immediate revenue.',
+    whoIsItFor: 'Sales-driven individuals with strong communication skills who thrive on closing deals and helping clients succeed.',
+    responsibilities: [
+      'Conduct outbound outreach (calls, emails, LinkedIn) to generate leads.',
+      'Onboard new SMEs and clients onto the platform.',
+      'Manage client relationships, upsell premium services, and ensure high retention.'
+    ],
+    kpis: ['Number of qualified leads generated', 'Total closed deals (Revenue)', 'Client retention rate'],
     clauses: [
       "You are joining as a Growth & Client Associate on a hybrid compensation model.",
-      "Your compensation includes a fixed retainer plus uncapped commission on all closed deals."
+      "Your compensation includes a fixed retainer plus uncapped commission on all closed deals.",
+      "You are expected to maintain a high standard of professionalism during all client interactions."
     ]
   },
   cdmo: { 
     id: 'cdmo', title: 'Chief Digital & Marketing Officer', type: 'Retainer + Equity',
-    desc: 'Lead the digital, brand, and marketing strategy as a key executive.',
+    desc: 'The strategic architect of the StartEasy brand, responsible for digital growth and user acquisition.',
+    whoIsItFor: 'Senior marketing leaders with experience scaling tech platforms, B2B brands, or startups.',
+    responsibilities: [
+      'Design and execute the full digital Go-To-Market strategy.',
+      'Build brand awareness across Zambia and the diaspora.',
+      'Manage digital ad spend, optimize conversion funnels, and oversee content strategy.'
+    ],
+    kpis: ['Monthly active users', 'Customer Acquisition Cost (CAC)', 'Inbound lead generation growth'],
     clauses: [
       "You are joining as the Chief Digital & Marketing Officer (CDMO).",
-      "Your compensation includes a monthly retainer plus a proposed equity stake, subject to vesting."
+      "Your compensation includes a monthly retainer plus a proposed equity stake, subject to a vesting schedule.",
+      "Your primary focus is building the digital marketing engine and driving user acquisition."
     ]
   },
   director_finance: { 
     id: 'director_finance', title: 'Director of Finance & Admin', type: 'Equity + Salary',
-    desc: 'Manage compliance, financial health, and administrative operations.',
+    desc: 'The operational backbone of the startup, ensuring compliance, financial health, and smooth administration.',
+    whoIsItFor: 'Detail-oriented finance professionals or operations managers who understand the Zambian regulatory landscape.',
+    responsibilities: [
+      'Oversee business registration, tax compliance (ZRA), and PACRA filings.',
+      'Manage company budgets, payroll, and financial reporting.',
+      'Ensure all operational and administrative processes are running efficiently.'
+    ],
+    kpis: ['100% compliance with ZRA/PACRA', 'Accurate and timely financial reporting', 'Efficient operational workflow'],
     clauses: [
       "You are joining as the Director of Finance & Administration.",
-      "Your compensation includes a salary and an equity stake, subject to a 4-year vesting schedule."
+      "Your compensation includes a salary and an equity stake, subject to a 4-year vesting schedule with a 1-year cliff.",
+      "You are responsible for maintaining the financial and regulatory integrity of StartEasy Zambia."
     ]
   },
   ceo: { 
     id: 'ceo', title: 'Founder & CEO', type: 'Equity',
-    desc: 'Lead the overall vision, strategy, and execution of the company.',
+    desc: 'The visionary leader responsible for the overall direction, fundraising, and success of the company.',
+    whoIsItFor: 'Founders and high-level executives with the drive to lead a tech startup to scale.',
+    responsibilities: [
+      'Set the overall company strategy and vision.',
+      'Lead fundraising efforts and manage investor relations.',
+      'Oversee the executive team and ensure all departments are aligned with company goals.'
+    ],
+    kpis: ['Company valuation growth', 'Fundraising milestones', 'Overall revenue growth'],
     clauses: [
       "You are joining as the Founder & CEO of StartEasy Zambia.",
-      "Your compensation is primarily equity-based, detailed in the Shareholders Agreement."
+      "You will be responsible for overall company strategy, fundraising, and team leadership.",
+      "Your compensation is primarily equity-based, with terms to be finalized in the Shareholders Agreement."
     ]
   }
 };
 
 const SE_AGENTS = 'se_agents';
 const SE_COMMISSIONS = 'se_commissions';
-const SE_INVITES = 'se_invites'; // New collection for invite codes
+const SE_INVITES = 'se_invites';
 
 /* ---------------- FIREBASE ---------------- */
 let db = null, auth = null, fbReady = false;
@@ -191,6 +231,7 @@ function Nav({ route, go, agent, onSignOut }) {
         </button>
         <nav className="header-nav">
           <button onClick={() => handleNav('')} className={`header-link ${route === '' ? 'active' : ''}`}>Home</button>
+          <button onClick={() => handleNav('roles')} className={`header-link ${route === 'roles' ? 'active' : ''}`}>Role Directory</button>
           
           {agent ? (
             <>
@@ -203,6 +244,7 @@ function Nav({ route, go, agent, onSignOut }) {
             </>
           ) : (
             <>
+              <button onClick={() => handleNav('login')} className="header-link">Sign In</button>
               <button onClick={() => handleNav('join')} className="header-btn">Sign Agreement</button>
             </>
           )}
@@ -212,6 +254,7 @@ function Nav({ route, go, agent, onSignOut }) {
       {open && (
         <div className="header-mobile-menu">
           <button onClick={() => handleNav('')} className={`header-link`}>Home</button>
+          <button onClick={() => handleNav('roles')} className={`header-link`}>Role Directory</button>
           {agent ? (
             <>
               {isAdmin ? (
@@ -222,7 +265,10 @@ function Nav({ route, go, agent, onSignOut }) {
               <button onClick={() => { setOpen(false); onSignOut(); }} className="header-link" style={{ color: '#B8564F' }}>Sign Out</button>
             </>
           ) : (
-            <button onClick={() => handleNav('join')} className="header-btn">Sign Agreement</button>
+            <>
+              <button onClick={() => handleNav('login')} className={`header-link`}>Sign In</button>
+              <button onClick={() => handleNav('join')} className="header-btn">Sign Agreement</button>
+            </>
           )}
         </div>
       )}
@@ -230,6 +276,7 @@ function Nav({ route, go, agent, onSignOut }) {
   );
 }
 
+/* ---------------- PAGES ---------------- */
 function Landing({ go }) {
   return (
     <div className="fadein">
@@ -239,16 +286,78 @@ function Landing({ go }) {
             Build the future. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Own your role.</em>
           </h1>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32 }}>
-            StartEasy Zambia is scaling. If you have received an invitation code from our team, you can sign your engagement agreement below.
+            StartEasy Zambia is scaling. Read our Role Directory to understand how you can contribute, or enter your invitation code to sign your engagement agreement.
           </p>
-          <Btn size="lg" variant="primary" onClick={() => go('join')}>Enter Invitation Code</Btn>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Btn size="lg" variant="primary" onClick={() => go('roles')}>View Role Directory</Btn>
+            <Btn size="lg" variant="ghost" onClick={() => go('join')}>Enter Invitation Code</Btn>
+          </div>
         </div>
       </section>
     </div>
   );
 }
 
-function JoinPage({ go, onAuth }) {
+function RoleDirectory({ go }) {
+  return (
+    <div className="fadein" style={{ background: '#F5FAF6', minHeight: '100vh', paddingBottom: 60 }}>
+      <section style={{ background: '#0A1F12', color: '#fff', padding: '48px 24px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', marginBottom: 16 }}>Role Directory & Orientation</h1>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,.7)', lineHeight: 1.7 }}>
+            Understand exactly what is expected before you apply or sign. 
+          </p>
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {Object.values(ROLES).map(role => (
+            <div key={role.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,.03)' }}>
+              <div style={{ background: '#F8FAF6', padding: '20px 24px', borderBottom: '1px solid rgba(10,31,18,.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                <div>
+                  <h2 className="serif" style={{ fontSize: 20, color: '#0A1F12', margin: 0 }}>{role.title}</h2>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#E8730F', textTransform: 'uppercase', letterSpacing: '.05em' }}>{role.type}</span>
+                </div>
+                <span style={{ background: '#0A1F12', color: '#fff', padding: '6px 12px', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>Invite Only</span>
+              </div>
+              <div style={{ padding: '24px' }}>
+                <p style={{ fontSize: 14, color: 'rgba(10,31,18,.8)', marginBottom: 16 }}>{role.desc}</p>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(250px,1fr))', gap: 20 }}>
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}><i className="fas fa-user-check" style={{ color: '#1E7B3C', marginRight: 6 }}></i> Who is this for?</h4>
+                    <p style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', lineHeight: 1.6 }}>{role.whoIsItFor}</p>
+                  </div>
+                  
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}><i className="fas fa-tasks" style={{ color: '#E8730F', marginRight: 6 }}></i> Key Responsibilities</h4>
+                    <ul style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', paddingLeft: 20, lineHeight: 1.6, margin: 0 }}>
+                      {role.responsibilities.map((r, i) => <li key={i} style={{ marginBottom: 4 }}>{r}</li>)}
+                    </ul>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px dashed rgba(10,31,18,.1)' }}>
+                  <h4 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}><i className="fas fa-chart-line" style={{ color: '#1B6CA8', marginRight: 6 }}></i> Key Performance Indicators (KPIs)</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {role.kpis.map((k, i) => <span key={i} style={{ background: '#EAF7EE', color: '#1E7B3C', padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600 }}>{k}</span>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.6)', marginBottom: 16 }}>Have your invite code ready?</p>
+          <Btn size="lg" variant="primary" onClick={() => go('join')}>Proceed to Sign Agreement</Btn>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function JoinPage({ onAuth }) {
   const [inviteCode, setInviteCode] = useState('');
   const [validatedRole, setValidatedRole] = useState(null);
   const [checking, setChecking] = useState(false);
@@ -259,7 +368,6 @@ function JoinPage({ go, onAuth }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
-  // STEP 1: Validate the Invite Code
   const validateCode = async () => {
     setCodeError('');
     if (!inviteCode.trim()) return setCodeError('Please enter your invitation code.');
@@ -267,7 +375,7 @@ function JoinPage({ go, onAuth }) {
     try {
       const q = await db.collection(SE_INVITES).where('code', '==', inviteCode.trim().toUpperCase()).where('status', '==', 'active').limit(1).get();
       if (q.empty) {
-        setCodeError('Invalid or already used invitation code. Please contact StartEasy Admin.');
+        setCodeError('Invalid or already used invitation code.');
       } else {
         const inviteData = q.docs[0].data();
         setValidatedRole(ROLES[inviteData.roleId]);
@@ -279,7 +387,6 @@ function JoinPage({ go, onAuth }) {
     }
   };
 
-  // STEP 2: Sign Agreement & Create Account
   const submit = async () => {
     setErr('');
     if (!form.name.trim()) return setErr('Please type your full name on the signature line.');
@@ -291,10 +398,8 @@ function JoinPage({ go, onAuth }) {
 
     setBusy(true);
     try {
-      // 1. Create Auth User
       const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
       
-      // 2. Save Agent Profile
       await db.collection(SE_AGENTS).doc(cred.user.uid).set({
         uid: cred.user.uid,
         displayName: form.name.trim(),
@@ -307,7 +412,6 @@ function JoinPage({ go, onAuth }) {
         totals: { clicks: 0, conversions: 0, earnedZmw: 0, paidZmw: 0, pendingZmw: 0 }
       });
 
-      // 3. Burn the Invite Code
       const q = await db.collection(SE_INVITES).where('code', '==', inviteCode.trim().toUpperCase()).limit(1).get();
       if (!q.empty) {
         await q.docs[0].ref.update({ status: 'used', usedBy: cred.user.uid, usedAt: Date.now() });
@@ -315,16 +419,14 @@ function JoinPage({ go, onAuth }) {
 
       onAuth();
     } catch (e) {
-      if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in.');
+      if (e.code === 'auth/email-already-in-use') setErr('This email is already registered.');
       else setErr(e.message || 'Registration failed.');
     } finally { setBusy(false); }
   };
 
-  // UI RENDER
   return (
     <div style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
       
-      {/* CODE VALIDATION GATE */}
       {!validatedRole ? (
         <div style={{ maxWidth: 450, margin: '60px auto', background: '#fff', padding: 32, borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,.05)' }}>
           <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 8, textAlign: 'center' }}>Secure Role Access</h2>
@@ -346,7 +448,6 @@ function JoinPage({ go, onAuth }) {
         </div>
       ) : (
         
-        // CONTRACT VIEW (LOCKED TO VALIDATED ROLE)
         <div className="el fadein printable">
           <div className="eh">
             <div>
@@ -366,15 +467,24 @@ function JoinPage({ go, onAuth }) {
           
           <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation as a <strong>{validatedRole.title}</strong>.</p>
 
-          <h4>1. Nature of Engagement</h4>
+          <h4>1. Scope of Work & Responsibilities</h4>
+          <p>Your primary responsibilities will include:</p>
+          <ul>
+            {validatedRole.responsibilities.map((resp, idx) => <li key={idx}>{resp}</li>)}
+          </ul>
+
+          <h4>2. Performance Expectations (KPIs)</h4>
+          <p>Your performance will be measured against the following indicators:</p>
+          <ul>
+            {validatedRole.kpis.map((kpi, idx) => <li key={idx}>{kpi}</li>)}
+          </ul>
+
+          <h4>3. Compensation & Terms</h4>
           <ul>
             {validatedRole.clauses.map((clause, idx) => <li key={idx}>{clause}</li>)}
           </ul>
 
-          <h4>2. Compensation</h4>
-          <p>Your compensation model is defined as: <strong>{validatedRole.type}</strong>.</p>
-
-          <h4>3. Personal Details</h4>
+          <h4>4. Personal Details</h4>
           <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
             <span>
               <strong>Email Address:</strong><br/>
@@ -393,7 +503,7 @@ function JoinPage({ go, onAuth }) {
             </select>
           </p>
 
-          <h4>4. Acceptance</h4>
+          <h4>5. Acceptance</h4>
           <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
             <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
               <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
@@ -442,8 +552,7 @@ function LoginPage({ onAuth }) {
       await auth.signInWithEmailAndPassword(email.trim(), pw);
       onAuth();
     } catch (e) {
-      if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') setErr('Incorrect email or password.');
-      else setErr(e.message || 'Sign in failed.');
+      setErr('Incorrect email or password.');
     } finally { setBusy(false); }
   };
 
@@ -465,7 +574,6 @@ function LoginPage({ onAuth }) {
   );
 }
 
-/* ---------------- ADMIN DASHBOARD ---------------- */
 function AdminDashboard({ agent }) {
   const [invites, setInvites] = useState([]);
   const [selectedRole, setSelectedRole] = useState('referral_agent');
@@ -517,8 +625,6 @@ function AdminDashboard({ agent }) {
         {msg && <div style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 16, borderRadius: 8, marginBottom: 24, fontWeight: 700 }}>{msg}</div>}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 40 }}>
-          
-          {/* Generator Form */}
           <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', boxShadow: '0 10px 30px rgba(0,0,0,.05)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Generate Invite Code</h2>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Select Role</label>
@@ -534,7 +640,6 @@ function AdminDashboard({ agent }) {
             </Btn>
           </div>
 
-          {/* Role Guide */}
           <div style={{ background: '#0A1F12', color: '#fff', padding: 24, borderRadius: 12 }}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16, color: '#F5A623' }}>Access Control Note</h2>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,.7)', lineHeight: 1.6 }}>
@@ -544,7 +649,6 @@ function AdminDashboard({ agent }) {
           </div>
         </div>
 
-        {/* Existing Codes List */}
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(10,31,18,.08)', fontWeight: 700, fontSize: 14 }}>Generated Invitation Codes</div>
           <div style={{ overflowX: 'auto' }}>
@@ -580,16 +684,8 @@ function AdminDashboard({ agent }) {
   );
 }
 
-/* ---------------- REGULAR DASHBOARD ---------------- */
 function Dashboard({ onSignOut, agent }) {
-  const [commissions, setCommissions] = useState([]);
   const roleInfo = ROLES[agent.role] || ROLES.referral_agent;
-  const mainLink = `${CONFIG.mainSiteUrl}/?ref=${agent.uid}`;
-
-  useEffect(() => {
-    const unsub = db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).onSnapshot(s => setCommissions(s.docs));
-    return () => unsub();
-  }, [agent.id]);
 
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', padding: '32px 16px' }}>
@@ -597,24 +693,24 @@ function Dashboard({ onSignOut, agent }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <div>
             <h1 className="serif" style={{ fontSize: 28, color: '#0A1F12', margin: 0 }}>Welcome, {agent.displayName.split(' ')[0]}</h1>
-            <p style={{ fontSize: 14, color: '#E8730F', fontWeight: 700 }}>{roleInfo.title} ({roleInfo.type})</p>
+            <p style={{ fontSize: 14, color: '#E8730F', fontWeight: 700 }}>{roleInfo.title}</p>
           </div>
           <Btn onClick={onSignOut} variant="ghost" size="sm">Sign Out</Btn>
         </div>
 
-        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)' }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Your Referral Link</h2>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <input type="text" readOnly value={mainLink} style={{ flex: 1, padding: 12, background: '#F9FBFA', border: '1px solid #ccc', borderRadius: 8 }} />
-            <Btn onClick={() => copyText(mainLink)}>Copy</Btn>
-          </div>
+        <div style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Your Role Overview</h2>
+          <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', marginBottom: 16 }}>{roleInfo.desc}</p>
+          <h4 style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#0A1F12', marginBottom: 8 }}>Key Performance Indicators</h4>
+          <ul style={{ fontSize: 13, color: 'rgba(10,31,18,.7)', paddingLeft: 20, margin: 0 }}>
+            {roleInfo.kpis.map((kpi, i) => <li key={i} style={{ marginBottom: 4 }}>{kpi}</li>)}
+          </ul>
         </div>
       </div>
     </div>
   );
 }
 
-/* ---------------- APP ---------------- */
 function App() {
   const [hash, setHash] = useState(window.location.hash || '#/');
   const [agent, setAgent] = useState(null);
@@ -631,7 +727,6 @@ function App() {
     const unsub = auth.onAuthStateChanged(async user => {
       if (!user) { setAgent(null); setBootChecked(true); return; }
       
-      // Check if Admin
       if (user.email === CONFIG.adminEmail) {
         setAgent({ id: user.uid, email: user.email, displayName: 'Admin' });
       } else {
@@ -658,7 +753,8 @@ function App() {
   const isAdmin = agent?.email === CONFIG.adminEmail;
 
   let page = <Landing go={go} />;
-  if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
+  if (route === 'roles') page = <RoleDirectory go={go} />;
+  else if (route === 'join') page = <JoinPage onAuth={onAuth} />;
   else if (route === 'login') page = <LoginPage onAuth={onAuth} />;
   else if (route === 'admin') {
     if (!isAdmin) page = <div style={{ padding: 60, textAlign: 'center' }}><h1>Access Denied</h1><Btn onClick={() => go('login')} style={{ marginTop: 20 }}>Login as Admin</Btn></div>;
