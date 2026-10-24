@@ -51,7 +51,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--orange) !import
 <script type="text/babel" data-presets="react">
 const { useState } = React;
 
-// EXTREMELY DETAILED FOUNDING TEAM ROLES (Answers Sana's questions publicly)
+// EXTREMELY DETAILED FOUNDING TEAM ROLES
 const ROLES = {
   cdmo: { 
     id: 'cdmo', 
@@ -173,9 +173,10 @@ function App() {
     
     if (LIVE_CODES[codeUpper]) {
       const roleFromCode = ROLES[LIVE_CODES[codeUpper]];
-      // Ensure the code matches the role they are trying to apply for
+      
+      // SECURITY FIX: Do not reveal the actual role. Just reject it.
       if (selectedRole && roleFromCode.id !== selectedRole.id) {
-        setCodeError(`This code is for the ${roleFromCode.title} role. You cannot use it for the ${selectedRole.title} role.`);
+        setCodeError('Invalid or unauthorized invitation code for this specific role.');
         return;
       }
       
