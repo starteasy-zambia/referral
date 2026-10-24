@@ -15,11 +15,7 @@
   --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F; 
   --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --teal:#0E7C7B; --blue:#1B6CA8;
 }
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  background: var(--light); color: var(--forest); overflow-x: hidden; margin: 0;
-}
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: var(--light); color: var(--forest); overflow-x: hidden; margin: 0; }
 .serif { font-family: 'Playfair Display', Georgia, serif; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--orange) !important; }
 .fadein { animation: fi .4s cubic-bezier(.22,.61,.36,1) both; }
@@ -35,7 +31,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--o
 .header-logo-text { display: flex; flex-direction: column; text-align: left; line-height: 1; }
 .header-logo-sub { font-size: 8.5px; letter-spacing: .15em; text-transform: uppercase; font-weight: 700; color: rgba(255,255,255,.4); margin-bottom: 3px; }
 .header-logo-main { font-size: 15px; font-weight: 700; color: #fff; }
-.header-logo-main em { font-style: normal; color: var(--orange-2); }
 .header-nav { display: flex; align-items: center; gap: 20px; }
 .header-link { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.6); padding: 6px 0; position: relative; text-decoration: none; white-space: nowrap; }
 .header-link.active { color: var(--orange-2); font-weight: 700; }
@@ -96,6 +91,7 @@ const CONFIG = {
     appId: "1:54136399237:web:2f9f2d7f86bfdfb4be50ec"
   },
   adminEmail: 'admin@starteasyzambia.com', // Set your Admin email here
+  adminPassword: 'admin123'
 };
 
 // PROFESSIONAL & STRATEGIC ROLE DEFINITIONS
@@ -189,24 +185,52 @@ const ROLES = {
 const SE_AGENTS = 'se_agents';
 const SE_INVITES = 'se_invites';
 
-/* ---------------- FIREBASE ---------------- */
+/* ---------------- FIREBASE & FALLBACK (SMART SYSTEM) ---------------- */
 let db = null, auth = null, fbReady = false;
+
+// Check if LocalStorage is being used as a fallback
+const isDemoMode = localStorage.getItem('se_demo_mode') === 'true';
+
 try {
   if (!firebase.apps.length) firebase.initializeApp(CONFIG.firebase);
   db = firebase.firestore();
   auth = firebase.auth();
   fbReady = true;
-  auth.signInAnonymously().catch(() => {});
-} catch (e) { console.error(e); }
+  auth.signInAnonymously().catch(() => { localStorage.setItem('se_demo_mode', 'true'); });
+} catch (e) { 
+  console.warn("Firebase failed. Running in Demo Mode.");
+  localStorage.setItem('se_demo_mode', 'true');
+}
+
+// LocalStorage DB Fallback for flawless testing
+const LocalDB = {
+  get: (col) => JSON.parse(localStorage.getItem(col) || '[]'),
+  set: (col, data) => localStorage.setItem(col, JSON.stringify(data)),
+  getDoc: (col, id) => {
+    const items = LocalDB.get(col);
+    return items.find(i => i.id === id) || null;
+  },
+  setDoc: (col, id, data) => {
+    const items = LocalDB.get(col);
+    const idx = items.findIndex(i => i.id === id);
+    if (idx >= 0) items[idx] = { id, ...data };
+    else items.push({ id, ...data });
+    LocalDB.set(col, items);
+  }
+};
+
+// Seed default invites if in Demo Mode
+if (isDemoMode) {
+  if (LocalDB.get(SE_INVITES).length === 0) {
+    LocalDB.setDoc(SE_INVITES, 'INV-CEO-5R9T', { code: 'INV-CEO-5R9T', roleId: 'ceo', status: 'active', createdAt: Date.now() });
+    LocalDB.setDoc(SE_INVITES, 'INV-CDM-7B3N', { code: 'INV-CDM-7B3N', roleId: 'cdmo', status: 'active', createdAt: Date.now() });
+    LocalDB.setDoc(SE_INVITES, 'INV-GRO-4M1X', { code: 'INV-GRO-4M1X', roleId: 'growth_associate', status: 'active', createdAt: Date.now() });
+  }
+}
 
 /* ---------------- HELPERS ---------------- */
 const copyText = async t => {
   try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(t); return true; } return false; } catch (e) { return false; }
-};
-const generateInviteCode = (roleId) => {
-  const prefix = roleId.split('_')[0].toUpperCase().slice(0,3);
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `INV-${prefix}-${rand}`;
 };
 
 /* ---------------- UI COMPONENTS ---------------- */
@@ -292,6 +316,11 @@ function Landing({ go }) {
             <Btn size="lg" variant="primary" onClick={() => go('roles')}>View Role Directory</Btn>
             <Btn size="lg" variant="ghost" onClick={() => go('join')}>Enter Invitation Code</Btn>
           </div>
+          {isDemoMode && (
+            <div style={{ marginTop: 40, padding: 16, background: 'rgba(232, 115, 15, 0.2)', border: '1px solid #E8730F', borderRadius: 8, color: '#fff', fontSize: 13 }}>
+              <strong>Demo Mode Active:</strong> Firebase not detected. Using local storage. Log in as Admin (admin@starteasyzambia.com / admin123) to generate codes.
+            </div>
+          )}
         </div>
       </section>
     </div>
@@ -385,16 +414,37 @@ function JoinPage({ onAuth }) {
     setCodeError('');
     if (!inviteCode.trim()) return setCodeError('Please enter your invitation code.');
     setChecking(true);
+    
+    const codeUpper = inviteCode.trim().toUpperCase();
+
     try {
-      const q = await db.collection(SE_INVITES).where('code', '==', inviteCode.trim().toUpperCase()).where('status', '==', 'active').limit(1).get();
-      if (q.empty) {
-        setCodeError('Invalid or already used invitation code.');
+      if (fbReady) {
+        // Smart Query: Use Document ID (code) directly to bypass indexes
+        const docRef = await db.collection(SE_INVITES).doc(codeUpper).get();
+        if (docRef.exists) {
+          const data = docRef.data();
+          if (data.status === 'active') {
+            setValidatedRole(ROLES[data.roleId]);
+          } else {
+            setCodeError('This code has already been used.');
+          }
+        } else {
+          setCodeError('Invalid invitation code.');
+        }
       } else {
-        const inviteData = q.docs[0].data();
-        setValidatedRole(ROLES[inviteData.roleId]);
+        // LocalStorage Fallback
+        const invite = LocalDB.getDoc(SE_INVITES, codeUpper);
+        if (invite && invite.status === 'active') {
+          setValidatedRole(ROLES[invite.roleId]);
+        } else if (invite && invite.status !== 'active') {
+          setCodeError('This code has already been used.');
+        } else {
+          setCodeError('Invalid invitation code.');
+        }
       }
     } catch (e) {
-      setCodeError('System error. Please try again.');
+      console.error(e);
+      setCodeError('System error checking code. Please try again.');
     } finally {
       setChecking(false);
     }
@@ -410,24 +460,29 @@ function JoinPage({ onAuth }) {
     if (!agreed) return setErr('You must check the agreement box to proceed.');
 
     setBusy(true);
-    try {
-      const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
-      
-      await db.collection(SE_AGENTS).doc(cred.user.uid).set({
-        uid: cred.user.uid,
-        displayName: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
-        phone: form.phone.trim(),
-        location: form.location,
-        role: validatedRole.id,
-        status: 'active',
-        createdAt: Date.now(),
-        totals: { clicks: 0, conversions: 0, earnedZmw: 0, paidZmw: 0, pendingZmw: 0 }
-      });
+    const codeUpper = inviteCode.trim().toUpperCase();
 
-      const q = await db.collection(SE_INVITES).where('code', '==', inviteCode.trim().toUpperCase()).limit(1).get();
-      if (!q.empty) {
-        await q.docs[0].ref.update({ status: 'used', usedBy: cred.user.uid, usedAt: Date.now() });
+    try {
+      if (fbReady) {
+        const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
+        await db.collection(SE_AGENTS).doc(cred.user.uid).set({
+          uid: cred.user.uid, displayName: form.name.trim(), email: form.email.trim().toLowerCase(),
+          phone: form.phone.trim(), location: form.location, role: validatedRole.id,
+          status: 'active', createdAt: Date.now()
+        });
+        await db.collection(SE_INVITES).doc(codeUpper).update({ status: 'used', usedBy: cred.user.uid, usedAt: Date.now() });
+      } else {
+        // LocalStorage Fallback Simulation
+        const fakeUid = 'user_' + Date.now();
+        LocalDB.setDoc(SE_AGENTS, fakeUid, {
+          uid: fakeUid, displayName: form.name.trim(), email: form.email.trim().toLowerCase(),
+          phone: form.phone.trim(), location: form.location, role: validatedRole.id,
+          status: 'active', createdAt: Date.now()
+        });
+        LocalDB.setDoc(SE_INVITES, codeUpper, { code: codeUpper, roleId: validatedRole.id, status: 'used', usedBy: fakeUid, usedAt: Date.now() });
+        
+        // Fake login
+        localStorage.setItem('se_current_user', JSON.stringify({ uid: fakeUid, email: form.email.trim().toLowerCase() }));
       }
 
       onAuth();
@@ -451,10 +506,10 @@ function JoinPage({ onAuth }) {
             type="text" 
             value={inviteCode} 
             onChange={e => setInviteCode(e.target.value.toUpperCase())} 
-            placeholder="e.g. INV-CEO-X7Y9"
+            placeholder="e.g. INV-CEO-5R9T"
             style={{ width: '100%', padding: 12, border: '2px solid #E8730F', borderRadius: 8, fontSize: 16, textAlign: 'center', letterSpacing: 2, fontWeight: 700, marginBottom: 16 }} 
           />
-          {codeError && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, textAlign: 'center' }}>{codeError}</div>}
+          {codeError && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, textAlign: 'center', fontWeight: 600 }}>{codeError}</div>}
           <Btn onClick={validateCode} disabled={checking} size="lg" variant="primary" style={{ width: '100%' }}>
             {checking ? 'Verifying...' : 'Verify Code'}
           </Btn>
@@ -562,7 +617,23 @@ function LoginPage({ onAuth }) {
     if (!email.trim() || !pw) return setErr('Enter email and password.');
     setBusy(true);
     try {
-      await auth.signInWithEmailAndPassword(email.trim(), pw);
+      if (fbReady) {
+        await auth.signInWithEmailAndPassword(email.trim(), pw);
+      } else {
+        // Fake local login
+        if (email === CONFIG.adminEmail && pw === CONFIG.adminPassword) {
+          localStorage.setItem('se_current_user', JSON.stringify({ uid: 'admin', email: CONFIG.adminEmail }));
+        } else {
+          // Check if user exists in local storage
+          const users = LocalDB.get(SE_AGENTS);
+          const user = users.find(u => u.email === email.trim().toLowerCase());
+          if (user && pw === 'password') { // Simple mock password for local testing
+            localStorage.setItem('se_current_user', JSON.stringify({ uid: user.id, email: user.email }));
+          } else {
+            throw new Error('Invalid credentials');
+          }
+        }
+      }
       onAuth();
     } catch (e) {
       setErr('Incorrect email or password.');
@@ -582,6 +653,11 @@ function LoginPage({ onAuth }) {
         <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%' }}>
           {busy ? 'Signing in...' : 'Sign in'}
         </Btn>
+        {isDemoMode && (
+          <div style={{ marginTop: 16, fontSize: 12, color: '#666', textAlign: 'center' }}>
+            Demo Admin: admin@starteasyzambia.com / admin123
+          </div>
+        )}
       </div>
     </div>
   );
@@ -594,24 +670,30 @@ function AdminDashboard({ agent }) {
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
-    const unsub = db.collection(SE_INVITES).orderBy('createdAt', 'desc').limit(50).onSnapshot(s => {
-      setInvites(s.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-    return () => unsub();
+    if (fbReady) {
+      const unsub = db.collection(SE_INVITES).orderBy('createdAt', 'desc').limit(50).onSnapshot(s => {
+        setInvites(s.docs.map(d => ({ id: d.id, ...d.data() })));
+      });
+      return () => unsub();
+    } else {
+      setInvites(LocalDB.get(SE_INVITES).sort((a,b) => b.createdAt - a.createdAt));
+    }
   }, []);
 
   const generateCode = async () => {
     setGenerating(true);
     setMsg('');
+    const code = `INV-${selectedRole.slice(0,3).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    
     try {
-      const code = generateInviteCode(selectedRole);
-      await db.collection(SE_INVITES).add({
-        code: code,
-        roleId: selectedRole,
-        status: 'active',
-        createdAt: Date.now(),
-        createdBy: agent.email
-      });
+      if (fbReady) {
+        await db.collection(SE_INVITES).doc(code).set({
+          code, roleId: selectedRole, status: 'active', createdAt: Date.now(), createdBy: agent.email
+        });
+      } else {
+        LocalDB.setDoc(SE_INVITES, code, { code, roleId: selectedRole, status: 'active', createdAt: Date.now(), createdBy: agent.email });
+        setInvites(LocalDB.get(SE_INVITES).sort((a,b) => b.createdAt - a.createdAt));
+      }
       setMsg(`Successfully generated code: ${code}`);
     } catch (e) {
       setMsg('Error generating code.');
@@ -654,10 +736,9 @@ function AdminDashboard({ agent }) {
           </div>
 
           <div style={{ background: '#0A1F12', color: '#fff', padding: 24, borderRadius: 12 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16, color: '#F5A623' }}>Access Control Note</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16, color: '#F5A623' }}>Smart System Note</h2>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,.7)', lineHeight: 1.6 }}>
-              Candidates can no longer self-select their roles. You must generate a code and send it to them. 
-              Once they use the code to sign their contract, it will be destroyed and cannot be reused.
+              This system uses the Invitation Code as the direct Document ID in the database. This means it works instantly without requiring you to set up complex Firebase indexes.
             </p>
           </div>
         </div>
@@ -744,7 +825,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!fbReady) { setBootChecked(true); return; }
+    if (!fbReady) { 
+      // Check local storage for fake session
+      const localUser = localStorage.getItem('se_current_user');
+      if (localUser) setAgent(JSON.parse(localUser));
+      setBootChecked(true); 
+      return; 
+    }
+    
     const unsub = auth.onAuthStateChanged(async user => {
       if (!user) { setAgent(null); setBootChecked(true); return; }
       
@@ -766,7 +854,11 @@ function App() {
   const route = raw.split('/').filter(Boolean)[0] || '';
 
   const go = useCallback((r) => { window.location.hash = '#/' + r; window.scrollTo(0, 0); }, []);
-  const onSignOut = async () => { await auth.signOut(); setAgent(null); go(''); };
+  const onSignOut = async () => { 
+    if(fbReady) await auth.signOut(); 
+    localStorage.removeItem('se_current_user');
+    setAgent(null); go(''); 
+  };
   const onAuth = () => { go('dashboard'); };
 
   if (!bootChecked) return <Spinner />;
