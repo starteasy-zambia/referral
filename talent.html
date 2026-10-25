@@ -301,6 +301,16 @@ function App() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
+        // 1. If anonymous, reject immediately (likely from Agent portal)
+        if (currentUser.isAnonymous) {
+          await auth.signOut();
+          setUser(null);
+          setUserData(null);
+          setAuthError("Session conflict: Please log in with your email and password. (Agent portal anonymous session detected).");
+          setAuthLoading(false);
+          return;
+        }
+
         setUser(currentUser);
         try {
           let snap = null;
@@ -321,10 +331,16 @@ function App() {
             auth.signOut();
           }
         } catch (e) {
-          console.error("Error fetching user data:", e);
+          console.error("Firestore Error:", e.code, e.message);
           setUser(null);
           setUserData(null);
-          setAuthError("Failed to load your profile. Please check your connection.");
+          
+          // Show exact Firebase error for debugging
+          if (e.code === 'permission-denied') {
+            setAuthError("Database Permission Denied: Your Firestore rules are blocking this read request. Please contact StartEasy Admin.");
+          } else {
+            setAuthError("Failed to load profile: " + e.message);
+          }
           auth.signOut();
         }
       } else {
