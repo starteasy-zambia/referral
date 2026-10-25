@@ -289,6 +289,7 @@ function App() {
   // Auth state
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [teamMembers, setTeamMembers] = useState([]); // Dynamic Team
   const [authLoading, setAuthLoading] = useState(true);
 
   // Auth forms
@@ -354,6 +355,18 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Fetch Dynamic Team Members when Dashboard loads
+  useEffect(() => {
+    if (!userData) return;
+    const unsub = db.collection('se_appointees').onSnapshot(snapshot => {
+      const members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTeamMembers(members);
+    }, (error) => {
+      console.warn("Could not fetch team members list (check Firestore rules):", error.message);
+    });
+    return () => unsub();
+  }, [userData]);
 
   // ─── AUTH: create account ───────
   const handleCreateAccount = async (e) => {
@@ -1172,14 +1185,14 @@ function App() {
                   </div>
                 </div>
 
-                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', width: '100%' }}>
+                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', width: '100%', marginBottom: 32 }}>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                     <i className="fas fa-laptop-code" style={{ color: '#E8730F' }}></i> Your Remote Workspace
                   </h2>
 
                   <div style={{ display: 'grid', gap: 16 }}>
                     {[
-                      { title: 'Team WhatsApp Group', desc: 'Join the internal group for instant communication.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/mock-invite-link', btn: 'Join WhatsApp' },
+                      { title: 'Team WhatsApp Group', desc: 'Join the internal group for instant communication.', icon: 'fa-whatsapp', color: '#25D366', link: 'https://chat.whatsapp.com/KvfbdH4Aw7f7bericuwSyx', btn: 'Join WhatsApp' },
                       { title: 'StartEasy Slack Workspace', desc: 'Our primary tool for project channels and daily updates.', icon: 'fa-slack', color: '#4A154B', link: 'https://slack.com/mock-invite', btn: 'Open Slack' },
                       { title: 'Company Notion Wiki', desc: 'Access all SOPs, brand guidelines, and project boards.', icon: 'fa-book', color: '#000000', link: 'https://notion.so/mock-invite', btn: 'Open Notion' },
                     ].map((task, i) => (
@@ -1201,21 +1214,36 @@ function App() {
                   </div>
                 </div>
 
-                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', marginTop: 32, width: '100%' }}>
+                {/* ─── DYNAMIC TEAM SECTION ─── */}
+                <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', width: '100%' }}>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                    
+                    {/* Hardcoded Founder */}
                     <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
                       <img src="https://ui-avatars.com/api/?name=Mwaba+Lewis&background=E8730F&color=fff&size=80" alt="Mwaba Lewis" style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
                       <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Mwaba Lewis</h4>
                       <p style={{ fontSize: 12, color: '#E8730F', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Founder</p>
                     </div>
-                    <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
-                      <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#EAF7EE', color: '#1E7B3C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, margin: '0 auto 12px' }}>
-                        <i className="fas fa-user"></i>
+
+                    {/* Dynamic Team Members from Firestore */}
+                    {teamMembers.map(member => (
+                      <div key={member.id} style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
+                        <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#EAF7EE', color: '#1E7B3C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, margin: '0 auto 12px' }}>
+                          <i className="fas fa-user"></i>
+                        </div>
+                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{member.name}</h4>
+                        <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{member.roleTitle}</p>
                       </div>
-                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{userData.name}</h4>
-                      <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{userData.roleTitle}</p>
-                    </div>
+                    ))}
+
+                    {/* Fallback if no team members found in database yet */}
+                    {teamMembers.length === 0 && (
+                      <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 20, color: 'rgba(10,31,18,0.5)', fontSize: 13 }}>
+                        Waiting for team members to join...
+                      </div>
+                    )}
+
                   </div>
                 </div>
 
