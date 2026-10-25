@@ -250,7 +250,7 @@ const downloadMockPDF = (filename) => {
 function firebaseErrorMsg(err, context = 'auth') {
   const code = err && err.code;
   if (code === 'permission-denied') {
-    return "Database Permission Denied! Your Firebase Security Rules are blocking access to the 'se_appointees' collection. Please update your rules in the Firebase Console.";
+    return "Database Permission Denied! Your Firebase Security Rules are blocking access. Please ensure 'allow list: if isRealUser();' is set for the se_appointees collection.";
   }
   if (code === 'auth/email-already-in-use')
     return "This email is already registered in our system. If you already have an account (perhaps from another StartEasy portal), please log in instead.";
@@ -292,6 +292,11 @@ function App() {
   const [teamMembers, setTeamMembers] = useState([]); // Dynamic Team
   const [authLoading, setAuthLoading] = useState(true);
 
+  // Profile Image State
+  const [photoUrlInput, setPhotoUrlInput] = useState('');
+  const [showPhotoEdit, setShowPhotoEdit] = useState(false);
+  const [photoSaving, setPhotoSaving] = useState(false);
+
   // Auth forms
   const [authPassword, setAuthPassword] = useState('');
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
@@ -305,7 +310,6 @@ function App() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
-        // 1. If anonymous, reject immediately (likely from Agent portal)
         if (currentUser.isAnonymous) {
           await auth.signOut();
           setUser(null);
@@ -324,10 +328,11 @@ function App() {
             await new Promise(r => setTimeout(r, 700));
           }
           if (snap && snap.exists) {
-            setUserData(snap.data());
+            const data = snap.data();
+            setUserData(data);
+            setPhotoUrlInput(data.photoUrl || '');
             setView('dashboard');
           } else {
-            // Profile missing! (e.g., they used an Agent portal account)
             setUser(null);
             setUserData(null);
             setView('login');
@@ -340,7 +345,7 @@ function App() {
           setUserData(null);
           
           if (e.code === 'permission-denied') {
-            setAuthError("Database Permission Denied. Please ensure the Firestore security rules allow access to the 'se_appointees' collection. Contact StartEasy Admin.");
+            setAuthError("Database Permission Denied. Please ensure the Firestore security rules allow 'list' access to the 'se_appointees' collection. Contact StartEasy Admin.");
           } else {
             setAuthError("Failed to load profile: " + e.message);
           }
@@ -356,17 +361,34 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch Dynamic Team Members when Dashboard loads
+  // Fetch Dynamic Team Members
   useEffect(() => {
     if (!userData) return;
     const unsub = db.collection('se_appointees').onSnapshot(snapshot => {
       const members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setTeamMembers(members);
     }, (error) => {
-      console.warn("Could not fetch team members list (check Firestore rules):", error.message);
+      console.warn("Could not fetch team members list:", error.message);
     });
     return () => unsub();
   }, [userData]);
+
+  // Update Profile Picture
+  const handleUpdatePhoto = async () => {
+    if (!user) return;
+    setPhotoSaving(true);
+    try {
+      await db.collection('se_appointees').doc(user.uid).update({
+        photoUrl: photoUrlInput.trim()
+      });
+      setUserData(prev => ({ ...prev, photoUrl: photoUrlInput.trim() }));
+      setShowPhotoEdit(false);
+    } catch (e) {
+      alert("Failed to update photo: " + e.message);
+    } finally {
+      setPhotoSaving(false);
+    }
+  };
 
   // ─── AUTH: create account ───────
   const handleCreateAccount = async (e) => {
@@ -385,6 +407,7 @@ function App() {
         location: form.location.trim(),
         roleId: selectedRole.id,
         roleTitle: selectedRole.title,
+        photoUrl: '',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       await db.collection('se_appointees').doc(cred.user.uid).set(profile);
@@ -407,7 +430,6 @@ function App() {
     setBusy(true);
     try {
       await auth.signInWithEmailAndPassword(loginEmail.trim().toLowerCase(), loginPassword);
-      // Note: busy stays true until the useEffect finishes checking the profile
     } catch (err) {
       console.error(err);
       setAuthError(firebaseErrorMsg(err, 'login'));
@@ -485,6 +507,7 @@ function App() {
     setResetEmail('');
     setResetSent(false);
     setIsMenuOpen(false);
+    setShowPhotoEdit(false);
     window.scrollTo(0, 0);
   };
 
@@ -1217,32 +1240,69 @@ function App() {
                 {/* ─── DYNAMIC TEAM SECTION ─── */}
                 <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid rgba(10,31,18,0.08)', width: '100%' }}>
                   <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0A1F12', marginBottom: 24 }}>Meet the Founding Team</h2>
+                  
+                  {showPhotoEdit && (
+                    <div style={{ background: '#F9FBFA', padding: 16, borderRadius: 8, marginBottom: 24, border: '1px solid #E8730F' }}>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Update Your Profile Image URL</label>
+                      <input 
+                        type="url" 
+                        value={photoUrlInput} 
+                        onChange={e => setPhotoUrlInput(e.target.value)} 
+                        placeholder="https://example.com/your-photo.jpg"
+                        style={{ width: '100%', padding: 10, border: '1px solid #ccc', borderRadius: 6, marginBottom: 12, fontSize: 13 }}
+                      />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <Btn onClick={handleUpdatePhoto} disabled={photoSaving} size="sm" variant="primary">
+                          {photoSaving ? 'Saving...' : 'Save Photo'}
+                        </Btn>
+                        <Btn onClick={() => setShowPhotoEdit(false)} size="sm" variant="ghost">Cancel</Btn>
+                      </div>
+                    </div>
+                  )}
+
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                     
-                    {/* Hardcoded Founder */}
-                    <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
-                      <img src="https://ui-avatars.com/api/?name=Mwaba+Lewis&background=E8730F&color=fff&size=80" alt="Mwaba Lewis" style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
-                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Mwaba Lewis</h4>
-                      <p style={{ fontSize: 12, color: '#E8730F', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Founder</p>
+                    {/* The Logged-in User (Always visible first) */}
+                    <div style={{ textAlign: 'center', padding: 20, border: '2px solid #E8730F', borderRadius: 12, position: 'relative', background: '#FFF9E6' }}>
+                      <button 
+                        onClick={() => setShowPhotoEdit(!showPhotoEdit)} 
+                        style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', color: '#E8730F', cursor: 'pointer' }}
+                        title="Update Profile Picture"
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      
+                      {userData.photoUrl ? (
+                        <img src={userData.photoUrl} alt={userData.name} style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px', objectFit: 'cover', border: '2px solid #E8730F' }} />
+                      ) : (
+                        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=E8730F&color=fff&size=80`} alt={userData.name} style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
+                      )}
+                      
+                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{userData.name} (You)</h4>
+                      <p style={{ fontSize: 12, color: '#E8730F', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{userData.roleTitle}</p>
                     </div>
 
-                    {/* Dynamic Team Members from Firestore */}
-                    {teamMembers.map(member => (
+                    {/* Hardcoded Founder (If current user is not Mwaba) */}
+                    {userData.email !== 'lewismwaba@gmail.com' && (
+                      <div style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
+                        <img src="https://ui-avatars.com/api/?name=Mwaba+Lewis&background=0A1F12&color=fff&size=80" alt="Mwaba Lewis" style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
+                        <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>Mwaba Lewis</h4>
+                        <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Founder</p>
+                      </div>
+                    )}
+
+                    {/* Other Dynamic Team Members from Firestore */}
+                    {teamMembers.filter(m => m.id !== user.uid).map(member => (
                       <div key={member.id} style={{ textAlign: 'center', padding: 20, border: '1px solid #eee', borderRadius: 12 }}>
-                        <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#EAF7EE', color: '#1E7B3C', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, margin: '0 auto 12px' }}>
-                          <i className="fas fa-user"></i>
-                        </div>
+                        {member.photoUrl ? (
+                          <img src={member.photoUrl} alt={member.name} style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px', objectFit: 'cover' }} />
+                        ) : (
+                          <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=1E7B3C&color=fff&size=80`} alt={member.name} style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px' }} />
+                        )}
                         <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{member.name}</h4>
                         <p style={{ fontSize: 12, color: '#1E7B3C', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>{member.roleTitle}</p>
                       </div>
                     ))}
-
-                    {/* Fallback if no team members found in database yet */}
-                    {teamMembers.length === 0 && (
-                      <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 20, color: 'rgba(10,31,18,0.5)', fontSize: 13 }}>
-                        Waiting for team members to join...
-                      </div>
-                    )}
 
                   </div>
                 </div>
