@@ -249,6 +249,9 @@ const downloadMockPDF = (filename) => {
 // Human-friendly Firebase error messages
 function firebaseErrorMsg(err, context = 'auth') {
   const code = err && err.code;
+  if (code === 'permission-denied') {
+    return "Database Permission Denied! Your Firebase Security Rules are blocking access to the 'se_appointees' collection. Please update your rules in the Firebase Console.";
+  }
   if (code === 'auth/email-already-in-use')
     return "This email is already registered in our system. If you already have an account (perhaps from another StartEasy portal), please log in instead.";
   if (code === 'auth/invalid-email')
@@ -335,9 +338,8 @@ function App() {
           setUser(null);
           setUserData(null);
           
-          // Show exact Firebase error for debugging
           if (e.code === 'permission-denied') {
-            setAuthError("Database Permission Denied: Your Firestore rules are blocking this read request. Please contact StartEasy Admin.");
+            setAuthError("Database Permission Denied. Please ensure the Firestore security rules allow access to the 'se_appointees' collection. Contact StartEasy Admin.");
           } else {
             setAuthError("Failed to load profile: " + e.message);
           }
