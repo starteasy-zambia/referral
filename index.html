@@ -10,9 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
   --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F;
@@ -161,13 +159,6 @@ const CONFIG = {
   adminWhatsapp: '260762499581',
   contactEmail: 'referrals@starteasyzambia.com',
   hrEmail: 'hr@starteasyzambia.com',
-  // ── EmailJS (optional — fills the gap for email delivery to hr@starteasyzambia.com)
-  //     See response notes for setup. Leave blank to rely on Firebase Storage only.
-  emailjs: {
-    serviceId: '',    // e.g. 'service_abc123'
-    templateId: '',   // e.g. 'template_xyz789'
-    publicKey: ''     // e.g. 'Ak9Xy_...'
-  },
   attributionDays: 30,
   minPayoutZmw: 200,
   clearingDays: 7,
@@ -183,12 +174,11 @@ const REF_KEY = 'starteasy.ref.v1';
 const CODE_RX = /^SE-[A-Z0-9-]{3,32}$/;
 
 /* ---------------- FIREBASE ---------------- */
-let db = null, auth = null, storage = null, fbReady = false;
+let db = null, auth = null, fbReady = false;
 try {
   if (!firebase.apps.length) firebase.initializeApp(CONFIG.firebase);
   db = firebase.firestore();
   auth = firebase.auth();
-  storage = firebase.storage();
   fbReady = true;
 } catch (e) { console.error(e); }
 
@@ -211,15 +201,8 @@ const generateAgentCode = name => {
   return 'SE-' + clean + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 };
 const fmtShortDate = ts => ts ? new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-const blobToBase64 = blob => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = reject;
-  reader.readAsDataURL(blob);
-});
-const emailjsReady = () => !!(CONFIG.emailjs.serviceId && CONFIG.emailjs.templateId && CONFIG.emailjs.publicKey && window.emailjs);
 
-/* Enhanced HR email body — professional, comprehensive, legally clear */
+/* Enhanced HR email body */
 const buildHrEmailBody = (agent) => {
   const signedDate = fmtShortDate(agent.createdAt);
   return `Dear StartEasy HR Team,
@@ -397,19 +380,18 @@ function AgreementLetter({ agent, id }) {
   );
 }
 
-/* ---------------- HR SUBMISSION GATE (single-click, mandatory, verifiable) ---------------- */
-function HrSubmissionGate({ agent, submitting, stage, error, onSubmit, onDismiss, hrEmail, emailEnabled }) {
+/* ---------------- HR SUBMISSION GATE ---------------- */
+function HrSubmissionGate({ agent, downloading, submitting, hasDownloaded, error, onDownloadAndEmail, onConfirm, onDismiss, hrEmail }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 110, background: 'rgba(10,31,18,.92)', overflowY: 'auto', padding: '32px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
       <div style={{ background: '#fff', borderRadius: 16, maxWidth: 560, width: '100%', padding: '32px 28px', boxShadow: '0 30px 80px rgba(0,0,0,.5)', margin: 'auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ width: 64, height: 64, borderRadius: 50, background: '#FFF4E5', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-            <i className="fas fa-file-arrow-up" style={{ fontSize: 24, color: '#E8730F' }}></i>
+            <i className="fas fa-envelope-open-text" style={{ fontSize: 24, color: '#E8730F' }}></i>
           </div>
           <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', marginBottom: 8, lineHeight: 1.25 }}>Submit your signed agreement</h2>
           <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.7)', lineHeight: 1.6, margin: 0 }}>
-            To activate your referral codes, you must submit your signed agreement to StartEasy HR.
-            This is a mandatory, one-time step — your codes stay locked until it&apos;s completed.
+            To activate your referral codes, you must email a copy of your signed agreement to <strong style={{ color: '#0A1F12' }}>{hrEmail}</strong>.
           </p>
         </div>
 
@@ -418,30 +400,39 @@ function HrSubmissionGate({ agent, submitting, stage, error, onSubmit, onDismiss
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 13 }}>
             <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Name</span><br/><strong>{agent.displayName}</strong></div>
             <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Agent Code</span><br/><strong style={{ fontFamily: 'monospace' }}>{agent.agentCode}</strong></div>
-            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Email</span><br/><strong style={{ wordBreak: 'break-all' }}>{agent.email}</strong></div>
-            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Phone</span><br/><strong>{agent.phone}</strong></div>
+            <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Email</span><br/><strong style={{ wordBreak: 'break-all' }}>{agent.email}</strong></div>
           </div>
         </div>
 
-        <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C33', borderRadius: 10, padding: 14, marginBottom: 16, display: 'flex', gap: 10 }}>
-          <i className="fas fa-shield-halved" style={{ color: '#1E7B3C', fontSize: 16, marginTop: 1 }}></i>
-          <div style={{ fontSize: 12.5, color: 'rgba(10,31,18,.8)', lineHeight: 1.55 }}>
-            When you click submit, we will:
-            <ol style={{ margin: '6px 0 0', paddingLeft: 18 }}>
-              <li>Generate a PDF of your signed agreement</li>
-              <li>Securely upload it to StartEasy&apos;s records</li>
-              {emailEnabled
-                ? <li>Send a copy to <strong>{hrEmail}</strong> automatically</li>
-                : <li>Flag it for HR review (email delivery not configured)</li>}
-            </ol>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+          {/* Step 1 */}
+          <div style={{ background: hasDownloaded ? '#EAF7EE' : '#F9FBFA', border: `1px solid ${hasDownloaded ? '#1E7B3C55' : 'rgba(10,31,18,.1)'}`, borderRadius: 10, padding: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <div style={{ width: 26, height: 26, borderRadius: 50, background: hasDownloaded ? '#1E7B3C' : '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
+                {hasDownloaded ? <i className="fas fa-check"></i> : '1'}
+              </div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Download & Open Email App</div>
+            </div>
+            <p style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', margin: '0 0 10px', lineHeight: 1.5 }}>
+              We will download your PDF and open your email app with a pre-written message to HR. <strong>You just need to attach the downloaded PDF and hit send.</strong>
+            </p>
+            <Btn variant={hasDownloaded ? 'ghost' : 'primary'} onClick={onDownloadAndEmail} disabled={downloading} style={{ width: '100%' }}>
+              <i className={`fas ${downloading ? 'fa-circle-notch spin' : 'fa-download'}`}></i>
+              {downloading ? 'Generating PDF...' : hasDownloaded ? 'Download & Open Email Again' : 'Download PDF & Open Email App'}
+            </Btn>
+          </div>
+
+          {/* Step 2 */}
+          <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.1)', borderRadius: 10, padding: 16, opacity: hasDownloaded ? 1 : 0.55 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <div style={{ width: 26, height: 26, borderRadius: 50, background: '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>2</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Confirm you have sent it</div>
+            </div>
+            <Btn variant="success" onClick={onConfirm} disabled={!hasDownloaded || submitting} style={{ width: '100%' }}>
+              {submitting ? <><i className="fas fa-circle-notch spin"></i> Saving…</> : <><i className="fas fa-check"></i> I have sent the email to HR</>}
+            </Btn>
           </div>
         </div>
-
-        <Btn onClick={onSubmit} disabled={submitting} size="lg" variant="primary" style={{ width: '100%', marginBottom: 12 }}>
-          {submitting
-            ? <><i className="fas fa-circle-notch spin"></i> {stage || 'Submitting…'}</>
-            : <><i className="fas fa-paper-plane"></i> Submit Agreement to HR</>}
-        </Btn>
 
         {error && (
           <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 8, fontSize: 12.5, fontWeight: 600, marginBottom: 12, lineHeight: 1.5 }}>
@@ -584,7 +575,7 @@ function HowItWorks({ go }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 48 }}>
           {[
             { n: '01', t: 'Sign Agreement', d: 'Fill out the engagement agreement. Your unique agent code is generated instantly.' },
-            { n: '02', t: 'Submit to HR', d: 'Upload your signed agreement through the platform. Referral codes activate only after submission.' },
+            { n: '02', t: 'Submit to HR', d: 'Download your signed PDF and email it to HR. Referral codes activate only after submission.' },
             { n: '03', t: 'Share Your Link', d: 'Use the Main Link for services (PACRA, ZRA) or the Directory Link for suppliers.' },
             { n: '04', t: 'They Buy', d: 'When they click your link, the system tracks them for 30 days. If they pay, it is attributed to you.' },
             { n: '05', t: 'You Earn', d: 'Once the payment clears (7 days), your commission is credited to your dashboard.' }
@@ -682,7 +673,7 @@ function HowItWorks({ go }) {
 function FAQPage() {
   const faqs = [
     { q: 'Is this a salaried job?', a: 'No. This is an independent contractor opportunity. You are not an employee, and there is no salary or guaranteed income. Your earnings depend entirely on the sales you refer.' },
-    { q: 'Why do I have to submit my agreement to HR?', a: 'Submission through the platform is what activates your referral codes. This ensures StartEasy has a verified copy of your signed agreement on file, and gives you legal protection as an independent agent. Your links stay locked until submission is complete.' },
+    { q: 'Why do I have to submit my agreement to HR?', a: 'Submission through the platform is what activates your referral codes. This ensures StartEasy has a verified copy of your signed agreement on file. Your links stay locked until submission is complete.' },
     { q: 'Why do I have two links?', a: 'StartEasy has two platforms. The Main Platform is for business services (PACRA, ZRA, compliance). The Directory is for buyers and suppliers. Both links use the exact same referral code to track your commissions.' },
     { q: 'Can I refer myself or my own business?', a: 'No. Self-referrals are automatically detected and blocked by our system to prevent fraud.' },
     { q: 'When and how do I get paid?', a: 'Once a client you referred pays, the commission goes into a "Pending" state for 7 days. After 7 days, it becomes "Earned". You can request a payout from your dashboard once your total earned reaches K200.' },
@@ -989,7 +980,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const needsHrSubmission = !agent?.agreementSubmittedAt;
   const [showHrGate, setShowHrGate] = useState(needsHrSubmission);
   const [submitting, setSubmitting] = useState(false);
-  const [submitStage, setSubmitStage] = useState('');
+  const [hasDownloaded, setHasDownloaded] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
   const pdfSourceRef = useRef(null);
@@ -1024,114 +1015,74 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     setTimeout(() => setMsg(''), 2000);
   };
 
-  const buildPdfBlob = async () => {
+  const buildPdf = async () => {
     const el = pdfSourceRef.current?.querySelector('.el.printable');
     if (!el) throw new Error('Agreement content not found.');
     if (document.fonts?.ready) { try { await document.fonts.ready; } catch (e) {} }
     await new Promise(r => setTimeout(r, 200));
-    return await window.html2pdf().set({
+    
+    const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
+    const filename = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
+
+    await window.html2pdf().set({
       margin: [12, 12, 12, 12],
+      filename,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, windowWidth: el.scrollWidth },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'] }
-    }).from(el).outputPdf('blob');
+    }).from(el).save();
   };
 
-  // Mandatory submission — generates PDF, uploads to Firebase Storage, optionally sends email.
-  const submitAgreement = async () => {
+  const handleDownloadAndEmail = async () => {
     setSubmitError('');
-    setSubmitting(true);
-    setSubmitStage('Preparing document…');
+    setDownloading(true);
     try {
-      const blob = await buildPdfBlob();
+      // 1. Download the PDF
+      await buildPdf();
+      setHasDownloaded(true);
 
-      setSubmitStage('Uploading to StartEasy records…');
-      const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
-      const storagePath = `agreements/${agent.id}/signed-agreement-${Date.now()}.pdf`;
-      const storageRef = storage.ref(storagePath);
-      await storageRef.put(blob, {
-        contentType: 'application/pdf',
-        customMetadata: { agentCode: agent.agentCode, agentName: agent.displayName, agentEmail: agent.email }
-      });
-      const downloadUrl = await storageRef.getDownloadURL();
+      // 2. Redirect to Email app
+      const subject = `Signed Referral Agreement — ${agent.displayName} (${agent.agentCode})`;
+      const body = buildHrEmailBody(agent);
+      const mailto = `mailto:${CONFIG.hrEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      // Small delay to allow the download to start smoothly on mobile
+      setTimeout(() => {
+        window.location.href = mailto;
+      }, 500);
 
-      let emailSent = false;
-      let emailError = '';
-
-      if (emailjsReady()) {
-        setSubmitStage('Sending notification to HR…');
-        try {
-          const base64 = await blobToBase64(blob);
-          const base64Data = base64.split(',')[1];
-          await window.emailjs.send(
-            CONFIG.emailjs.serviceId,
-            CONFIG.emailjs.templateId,
-            {
-              to_email: CONFIG.hrEmail,
-              reply_to: agent.email,
-              subject: `Signed Referral Agreement — ${agent.displayName} (${agent.agentCode})`,
-              agent_name: agent.displayName,
-              agent_code: agent.agentCode,
-              agent_email: agent.email,
-              agent_phone: agent.phone,
-              agent_location: agent.location,
-              agreement_date: fmtShortDate(agent.createdAt),
-              email_body: buildHrEmailBody(agent),
-              attachment: base64Data,
-              attachment_name: `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`,
-              storage_url: downloadUrl
-            },
-            { publicKey: CONFIG.emailjs.publicKey }
-          );
-          emailSent = true;
-        } catch (e) {
-          console.error('EmailJS send failed:', e);
-          emailError = e?.text || e?.message || 'Email delivery failed';
-        }
-      }
-
-      setSubmitStage('Finalizing…');
-      await db.collection(SE_AGENTS).doc(agent.id).update({
-        agreementSubmittedAt: Date.now(),
-        agreementStoragePath: storagePath,
-        agreementDownloadUrl: downloadUrl,
-        agreementEmailedTo: CONFIG.hrEmail,
-        agreementEmailSent: emailSent,
-        agreementEmailError: emailError || null
-      });
-
-      setShowHrGate(false);
-      setMsg(emailSent
-        ? '✓ Agreement submitted to HR. Your referral codes are now active.'
-        : '✓ Agreement uploaded to StartEasy records. HR has been notified internally.');
-      setTimeout(() => setMsg(''), 6000);
     } catch (e) {
       console.error(e);
-      const m = e?.message || 'Submission failed. Check your internet connection and try again.';
-      setSubmitError(m.includes('storage') || m.includes('unauthorized')
-        ? 'Storage upload failed. Ensure Firebase Storage is enabled and rules allow authenticated uploads.'
-        : m);
+      setSubmitError('Failed to generate PDF. Please try again or use the "Download copy" button on the dashboard.');
     } finally {
-      setSubmitting(false);
-      setSubmitStage('');
+      setDownloading(false);
     }
   };
 
-  // Optional: let the agent download a copy for their own records after submission
+  const confirmSentToHr = async () => {
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      await db.collection(SE_AGENTS).doc(agent.id).update({
+        agreementSubmittedAt: Date.now(),
+        agreementEmailedTo: CONFIG.hrEmail
+      });
+      setShowHrGate(false);
+      setMsg('✓ Agreement successfully submitted to HR. Your referral codes are now active.');
+      setTimeout(() => setMsg(''), 6000);
+    } catch (e) {
+      console.error(e);
+      setSubmitError('Failed to save submission. Check your internet connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const downloadForRecords = async () => {
     setDownloading(true);
     try {
-      const blob = await buildPdfBlob();
-      const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      await buildPdf();
     } catch (e) {
       console.error(e);
       window.print();
@@ -1141,7 +1092,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   };
 
   const signedDate = fmtShortDate(agent.createdAt);
-  const waShareMsg = `Hello StartEasy, I have signed my referral agreement.\n\nName: ${agent.displayName}\nCode: ${agent.agentCode}\nDate: ${signedDate}\n\nPlease find my signed agreement attached/here for your records.`;
 
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
@@ -1185,7 +1135,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
             <div style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', lineHeight: 1.5, marginTop: 2 }}>
               {needsHrSubmission
                 ? `Your referral codes are locked until you submit your signed agreement through the platform.`
-                : `Submitted on ${fmtShortDate(agent.agreementSubmittedAt)}${agent.agreementEmailSent ? ' · Email sent to ' + (agent.agreementEmailedTo || CONFIG.hrEmail) : ''}`}
+                : `Submitted on ${fmtShortDate(agent.agreementSubmittedAt)}`}
             </div>
           </div>
           {needsHrSubmission && <Btn variant="primary" size="sm" onClick={() => setShowHrGate(true)}>Submit now</Btn>}
@@ -1316,13 +1266,14 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
       {showHrGate && needsHrSubmission && (
         <HrSubmissionGate
           agent={agent}
+          downloading={downloading}
           submitting={submitting}
-          stage={submitStage}
+          hasDownloaded={hasDownloaded}
           error={submitError}
-          onSubmit={submitAgreement}
+          onDownloadAndEmail={handleDownloadAndEmail}
+          onConfirm={confirmSentToHr}
           onDismiss={() => setShowHrGate(false)}
           hrEmail={CONFIG.hrEmail}
-          emailEnabled={emailjsReady()}
         />
       )}
     </div>
