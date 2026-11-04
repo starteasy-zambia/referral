@@ -12,7 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
 :root {
-  --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F; 
+  --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F;
   --orange-2:#F5A623; --light:#F5FAF6; --red:#B8564F; --teal:#0E7C7B;
 }
 body {
@@ -177,7 +177,9 @@ try {
   db = firebase.firestore();
   auth = firebase.auth();
   fbReady = true;
-  auth.signInAnonymously().catch(() => {});
+  // NOTE: Eager anonymous sign-in removed — it was replacing real user sessions
+  // on every page load. Anonymous auth is now only invoked lazily in logReferralClick
+  // when no user is signed in.
 } catch (e) { console.error(e); }
 
 /* ---------------- HELPERS ---------------- */
@@ -213,6 +215,10 @@ const storeAttribution = code => {
 const logReferralClick = async code => {
   if (!fbReady) return;
   try {
+    // Only sign in anonymously if no session exists — never clobber a real agent.
+    if (!auth.currentUser) {
+      try { await auth.signInAnonymously(); } catch (e) { /* rules may block; ignore */ }
+    }
     await db.collection(SE_EVENTS).add({ type: 'referral_click', agentCode: code, at: Date.now(), route: 'redirect' });
     const q = await db.collection(SE_AGENTS).where('agentCode', '==', code).limit(1).get();
     if (!q.empty) {
@@ -223,7 +229,7 @@ const logReferralClick = async code => {
         t.update(ref, { 'totals.clicks': ((s.data().totals || {}).clicks || 0) + 1 });
       });
     }
-  } catch (e) {}
+  } catch (e) { /* non-fatal */ }
 };
 
 /* ---------------- UI COMPONENTS ---------------- */
@@ -270,7 +276,7 @@ const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
 /* ---------------- NAVIGATION ---------------- */
 function Nav({ route, go, agent, onSignOut }) {
   const [open, setOpen] = useState(false);
-  
+
   const handleNav = (r) => {
     setOpen(false);
     go(r);
@@ -292,11 +298,11 @@ function Nav({ route, go, agent, onSignOut }) {
           <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works</button>
           <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
           <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support</button>
-          
+
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
-          
+
           <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
-          
+
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
 
           {agent ? (
@@ -323,11 +329,11 @@ function Nav({ route, go, agent, onSignOut }) {
           <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works & Earnings</button>
           <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
           <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support / Contact</button>
-          
+
           <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
-          
+
           <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '8px 0' }}></div>
-          
+
           {agent ? (
             <>
               <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>My Dashboard</button>
@@ -352,12 +358,12 @@ function Footer() {
       <p style={{ color: 'rgba(255,255,255,.5)', fontSize: 14, marginBottom: 20 }}>
         Want to explore our full range of business services?
       </p>
-      <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" 
-         style={{ 
-           display: 'inline-flex', alignItems: 'center', gap: 10, 
-           padding: '14px 28px', background: 'rgba(255,255,255,.05)', 
-           color: '#F5A623', border: '1px solid rgba(245,166,35,.3)', 
-           borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', transition: 'all .2s' 
+      <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer"
+         style={{
+           display: 'inline-flex', alignItems: 'center', gap: 10,
+           padding: '14px 28px', background: 'rgba(255,255,255,.05)',
+           color: '#F5A623', border: '1px solid rgba(245,166,35,.3)',
+           borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', transition: 'all .2s'
          }}
          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,.05)'}
@@ -427,7 +433,7 @@ function HowItWorks({ go }) {
         <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', marginBottom: 20, maxWidth: 700 }}>
           You earn a percentage of the <strong>StartEasy service fee</strong> (excluding government fees) for every successful referral. Below is the breakdown of what you earn per service category.
         </p>
-        
+
         <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, overflow: 'hidden', marginBottom: 40 }}>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
@@ -439,7 +445,6 @@ function HowItWorks({ go }) {
                 </tr>
               </thead>
               <tbody>
-                {/* Main Platform Services */}
                 <tr><td colSpan="5" style={{ padding: '10px 18px', background: '#F8FAF6', fontSize: 11.5, fontWeight: 800, textTransform: 'uppercase', color: '#8A6828', borderBottom: '1px solid rgba(10,31,18,.08)' }}>Main Platform Services</td></tr>
                 {[
                   { tier: 'Micro / Wizard', ex: 'Name Clearance, Structure Adv.', fee: 'K25', pct: '40%', earn: 'K10' },
@@ -460,7 +465,6 @@ function HowItWorks({ go }) {
                   </tr>
                 ))}
 
-                {/* Directory Platform Services */}
                 <tr><td colSpan="5" style={{ padding: '10px 18px', background: '#F8FAF6', fontSize: 11.5, fontWeight: 800, textTransform: 'uppercase', color: '#8A6828', borderBottom: '1px solid rgba(10,31,18,.08)', borderTop: '1px solid rgba(10,31,18,.08)' }}>Directory Services (Suppliers & Buyers)</td></tr>
                 {[
                   { tier: 'Directory Listing', ex: 'Monthly or Annual Subscription', fee: 'K100 - K1,400', pct: '20%', earn: 'K20 - K280' },
@@ -523,7 +527,7 @@ function FAQPage() {
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
         <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: '#0A1F12', marginBottom: 16, textAlign: 'center' }}>Frequently Asked Questions</h1>
         <p style={{ fontSize: 15, color: 'rgba(10,31,18,.6)', textAlign: 'center', marginBottom: 40 }}>Everything you need to know about the StartEasy Referral Program.</p>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {faqs.map((f, i) => (
             <details key={i} style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: '16px 20px' }}>
@@ -546,7 +550,7 @@ function SupportPage() {
         <p style={{ fontSize: 15, color: 'rgba(10,31,18,.7)', lineHeight: 1.7, marginBottom: 32 }}>
           Our agent support desk is here to help you with your links, your dashboard, or any questions about earning commissions.
         </p>
-        
+
         <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: 32, textAlign: 'left' }}>
           <a href={waUrl('Hello StartEasy — I am an agent and I need help with the Referral Program.')} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#25D366', color: '#fff', padding: '14px 20px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 16 }}>
             <i className="fab fa-whatsapp" style={{ fontSize: 20 }}></i> Chat with us on WhatsApp
@@ -581,7 +585,7 @@ function JoinPage({ go, onAuth }) {
       const cred = await auth.createUserWithEmailAndPassword(form.email.trim().toLowerCase(), form.password);
       const agentCode = generateAgentCode(form.name);
 
-      await db.collection(SE_AGENTS).doc(cred.user.uid).set({
+      const agentData = {
         uid: cred.user.uid,
         agentCode: agentCode,
         displayName: form.name.trim(),
@@ -592,12 +596,16 @@ function JoinPage({ go, onAuth }) {
         commissionPct: 20,
         createdAt: Date.now(),
         totals: { clicks: 0, conversions: 0, earnedZmw: 0, paidZmw: 0, pendingZmw: 0 }
-      });
+      };
 
-      onAuth();
+      await db.collection(SE_AGENTS).doc(cred.user.uid).set(agentData);
+
+      // Optimistic — App's snapshot listener will refresh with the same data.
+      onAuth({ id: cred.user.uid, ...agentData });
     } catch (e) {
-      if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in.');
+      if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in instead.');
       else if (e.code === 'auth/operation-not-allowed') setErr('Email/Password sign-in is not enabled in Firebase Console.');
+      else if (e.code === 'permission-denied') setErr('Registration was blocked by the database. Please contact support.');
       else setErr(e.message || 'Registration failed.');
     } finally { setBusy(false); }
   };
@@ -620,7 +628,7 @@ function JoinPage({ go, onAuth }) {
         </div>
 
         <p><strong>Dear {form.name.trim() ? form.name.trim() : '___________________'},</strong></p>
-        
+
         <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
         <h4>1. Nature of Engagement</h4>
@@ -650,31 +658,31 @@ function JoinPage({ go, onAuth }) {
 
         <h4>4. Acceptance</h4>
         <p>To proceed, create a password for your dashboard, confirm your agreement below, and sign on the right.</p>
-        
+
         <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
           <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
             <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
             <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand this is a commission-only independent contractor agreement.</span>
           </label>
-          
+
           <div style={{ marginTop: 16 }}>
             <label style={{ display: 'block', fontSize: 11, fontWeight: 700, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '.05em' }}>Create Dashboard Password:</label>
             <div style={{ position: 'relative' }}>
-              <input 
-                type={showPassword ? 'text' : 'password'} 
-                className="doc-input-line" 
-                placeholder="Min 6 characters" 
-                value={form.password} 
-                onChange={e => setForm({...form, password: e.target.value})} 
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="doc-input-line"
+                placeholder="Min 6 characters"
+                value={form.password}
+                onChange={e => setForm({...form, password: e.target.value})}
                 style={{ paddingRight: '40px' }}
               />
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)} 
-                style={{ 
-                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', 
-                  background: 'none', border: 'none', cursor: 'pointer', 
-                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' 
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px'
                 }}
               >
                 <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
@@ -714,24 +722,38 @@ function LoginPage({ go, onAuth }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // Password Reset State
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
   const submit = async () => {
     setErr('');
-    if (!email.trim() || !pw) return setErr('Enter your email and password.');
+    const emailNorm = email.trim().toLowerCase();
+    if (!emailNorm || !pw) return setErr('Enter your email and password.');
     setBusy(true);
     try {
-      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('__timeout__')), 15000));
-      await Promise.race([auth.signInWithEmailAndPassword(email.trim(), pw), timeout]);
-      onAuth();
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('__timeout__')), 30000));
+      const cred = await Promise.race([auth.signInWithEmailAndPassword(emailNorm, pw), timeout]);
+
+      // CRITICAL: Verify that an agent profile exists for this UID before
+      // navigating. Otherwise the user gets bounced back to login with no
+      // explanation (the original "can't sign in" symptom).
+      const snap = await db.collection(SE_AGENTS).doc(cred.user.uid).get();
+      if (!snap.exists) {
+        await auth.signOut();
+        setErr('Sign-in succeeded, but no agent profile was found for this account. Please contact support or re-sign the agreement so we can link your account.');
+        return;
+      }
+
+      onAuth({ id: cred.user.uid, ...snap.data() });
     } catch (e) {
       if (e.message === '__timeout__') {
         setErr('Connection timed out. Check your internet or ensure this domain is authorized in Firebase Console.');
       } else if (e.code === 'auth/operation-not-allowed') {
         setErr('Email/Password sign-in is not enabled in Firebase Console.');
+      } else if (e.code === 'auth/unauthorized-domain') {
+        setErr('This domain is not authorized for sign-in. Please contact support.');
       } else if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
         setErr('Incorrect email or password. (Have you signed the agreement yet?)');
       } else {
@@ -742,10 +764,11 @@ function LoginPage({ go, onAuth }) {
 
   const handleReset = async () => {
     setErr('');
-    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return setErr('Enter a valid email address.');
+    const emailNorm = email.trim().toLowerCase();
+    if (!emailNorm || !/^\S+@\S+\.\S+$/.test(emailNorm)) return setErr('Enter a valid email address.');
     setBusy(true);
     try {
-      await auth.sendPasswordResetEmail(email.trim());
+      await auth.sendPasswordResetEmail(emailNorm);
       setResetSent(true);
     } catch (e) {
       if (e.code === 'auth/user-not-found') setErr('No account exists with this email. Have you signed the agreement?');
@@ -756,15 +779,14 @@ function LoginPage({ go, onAuth }) {
   return (
     <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
       <div style={{ background: '#fff', borderRadius: 14, padding: '32px 28px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,.08)' }}>
-        
+
         {resetMode ? (
-          // RESET PASSWORD VIEW
           <>
             <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Reset Password</h1>
             <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>
               {resetSent ? 'Check your email inbox for a secure link to reset your password.' : 'Enter your email address and we will send you a reset link.'}
             </p>
-            
+
             {!resetSent ? (
               <>
                 <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
@@ -780,45 +802,45 @@ function LoginPage({ go, onAuth }) {
                 Reset link sent to <strong>{email}</strong>.
               </div>
             )}
-            
+
             <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>
               <button onClick={() => { setResetMode(false); setResetSent(false); setErr(''); }} style={{ background: 'none', border: 'none', color: '#0A1F12', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}>Back to login</button>
             </p>
           </>
         ) : (
-          // STANDARD LOGIN VIEW
           <>
             <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Welcome back</h1>
             <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>Sign in to view your dashboard.</p>
             <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
-            
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700 }}>Password</label>
               <button onClick={() => { setResetMode(true); setErr(''); }} style={{ background: 'none', border: 'none', color: '#E8730F', fontSize: 12, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>Forgot password?</button>
             </div>
-            
+
             <div style={{ position: 'relative', marginBottom: 16 }}>
-              <input 
-                type={showPassword ? 'text' : 'password'} 
-                value={pw} 
-                onChange={e => setPw(e.target.value)} 
-                style={{ width: '100%', padding: '12px 40px 12px 12px', border: '1px solid #ccc', borderRadius: 8 }} 
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={pw}
+                onChange={e => setPw(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') submit(); }}
+                style={{ width: '100%', padding: '12px 40px 12px 12px', border: '1px solid #ccc', borderRadius: 8 }}
               />
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)} 
-                style={{ 
-                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', 
-                  background: 'none', border: 'none', cursor: 'pointer', 
-                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' 
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px'
                 }}
               >
                 <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
               </button>
             </div>
             {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
-            
+
             <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
               {busy ? 'Signing in...' : 'Sign in'}
             </Btn>
@@ -839,14 +861,14 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [showAgreement, setShowAgreement] = useState(false);
 
   useEffect(() => {
-    if (!agent) return;
+    if (!agent?.id) return;
     const unsubs = [
       db.collection(SE_AGENTS).doc(agent.id).onSnapshot(s => { if (s.exists) setAgent({ id: s.id, ...s.data() }); }),
       db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).orderBy('createdAt', 'desc').limit(100).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
     ];
     setLoading(false);
     return () => unsubs.forEach(u => u());
-  }, [agent.id]);
+  }, [agent?.id]);
 
   if (loading || !agent) return <Spinner label="Loading dashboard…" />;
 
@@ -866,7 +888,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
 
   const signedDate = new Date(agent.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   const refCode = 'SE-AGT-' + new Date(agent.createdAt).getFullYear() + '-' + agent.agentCode.split('-')[2];
-  
+
   const waShareMsg = `Hello StartEasy, I have signed my referral agreement.\n\nName: ${agent.displayName}\nCode: ${agent.agentCode}\nDate: ${signedDate}\n\nPlease find my signed agreement attached/here for your records.`;
   const emailSubject = `Signed Referral Agreement - ${agent.displayName} (${agent.agentCode})`;
   const emailBody = `Hello StartEasy,\n\nI have signed my referral agreement.\n\nName: ${agent.displayName}\nAgent Code: ${agent.agentCode}\nEmail: ${agent.email}\nPhone: ${agent.phone}\nLocation: ${agent.location}\nDate: ${signedDate}\n\nPlease find my signed agreement attached for your records.\n\nRegards,\n${agent.displayName}`;
@@ -874,7 +896,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 16px' }}>
-        
+
         {showCodeBanner && (
           <div className="no-print" style={{ background: 'linear-gradient(135deg,#0A1F12,#123A1F)', color: '#fff', borderRadius: 12, padding: '24px', marginBottom: 24, position: 'relative', boxShadow: '0 10px 30px rgba(10,31,18,.2)' }}>
             <button onClick={() => setShowCodeBanner(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 16 }}>✕</button>
@@ -905,8 +927,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           <p style={{ fontSize: 12.5, color: 'rgba(10,31,18,.6)', marginBottom: 16, lineHeight: 1.5 }}>
             You have one agent code, but two platforms. Use the <strong>Main Link</strong> for business services (like company registration and taxes). Use the <strong>Directory Link</strong> for buyers and suppliers.
           </p>
-          
-          {/* Main Platform Link */}
+
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'rgba(10,31,18,.6)', marginBottom: 6 }}>Main Platform (Services, PACRA, ZRA)</label>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -916,7 +937,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
             </div>
           </div>
 
-          {/* Directory Link */}
           <div>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'rgba(10,31,18,.6)', marginBottom: 6 }}>Businesses & Suppliers Directory</label>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -970,7 +990,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
       {showAgreement && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,31,18,.9)', overflowY: 'auto', padding: '40px 16px' }}>
           <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
-            
+
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, background: '#fff', padding: '16px 20px', borderRadius: 12, flexWrap: 'wrap', gap: 12 }}>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <Btn variant="dark" onClick={() => window.print()}><i className="fas fa-print"></i> Print / Save PDF</Btn>
@@ -996,7 +1016,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
               </div>
 
               <p><strong>Dear {agent.displayName},</strong></p>
-              
+
               <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
               <h4>1. Nature of Engagement</h4>
@@ -1059,6 +1079,8 @@ function RedirectHandler({ code }) {
 function App() {
   const [hash, setHash] = useState(window.location.hash || '#/');
   const [agent, setAgent] = useState(null);
+  const [authUid, setAuthUid] = useState(null);
+  const [agentDocLoaded, setAgentDocLoaded] = useState(false);
   const [bootChecked, setBootChecked] = useState(false);
 
   useEffect(() => {
@@ -1069,16 +1091,41 @@ function App() {
 
   useEffect(() => {
     if (!fbReady) { setBootChecked(true); return; }
-    const unsub = auth.onAuthStateChanged(async user => {
-      if (!user) { setAgent(null); setBootChecked(true); return; }
-      try {
-        const snap = await db.collection(SE_AGENTS).doc(user.uid).get();
-        if (snap.exists) setAgent({ id: user.uid, ...snap.data() });
-        else setAgent(null);
-      } catch (e) { setAgent(null); }
-      setBootChecked(true);
+    let docUnsub = null;
+    const authUnsub = auth.onAuthStateChanged(user => {
+      if (docUnsub) { docUnsub(); docUnsub = null; }
+
+      if (!user || user.isAnonymous) {
+        setAuthUid(null);
+        setAgent(null);
+        setAgentDocLoaded(false);
+        setBootChecked(true);
+        return;
+      }
+
+      setAuthUid(user.uid);
+
+      // onSnapshot (not one-shot get) so a doc written immediately after
+      // sign-up is picked up even if it lands after the auth event.
+      docUnsub = db.collection(SE_AGENTS).doc(user.uid).onSnapshot(
+        snap => {
+          setAgent(snap.exists ? { id: user.uid, ...snap.data() } : null);
+          setAgentDocLoaded(true);
+          setBootChecked(true);
+        },
+        err => {
+          console.error('agent doc listen failed:', err);
+          setAgent(null);
+          setAgentDocLoaded(true);
+          setBootChecked(true);
+        }
+      );
     });
-    return unsub;
+
+    return () => {
+      authUnsub();
+      if (docUnsub) docUnsub();
+    };
   }, []);
 
   const raw = (hash || '#/').replace(/^#\/?/, '');
@@ -1087,8 +1134,20 @@ function App() {
   const routeArg = parts[1] || '';
 
   const go = useCallback((r) => { window.location.hash = '#/' + r; window.scrollTo(0, 0); }, []);
-  const onSignOut = async () => { await auth.signOut(); setAgent(null); go(''); };
-  const onAuth = () => { go('dashboard'); };
+
+  const onSignOut = async () => {
+    try { await auth.signOut(); } catch (e) {}
+    setAgent(null);
+    setAuthUid(null);
+    setAgentDocLoaded(false);
+    go('');
+  };
+
+  // Optimistic — takes optional agent data so the dashboard renders without a flash.
+  const onAuth = useCallback((agentData) => {
+    if (agentData) setAgent(agentData);
+    go('dashboard');
+  }, [go]);
 
   if (!bootChecked) return <Spinner />;
   if (route === 'r' && routeArg) return <RedirectHandler code={routeArg.toUpperCase()} />;
@@ -1100,8 +1159,15 @@ function App() {
   else if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
   else if (route === 'login') page = <LoginPage go={go} onAuth={onAuth} />;
   else if (route === 'dashboard') {
-    if (!agent) page = <LoginPage go={go} onAuth={onAuth} />;
-    else page = <Dashboard go={go} onSignOut={onSignOut} agent={agent} setAgent={setAgent} />;
+    if (authUid && !agentDocLoaded) {
+      // Signed in, waiting for the first Firestore snapshot — show spinner
+      // rather than flashing the login page.
+      page = <Spinner label="Loading your dashboard…" />;
+    } else if (!agent) {
+      page = <LoginPage go={go} onAuth={onAuth} />;
+    } else {
+      page = <Dashboard go={go} onSignOut={onSignOut} agent={agent} setAgent={setAgent} />;
+    }
   }
 
   return (
