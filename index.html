@@ -10,7 +10,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
   --forest:#0A1F12; --forest-2:#123A1F; --green:#1E7B3C; --orange:#E8730F;
@@ -28,7 +30,6 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 .spin { animation: spin 1s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* BULLETPROOF HEADER */
 .site-header {
   position: sticky; top: 0; z-index: 50;
   background: #0A1F12; border-bottom: 1px solid rgba(245,166,35,.1);
@@ -87,7 +88,6 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
   .header-mobile-menu .header-btn { display: block; width: 100%; text-align: center; padding: 14px; font-size: 15px; margin-top: 8px; }
 }
 
-/* EXACT MAIN PLATFORM ENGAGEMENT LETTER CSS */
 .el{
   background:#fff; border:1px solid #D0D0D0; border-radius:8px;
   padding:34px 42px; font-size:13px; line-height:1.65; color:#222;
@@ -112,7 +112,6 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 .el .sign .lbl{font-size:10.5px;color:#666;font-weight:600}
 .el .ft{margin-top:22px;padding-top:16px;border-top:2px solid #0A1F12;font-size:10.5px;color:#666;line-height:1.6}
 
-/* PDF page-break hygiene */
 .el h4 { page-break-after: avoid; break-after: avoid; }
 .el p  { page-break-inside: avoid; break-inside: avoid; }
 .el .sign { page-break-inside: avoid; break-inside: avoid; }
@@ -131,7 +130,6 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
   .el .eh .dt, .el .eh .mt { text-align: left; }
 }
 
-/* PRINT CSS */
 @media print {
   body * { visibility: hidden; }
   .printable, .printable * { visibility: visible; }
@@ -163,6 +161,13 @@ const CONFIG = {
   adminWhatsapp: '260762499581',
   contactEmail: 'referrals@starteasyzambia.com',
   hrEmail: 'hr@starteasyzambia.com',
+  // ── EmailJS (optional — fills the gap for email delivery to hr@starteasyzambia.com)
+  //     See response notes for setup. Leave blank to rely on Firebase Storage only.
+  emailjs: {
+    serviceId: '',    // e.g. 'service_abc123'
+    templateId: '',   // e.g. 'template_xyz789'
+    publicKey: ''     // e.g. 'Ak9Xy_...'
+  },
   attributionDays: 30,
   minPayoutZmw: 200,
   clearingDays: 7,
@@ -178,15 +183,13 @@ const REF_KEY = 'starteasy.ref.v1';
 const CODE_RX = /^SE-[A-Z0-9-]{3,32}$/;
 
 /* ---------------- FIREBASE ---------------- */
-let db = null, auth = null, fbReady = false;
+let db = null, auth = null, storage = null, fbReady = false;
 try {
   if (!firebase.apps.length) firebase.initializeApp(CONFIG.firebase);
   db = firebase.firestore();
   auth = firebase.auth();
+  storage = firebase.storage();
   fbReady = true;
-  // NOTE: Eager anonymous sign-in removed — it was replacing real user sessions
-  // on every page load. Anonymous auth is now only invoked lazily in logReferralClick
-  // when no user is signed in.
 } catch (e) { console.error(e); }
 
 /* ---------------- HELPERS ---------------- */
@@ -203,12 +206,59 @@ const waUrl = (msg, phone) => {
   const p = phone || CONFIG.adminWhatsapp; const e = encodeURIComponent(msg);
   return isMobileUA() ? 'whatsapp://send?phone=' + p + '&text=' + e : 'https://wa.me/' + p + '?text=' + e;
 };
-const baseUrl = () => window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
 const generateAgentCode = name => {
   const clean = String(name || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 8) || 'AGENT';
   return 'SE-' + clean + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 };
 const fmtShortDate = ts => ts ? new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+const blobToBase64 = blob => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = reject;
+  reader.readAsDataURL(blob);
+});
+const emailjsReady = () => !!(CONFIG.emailjs.serviceId && CONFIG.emailjs.templateId && CONFIG.emailjs.publicKey && window.emailjs);
+
+/* Enhanced HR email body — professional, comprehensive, legally clear */
+const buildHrEmailBody = (agent) => {
+  const signedDate = fmtShortDate(agent.createdAt);
+  return `Dear StartEasy HR Team,
+
+I am writing to formally submit my signed Referral Agent Agreement and to confirm my acceptance of the StartEasy Zambia Referral Program terms.
+
+AGENT DETAILS
+-------------
+Full Name:        ${agent.displayName}
+Agent Code:       ${agent.agentCode}
+Email:            ${agent.email}
+Phone:            ${agent.phone}
+Location:         ${agent.location}
+Agreement Date:   ${signedDate}
+
+DECLARATION
+-----------
+I, ${agent.displayName}, hereby confirm the following:
+
+1. I have read, understood, and signed the Opportunity Engagement Agreement attached to this submission.
+
+2. I understand that this is an independent contractor arrangement — NOT an employment contract. I am not entitled to any salary, guaranteed income, or employee benefits of any kind.
+
+3. I understand that my earnings are commission-only, calculated as a fixed percentage of the StartEasy service fee on approved sales I refer, and that commissions clear after a 7-day period.
+
+4. I understand that a minimum balance of K200 must be reached before any payout can be requested, and that payouts are processed to my Airtel Money, MTN MoMo, or bank account within 5 working days.
+
+5. I agree not to engage in self-referral, fraudulent activity, or misrepresentation of StartEasy's services, and I understand that any such activity may result in immediate termination of my agent status and cancellation of any pending commissions.
+
+6. I have submitted my signed agreement through the StartEasy agent platform for StartEasy's permanent records.
+
+For any clarification, I can be reached at ${agent.email} or ${agent.phone}.
+
+Thank you for this opportunity.
+
+Kind regards,
+${agent.displayName}
+Agent Code: ${agent.agentCode}`;
+};
 
 /* ---------------- ATTRIBUTION ---------------- */
 const storeAttribution = code => {
@@ -224,7 +274,7 @@ const logReferralClick = async code => {
   if (!fbReady) return;
   try {
     if (!auth.currentUser) {
-      try { await auth.signInAnonymously(); } catch (e) { /* rules may block; ignore */ }
+      try { await auth.signInAnonymously(); } catch (e) {}
     }
     await db.collection(SE_EVENTS).add({ type: 'referral_click', agentCode: code, at: Date.now(), route: 'redirect' });
     const q = await db.collection(SE_AGENTS).where('agentCode', '==', code).limit(1).get();
@@ -236,7 +286,7 @@ const logReferralClick = async code => {
         t.update(ref, { 'totals.clicks': ((s.data().totals || {}).clicks || 0) + 1 });
       });
     }
-  } catch (e) { /* non-fatal */ }
+  } catch (e) {}
 };
 
 /* ---------------- UI COMPONENTS ---------------- */
@@ -280,7 +330,7 @@ const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
   </div>
 );
 
-/* ---------------- AGREEMENT LETTER (extracted) ---------------- */
+/* ---------------- AGREEMENT LETTER ---------------- */
 function AgreementLetter({ agent, id }) {
   const signedDate = fmtShortDate(agent.createdAt);
   const refCode = 'SE-AGT-' + new Date(agent.createdAt).getFullYear() + '-' + agent.agentCode.split('-')[2];
@@ -302,7 +352,6 @@ function AgreementLetter({ agent, id }) {
       </div>
 
       <p><strong>Dear {agent.displayName},</strong></p>
-
       <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
       <h4>1. Nature of Engagement</h4>
@@ -348,66 +397,60 @@ function AgreementLetter({ agent, id }) {
   );
 }
 
-/* ---------------- HR SUBMISSION GATE ---------------- */
-function HrSubmissionGate({ pdfDownloaded, emailOpened, downloading, submitting, onDownload, onEmail, onConfirm, onDismiss, hrEmail }) {
+/* ---------------- HR SUBMISSION GATE (single-click, mandatory, verifiable) ---------------- */
+function HrSubmissionGate({ agent, submitting, stage, error, onSubmit, onDismiss, hrEmail, emailEnabled }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 110, background: 'rgba(10,31,18,.92)', overflowY: 'auto', padding: '32px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
       <div style={{ background: '#fff', borderRadius: 16, maxWidth: 560, width: '100%', padding: '32px 28px', boxShadow: '0 30px 80px rgba(0,0,0,.5)', margin: 'auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ width: 64, height: 64, borderRadius: 50, background: '#FFF4E5', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-            <i className="fas fa-envelope-circle-check" style={{ fontSize: 26, color: '#E8730F' }}></i>
+            <i className="fas fa-file-arrow-up" style={{ fontSize: 24, color: '#E8730F' }}></i>
           </div>
-          <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', marginBottom: 8, lineHeight: 1.25 }}>One last step</h2>
+          <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', marginBottom: 8, lineHeight: 1.25 }}>Submit your signed agreement</h2>
           <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.7)', lineHeight: 1.6, margin: 0 }}>
-            To activate your referral codes, you must download your signed agreement and email it to our HR team at <strong style={{ color: '#0A1F12' }}>{hrEmail}</strong>.
+            To activate your referral codes, you must submit your signed agreement to StartEasy HR.
+            This is a mandatory, one-time step — your codes stay locked until it&apos;s completed.
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-          {/* Step 1 */}
-          <div style={{ background: pdfDownloaded ? '#EAF7EE' : '#F9FBFA', border: `1px solid ${pdfDownloaded ? '#1E7B3C55' : 'rgba(10,31,18,.1)'}`, borderRadius: 10, padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <div style={{ width: 26, height: 26, borderRadius: 50, background: pdfDownloaded ? '#1E7B3C' : '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
-                {pdfDownloaded ? <i className="fas fa-check"></i> : '1'}
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Download your signed agreement</div>
-            </div>
-            <Btn variant={pdfDownloaded ? 'ghost' : 'primary'} onClick={onDownload} disabled={downloading} style={{ width: '100%' }}>
-              <i className={`fas ${downloading ? 'fa-circle-notch spin' : 'fa-file-pdf'}`}></i>
-              {downloading ? 'Preparing PDF…' : pdfDownloaded ? 'Download again' : 'Download PDF'}
-            </Btn>
-          </div>
-
-          {/* Step 2 */}
-          <div style={{ background: emailOpened ? '#EAF7EE' : '#F9FBFA', border: `1px solid ${emailOpened ? '#1E7B3C55' : 'rgba(10,31,18,.1)'}`, borderRadius: 10, padding: 16, opacity: pdfDownloaded ? 1 : 0.55 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div style={{ width: 26, height: 26, borderRadius: 50, background: emailOpened ? '#1E7B3C' : '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
-                {emailOpened ? <i className="fas fa-check"></i> : '2'}
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Email it to HR with PDF attached</div>
-            </div>
-            <p style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', margin: '0 0 10px', lineHeight: 1.5 }}>
-              Your mail app will open with the message pre-filled. <strong>Attach the PDF you just downloaded</strong>, then send.
-            </p>
-            <Btn variant={emailOpened ? 'ghost' : 'primary'} onClick={onEmail} disabled={!pdfDownloaded} style={{ width: '100%' }}>
-              <i className="fas fa-envelope"></i>
-              {emailOpened ? 'Open email again' : 'Open email to HR'}
-            </Btn>
-          </div>
-
-          {/* Step 3 */}
-          <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.1)', borderRadius: 10, padding: 16, opacity: emailOpened ? 1 : 0.55 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <div style={{ width: 26, height: 26, borderRadius: 50, background: '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>3</div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Confirm submission</div>
-            </div>
-            <Btn variant="success" onClick={onConfirm} disabled={!emailOpened || submitting} style={{ width: '100%' }}>
-              {submitting ? <><i className="fas fa-circle-notch spin"></i> Saving…</> : <><i className="fas fa-check"></i> I've sent the email to HR</>}
-            </Btn>
+        <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)', marginBottom: 10 }}>Confirming as</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 13 }}>
+            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Name</span><br/><strong>{agent.displayName}</strong></div>
+            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Agent Code</span><br/><strong style={{ fontFamily: 'monospace' }}>{agent.agentCode}</strong></div>
+            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Email</span><br/><strong style={{ wordBreak: 'break-all' }}>{agent.email}</strong></div>
+            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Phone</span><br/><strong>{agent.phone}</strong></div>
           </div>
         </div>
 
-        <button onClick={onDismiss} style={{ display: 'block', margin: '0 auto', background: 'none', border: 'none', fontSize: 12, color: 'rgba(10,31,18,.5)', cursor: 'pointer', textDecoration: 'underline' }}>
+        <div style={{ background: '#EAF7EE', border: '1px solid #1E7B3C33', borderRadius: 10, padding: 14, marginBottom: 16, display: 'flex', gap: 10 }}>
+          <i className="fas fa-shield-halved" style={{ color: '#1E7B3C', fontSize: 16, marginTop: 1 }}></i>
+          <div style={{ fontSize: 12.5, color: 'rgba(10,31,18,.8)', lineHeight: 1.55 }}>
+            When you click submit, we will:
+            <ol style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+              <li>Generate a PDF of your signed agreement</li>
+              <li>Securely upload it to StartEasy&apos;s records</li>
+              {emailEnabled
+                ? <li>Send a copy to <strong>{hrEmail}</strong> automatically</li>
+                : <li>Flag it for HR review (email delivery not configured)</li>}
+            </ol>
+          </div>
+        </div>
+
+        <Btn onClick={onSubmit} disabled={submitting} size="lg" variant="primary" style={{ width: '100%', marginBottom: 12 }}>
+          {submitting
+            ? <><i className="fas fa-circle-notch spin"></i> {stage || 'Submitting…'}</>
+            : <><i className="fas fa-paper-plane"></i> Submit Agreement to HR</>}
+        </Btn>
+
+        {error && (
+          <div style={{ background: '#FFE8E5', color: '#B8564F', padding: 12, borderRadius: 8, fontSize: 12.5, fontWeight: 600, marginBottom: 12, lineHeight: 1.5 }}>
+            <i className="fas fa-exclamation-triangle" style={{ marginRight: 6 }}></i>
+            {error}
+          </div>
+        )}
+
+        <button onClick={onDismiss} disabled={submitting} style={{ display: 'block', margin: '0 auto', background: 'none', border: 'none', fontSize: 12, color: 'rgba(10,31,18,.5)', cursor: submitting ? 'not-allowed' : 'pointer', textDecoration: 'underline', opacity: submitting ? 0.5 : 1 }}>
           Do this later — my referral codes will stay locked
         </button>
       </div>
@@ -418,11 +461,7 @@ function HrSubmissionGate({ pdfDownloaded, emailOpened, downloading, submitting,
 /* ---------------- NAVIGATION ---------------- */
 function Nav({ route, go, agent, onSignOut }) {
   const [open, setOpen] = useState(false);
-
-  const handleNav = (r) => {
-    setOpen(false);
-    go(r);
-  };
+  const handleNav = (r) => { setOpen(false); go(r); };
 
   return (
     <header className="site-header">
@@ -442,9 +481,7 @@ function Nav({ route, go, agent, onSignOut }) {
           <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support</button>
 
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
-
           <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
-
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,.1)', margin: '0 10px' }}></div>
 
           {agent ? (
@@ -471,11 +508,8 @@ function Nav({ route, go, agent, onSignOut }) {
           <button onClick={() => handleNav('how-it-works')} className={`header-link ${route === 'how-it-works' ? 'active' : ''}`}>How It Works & Earnings</button>
           <button onClick={() => handleNav('faq')} className={`header-link ${route === 'faq' ? 'active' : ''}`}>FAQ</button>
           <button onClick={() => handleNav('support')} className={`header-link ${route === 'support' ? 'active' : ''}`}>Support / Contact</button>
-
           <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="header-link" style={{ color: '#F5A623' }}>Back to Platform</a>
-
           <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '8px 0' }}></div>
-
           {agent ? (
             <>
               <button onClick={() => handleNav('dashboard')} className={`header-link ${route === 'dashboard' ? 'active' : ''}`}>My Dashboard</button>
@@ -497,24 +531,15 @@ function Nav({ route, go, agent, onSignOut }) {
 function Footer() {
   return (
     <footer style={{ background: '#0A1F12', borderTop: '1px solid rgba(255,255,255,.1)', padding: '40px 24px', textAlign: 'center', marginTop: 'auto' }}>
-      <p style={{ color: 'rgba(255,255,255,.5)', fontSize: 14, marginBottom: 20 }}>
-        Want to explore our full range of business services?
-      </p>
+      <p style={{ color: 'rgba(255,255,255,.5)', fontSize: 14, marginBottom: 20 }}>Want to explore our full range of business services?</p>
       <a href={CONFIG.mainSiteUrl} target="_blank" rel="noopener noreferrer"
-         style={{
-           display: 'inline-flex', alignItems: 'center', gap: 10,
-           padding: '14px 28px', background: 'rgba(255,255,255,.05)',
-           color: '#F5A623', border: '1px solid rgba(245,166,35,.3)',
-           borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', transition: 'all .2s'
-         }}
+         style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 28px', background: 'rgba(255,255,255,.05)', color: '#F5A623', border: '1px solid rgba(245,166,35,.3)', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', transition: 'all .2s' }}
          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,.05)'}
       >
         Explore StartEasy Zambia <i className="fas fa-external-link-alt" style={{ fontSize: 13 }}></i>
       </a>
-      <div style={{ marginTop: 32, fontSize: 11, color: 'rgba(255,255,255,.3)' }}>
-        © {new Date().getFullYear()} StartEasy Zambia. All rights reserved.
-      </div>
+      <div style={{ marginTop: 32, fontSize: 11, color: 'rgba(255,255,255,.3)' }}>© {new Date().getFullYear()} StartEasy Zambia. All rights reserved.</div>
     </footer>
   );
 }
@@ -555,13 +580,14 @@ function HowItWorks({ go }) {
       </section>
 
       <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
-        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 24 }}>Your 4-Step Earning Process</h2>
+        <h2 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 24 }}>Your 5-Step Earning Process</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 48 }}>
           {[
-            { n: '01', t: 'Sign & Get Code', d: 'Fill out the engagement agreement. Your unique referral links are generated instantly.' },
-            { n: '02', t: 'Share Your Link', d: 'Use the Main Link for services (PACRA, ZRA) or the Directory Link for suppliers.' },
-            { n: '03', t: 'They Buy', d: 'When they click your link, the system tracks them for 30 days. If they pay, it is attributed to you.' },
-            { n: '04', t: 'You Earn', d: 'Once the payment clears (7 days), your commission is credited to your dashboard.' }
+            { n: '01', t: 'Sign Agreement', d: 'Fill out the engagement agreement. Your unique agent code is generated instantly.' },
+            { n: '02', t: 'Submit to HR', d: 'Upload your signed agreement through the platform. Referral codes activate only after submission.' },
+            { n: '03', t: 'Share Your Link', d: 'Use the Main Link for services (PACRA, ZRA) or the Directory Link for suppliers.' },
+            { n: '04', t: 'They Buy', d: 'When they click your link, the system tracks them for 30 days. If they pay, it is attributed to you.' },
+            { n: '05', t: 'You Earn', d: 'Once the payment clears (7 days), your commission is credited to your dashboard.' }
           ].map((x, i) => (
             <div key={i} style={{ background: '#fff', padding: 24, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', borderTopWidth: 4, borderTopColor: '#E8730F' }}>
               <div className="serif" style={{ fontSize: 14, color: '#E8730F', fontWeight: 800, marginBottom: 8 }}>{x.n}</div>
@@ -606,7 +632,6 @@ function HowItWorks({ go }) {
                     <td style={{ padding: '14px 18px', fontSize: 13, fontWeight: 800, color: '#E8730F' }}>{r.earn}</td>
                   </tr>
                 ))}
-
                 <tr><td colSpan="5" style={{ padding: '10px 18px', background: '#F8FAF6', fontSize: 11.5, fontWeight: 800, textTransform: 'uppercase', color: '#8A6828', borderBottom: '1px solid rgba(10,31,18,.08)', borderTop: '1px solid rgba(10,31,18,.08)' }}>Directory Services (Suppliers & Buyers)</td></tr>
                 {[
                   { tier: 'Directory Listing', ex: 'Monthly or Annual Subscription', fee: 'K100 - K1,400', pct: '20%', earn: 'K20 - K280' },
@@ -657,12 +682,12 @@ function HowItWorks({ go }) {
 function FAQPage() {
   const faqs = [
     { q: 'Is this a salaried job?', a: 'No. This is an independent contractor opportunity. You are not an employee, and there is no salary or guaranteed income. Your earnings depend entirely on the sales you refer.' },
+    { q: 'Why do I have to submit my agreement to HR?', a: 'Submission through the platform is what activates your referral codes. This ensures StartEasy has a verified copy of your signed agreement on file, and gives you legal protection as an independent agent. Your links stay locked until submission is complete.' },
     { q: 'Why do I have two links?', a: 'StartEasy has two platforms. The Main Platform is for business services (PACRA, ZRA, compliance). The Directory is for buyers and suppliers. Both links use the exact same referral code to track your commissions.' },
     { q: 'Can I refer myself or my own business?', a: 'No. Self-referrals are automatically detected and blocked by our system to prevent fraud.' },
     { q: 'When and how do I get paid?', a: 'Once a client you referred pays, the commission goes into a "Pending" state for 7 days. After 7 days, it becomes "Earned". You can request a payout from your dashboard once your total earned reaches K200.' },
     { q: 'What happens if a client gets a refund?', a: 'If a payment is reverted or declined, the associated commission is automatically cancelled.' },
-    { q: 'Do I have to pay to join?', a: 'No. Registration is completely free. StartEasy does not charge any joining or maintenance fees.' },
-    { q: 'Do I have to email my agreement to HR?', a: 'Yes — this is mandatory for every agent. After signing up, you must download your signed agreement and email it to hr@starteasyzambia.com. Your referral codes stay locked until you confirm you have submitted it via the platform.' }
+    { q: 'Do I have to pay to join?', a: 'No. Registration is completely free. StartEasy does not charge any joining or maintenance fees.' }
   ];
 
   return (
@@ -670,7 +695,6 @@ function FAQPage() {
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
         <h1 className="serif" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: '#0A1F12', marginBottom: 16, textAlign: 'center' }}>Frequently Asked Questions</h1>
         <p style={{ fontSize: 15, color: 'rgba(10,31,18,.6)', textAlign: 'center', marginBottom: 40 }}>Everything you need to know about the StartEasy Referral Program.</p>
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {faqs.map((f, i) => (
             <details key={i} style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: '16px 20px' }}>
@@ -693,7 +717,6 @@ function SupportPage() {
         <p style={{ fontSize: 15, color: 'rgba(10,31,18,.7)', lineHeight: 1.7, marginBottom: 32 }}>
           Our agent support desk is here to help you with your links, your dashboard, or any questions about earning commissions.
         </p>
-
         <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: 32, textAlign: 'left' }}>
           <a href={waUrl('Hello StartEasy — I am an agent and I need help with the Referral Program.')} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: '#25D366', color: '#fff', padding: '14px 20px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none', marginBottom: 16 }}>
             <i className="fab fa-whatsapp" style={{ fontSize: 20 }}></i> Chat with us on WhatsApp
@@ -742,8 +765,6 @@ function JoinPage({ go, onAuth }) {
       };
 
       await db.collection(SE_AGENTS).doc(cred.user.uid).set(agentData);
-
-      // Optimistic — App's snapshot listener will refresh with the same data.
       onAuth({ id: cred.user.uid, ...agentData });
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') setErr('This email is already registered. Please sign in instead.');
@@ -771,7 +792,6 @@ function JoinPage({ go, onAuth }) {
         </div>
 
         <p><strong>Dear {form.name.trim() ? form.name.trim() : '___________________'},</strong></p>
-
         <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
 
         <h4>1. Nature of Engagement</h4>
@@ -800,12 +820,12 @@ function JoinPage({ go, onAuth }) {
         </p>
 
         <h4>4. Acceptance</h4>
-        <p>To proceed, create a password for your dashboard, confirm your agreement below, and sign on the right. <strong>Note:</strong> After signing up, you will be required to email a copy of this signed agreement to our HR team at <strong>{CONFIG.hrEmail}</strong> before your referral codes are activated.</p>
+        <p>To proceed, create a password for your dashboard, confirm your agreement below, and sign on the right. <strong>Note:</strong> After signing up, you must submit a signed copy of this agreement through the platform to {CONFIG.hrEmail} before your referral codes are activated.</p>
 
         <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
           <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
             <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
-            <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand this is a commission-only independent contractor agreement, and I agree to submit a signed copy to HR at {CONFIG.hrEmail} before my codes are activated.</span>
+            <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand this is a commission-only independent contractor agreement, and I agree to submit a signed copy through the platform before my codes are activated.</span>
           </label>
 
           <div style={{ marginTop: 16 }}>
@@ -819,15 +839,8 @@ function JoinPage({ go, onAuth }) {
                 onChange={e => setForm({...form, password: e.target.value})}
                 style={{ paddingRight: '40px' }}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px'
-                }}
-              >
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' }}>
                 <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
               </button>
             </div>
@@ -865,7 +878,6 @@ function LoginPage({ go, onAuth }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
@@ -877,27 +889,19 @@ function LoginPage({ go, onAuth }) {
     try {
       const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('__timeout__')), 30000));
       const cred = await Promise.race([auth.signInWithEmailAndPassword(emailNorm, pw), timeout]);
-
       const snap = await db.collection(SE_AGENTS).doc(cred.user.uid).get();
       if (!snap.exists) {
         await auth.signOut();
         setErr('Sign-in succeeded, but no agent profile was found for this account. Please contact support or re-sign the agreement so we can link your account.');
         return;
       }
-
       onAuth({ id: cred.user.uid, ...snap.data() });
     } catch (e) {
-      if (e.message === '__timeout__') {
-        setErr('Connection timed out. Check your internet or ensure this domain is authorized in Firebase Console.');
-      } else if (e.code === 'auth/operation-not-allowed') {
-        setErr('Email/Password sign-in is not enabled in Firebase Console.');
-      } else if (e.code === 'auth/unauthorized-domain') {
-        setErr('This domain is not authorized for sign-in. Please contact support.');
-      } else if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
-        setErr('Incorrect email or password. (Have you signed the agreement yet?)');
-      } else {
-        setErr(e.message || 'Sign in failed.');
-      }
+      if (e.message === '__timeout__') setErr('Connection timed out. Check your internet or ensure this domain is authorized in Firebase Console.');
+      else if (e.code === 'auth/operation-not-allowed') setErr('Email/Password sign-in is not enabled in Firebase Console.');
+      else if (e.code === 'auth/unauthorized-domain') setErr('This domain is not authorized for sign-in. Please contact support.');
+      else if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') setErr('Incorrect email or password. (Have you signed the agreement yet?)');
+      else setErr(e.message || 'Sign in failed.');
     } finally { setBusy(false); }
   };
 
@@ -918,14 +922,12 @@ function LoginPage({ go, onAuth }) {
   return (
     <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
       <div style={{ background: '#fff', borderRadius: 14, padding: '32px 28px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,.08)' }}>
-
         {resetMode ? (
           <>
             <h1 className="serif" style={{ fontSize: 24, color: '#0A1F12', marginBottom: 6 }}>Reset Password</h1>
             <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>
               {resetSent ? 'Check your email inbox for a secure link to reset your password.' : 'Enter your email address and we will send you a reset link.'}
             </p>
-
             {!resetSent ? (
               <>
                 <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
@@ -941,7 +943,6 @@ function LoginPage({ go, onAuth }) {
                 Reset link sent to <strong>{email}</strong>.
               </div>
             )}
-
             <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>
               <button onClick={() => { setResetMode(false); setResetSent(false); setErr(''); }} style={{ background: 'none', border: 'none', color: '#0A1F12', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}>Back to login</button>
             </p>
@@ -952,46 +953,30 @@ function LoginPage({ go, onAuth }) {
             <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', marginBottom: 24 }}>Sign in to view your dashboard.</p>
             <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, border: '1px solid #ccc', borderRadius: 8, marginBottom: 16 }} />
-
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700 }}>Password</label>
               <button onClick={() => { setResetMode(true); setErr(''); }} style={{ background: 'none', border: 'none', color: '#E8730F', fontSize: 12, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>Forgot password?</button>
             </div>
-
             <div style={{ position: 'relative', marginBottom: 16 }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={pw}
-                onChange={e => setPw(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') submit(); }}
-                style={{ width: '100%', padding: '12px 40px 12px 12px', border: '1px solid #ccc', borderRadius: 8 }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px'
-                }}
-              >
+              <input type={showPassword ? 'text' : 'password'} value={pw} onChange={e => setPw(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') submit(); }} style={{ width: '100%', padding: '12px 40px 12px 12px', border: '1px solid #ccc', borderRadius: 8 }} />
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(10,31,18,.5)', fontSize: '16px', padding: '4px' }}>
                 <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
               </button>
             </div>
             {err && <div style={{ color: '#B8564F', fontSize: 12.5, marginBottom: 16, lineHeight: 1.5 }}>{err}</div>}
-
             <Btn onClick={submit} disabled={busy} size="lg" variant="primary" style={{ width: '100%', marginBottom: 16 }}>
               {busy ? 'Signing in...' : 'Sign in'}
             </Btn>
             <p style={{ fontSize: 12, textAlign: 'center', margin: 0 }}>Need a code? <a href="#/join" style={{ color: '#E8730F', fontWeight: 700 }}>Sign agreement here</a>.</p>
           </>
         )}
-
       </div>
     </div>
   );
 }
 
+/* ---------------- DASHBOARD ---------------- */
 function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [commissions, setCommissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1000,14 +985,13 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [showAgreement, setShowAgreement] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  // HR submission gate state
-  const needsHrSubmission = !agent?.agreementEmailedAt;
+  // Submission gate state
+  const needsHrSubmission = !agent?.agreementSubmittedAt;
   const [showHrGate, setShowHrGate] = useState(needsHrSubmission);
-  const [pdfDownloaded, setPdfDownloaded] = useState(false);
-  const [emailOpened, setEmailOpened] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitStage, setSubmitStage] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
-  // Hidden element used for PDF capture (kept off-screen but rendered)
   const pdfSourceRef = useRef(null);
 
   useEffect(() => {
@@ -1020,10 +1004,9 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     return () => unsubs.forEach(u => u());
   }, [agent?.id]);
 
-  // Auto-close the gate if the agent's submission is confirmed (e.g., onSnapshot).
   useEffect(() => {
-    if (agent?.agreementEmailedAt) setShowHrGate(false);
-  }, [agent?.agreementEmailedAt]);
+    if (agent?.agreementSubmittedAt) setShowHrGate(false);
+  }, [agent?.agreementSubmittedAt]);
 
   if (loading || !agent) return <Spinner label="Loading dashboard…" />;
 
@@ -1041,120 +1024,129 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     setTimeout(() => setMsg(''), 2000);
   };
 
-  const downloadPdf = async () => {
+  const buildPdfBlob = async () => {
     const el = pdfSourceRef.current?.querySelector('.el.printable');
-    if (!el) return;
+    if (!el) throw new Error('Agreement content not found.');
+    if (document.fonts?.ready) { try { await document.fonts.ready; } catch (e) {} }
+    await new Promise(r => setTimeout(r, 200));
+    return await window.html2pdf().set({
+      margin: [12, 12, 12, 12],
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, windowWidth: el.scrollWidth },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] }
+    }).from(el).outputPdf('blob');
+  };
 
+  // Mandatory submission — generates PDF, uploads to Firebase Storage, optionally sends email.
+  const submitAgreement = async () => {
+    setSubmitError('');
+    setSubmitting(true);
+    setSubmitStage('Preparing document…');
+    try {
+      const blob = await buildPdfBlob();
+
+      setSubmitStage('Uploading to StartEasy records…');
+      const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
+      const storagePath = `agreements/${agent.id}/signed-agreement-${Date.now()}.pdf`;
+      const storageRef = storage.ref(storagePath);
+      await storageRef.put(blob, {
+        contentType: 'application/pdf',
+        customMetadata: { agentCode: agent.agentCode, agentName: agent.displayName, agentEmail: agent.email }
+      });
+      const downloadUrl = await storageRef.getDownloadURL();
+
+      let emailSent = false;
+      let emailError = '';
+
+      if (emailjsReady()) {
+        setSubmitStage('Sending notification to HR…');
+        try {
+          const base64 = await blobToBase64(blob);
+          const base64Data = base64.split(',')[1];
+          await window.emailjs.send(
+            CONFIG.emailjs.serviceId,
+            CONFIG.emailjs.templateId,
+            {
+              to_email: CONFIG.hrEmail,
+              reply_to: agent.email,
+              subject: `Signed Referral Agreement — ${agent.displayName} (${agent.agentCode})`,
+              agent_name: agent.displayName,
+              agent_code: agent.agentCode,
+              agent_email: agent.email,
+              agent_phone: agent.phone,
+              agent_location: agent.location,
+              agreement_date: fmtShortDate(agent.createdAt),
+              email_body: buildHrEmailBody(agent),
+              attachment: base64Data,
+              attachment_name: `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`,
+              storage_url: downloadUrl
+            },
+            { publicKey: CONFIG.emailjs.publicKey }
+          );
+          emailSent = true;
+        } catch (e) {
+          console.error('EmailJS send failed:', e);
+          emailError = e?.text || e?.message || 'Email delivery failed';
+        }
+      }
+
+      setSubmitStage('Finalizing…');
+      await db.collection(SE_AGENTS).doc(agent.id).update({
+        agreementSubmittedAt: Date.now(),
+        agreementStoragePath: storagePath,
+        agreementDownloadUrl: downloadUrl,
+        agreementEmailedTo: CONFIG.hrEmail,
+        agreementEmailSent: emailSent,
+        agreementEmailError: emailError || null
+      });
+
+      setShowHrGate(false);
+      setMsg(emailSent
+        ? '✓ Agreement submitted to HR. Your referral codes are now active.'
+        : '✓ Agreement uploaded to StartEasy records. HR has been notified internally.');
+      setTimeout(() => setMsg(''), 6000);
+    } catch (e) {
+      console.error(e);
+      const m = e?.message || 'Submission failed. Check your internet connection and try again.';
+      setSubmitError(m.includes('storage') || m.includes('unauthorized')
+        ? 'Storage upload failed. Ensure Firebase Storage is enabled and rules allow authenticated uploads.'
+        : m);
+    } finally {
+      setSubmitting(false);
+      setSubmitStage('');
+    }
+  };
+
+  // Optional: let the agent download a copy for their own records after submission
+  const downloadForRecords = async () => {
     setDownloading(true);
     try {
-      if (document.fonts && document.fonts.ready) {
-        try { await document.fonts.ready; } catch (e) {}
-      }
-      await new Promise(r => setTimeout(r, 200));
-
-      if (!window.html2pdf) {
-        window.print();
-        return;
-      }
-
-      const safeName = (agent.displayName || 'agent')
-        .replace(/[^A-Za-z0-9_-]+/g, '_')
-        .replace(/^_+|_+$/g, '');
-      const filename = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
-
-      await window.html2pdf().set({
-        margin: [12, 12, 12, 12],
-        filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          windowWidth: el.scrollWidth
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
-      }).from(el).save();
-
-      setPdfDownloaded(true);
+      const blob = await buildPdfBlob();
+      const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e) {
-      console.error('PDF generation failed:', e);
+      console.error(e);
       window.print();
     } finally {
       setDownloading(false);
     }
   };
 
-  const openHrEmail = () => {
-    const signedDate = fmtShortDate(agent.createdAt);
-    const subject = `Signed Referral Agreement - ${agent.displayName} (${agent.agentCode})`;
-    const body = `Dear StartEasy HR Team,
-
-Please find attached my signed Referral Agreement.
-
-Agent Details:
-- Full Name: ${agent.displayName}
-- Agent Code: ${agent.agentCode}
-- Email: ${agent.email}
-- Phone: ${agent.phone}
-- Location: ${agent.location}
-- Agreement Date: ${signedDate}
-
-I confirm that I have read and agree to the terms of the StartEasy Referral Program.
-
-Kind regards,
-${agent.displayName}`;
-    window.location.href = `mailto:${CONFIG.hrEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setEmailOpened(true);
-  };
-
-  const confirmSentToHr = async () => {
-    setSubmitting(true);
-    try {
-      await db.collection(SE_AGENTS).doc(agent.id).update({
-        agreementEmailedAt: Date.now(),
-        agreementEmailedTo: CONFIG.hrEmail
-      });
-      setShowHrGate(false);
-      setMsg('Agreement successfully submitted to HR. Your referral codes are now active.');
-      setTimeout(() => setMsg(''), 5000);
-    } catch (e) {
-      console.error(e);
-      setMsg('Failed to save submission. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const signedDate = fmtShortDate(agent.createdAt);
-
   const waShareMsg = `Hello StartEasy, I have signed my referral agreement.\n\nName: ${agent.displayName}\nCode: ${agent.agentCode}\nDate: ${signedDate}\n\nPlease find my signed agreement attached/here for your records.`;
-
-  const hrEmailSubject = `Signed Referral Agreement - ${agent.displayName} (${agent.agentCode})`;
-  const hrEmailBody = `Dear StartEasy HR Team,
-
-Please find attached my signed Referral Agreement.
-
-Agent Details:
-- Full Name: ${agent.displayName}
-- Agent Code: ${agent.agentCode}
-- Email: ${agent.email}
-- Phone: ${agent.phone}
-- Location: ${agent.location}
-- Agreement Date: ${signedDate}
-
-I confirm that I have read and agree to the terms of the StartEasy Referral Program.
-
-Kind regards,
-${agent.displayName}`;
-
-  const hrMailto = `mailto:${CONFIG.hrEmail}?subject=${encodeURIComponent(hrEmailSubject)}&body=${encodeURIComponent(hrEmailBody)}`;
 
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
 
-      {/* Hidden source for PDF generation — off-screen but rendered so html2canvas can capture it */}
+      {/* Hidden source for PDF generation */}
       <div ref={pdfSourceRef} style={{ position: 'fixed', left: -99999, top: 0, width: 800, pointerEvents: 'none' }} aria-hidden="true">
         <AgreementLetter agent={agent} />
       </div>
@@ -1179,28 +1171,24 @@ ${agent.displayName}`;
 
         {msg && <div className="no-print" style={{ background: '#EAF7EE', color: '#1E7B3C', padding: 12, borderRadius: 8, marginBottom: 16, fontWeight: 600, fontSize: 13 }}>{msg}</div>}
 
-        {/* HR submission status banner */}
         <div className="no-print" style={{
           background: needsHrSubmission ? '#FFF4E5' : '#EAF7EE',
           border: `1px solid ${needsHrSubmission ? '#E8730F55' : '#1E7B3C55'}`,
           borderRadius: 10, padding: 14, marginBottom: 16,
           display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap'
         }}>
-          <i className={`fas ${needsHrSubmission ? 'fa-triangle-exclamation' : 'fa-circle-check'}`}
-             style={{ fontSize: 18, color: needsHrSubmission ? '#E8730F' : '#1E7B3C' }}></i>
+          <i className={`fas ${needsHrSubmission ? 'fa-triangle-exclamation' : 'fa-circle-check'}`} style={{ fontSize: 18, color: needsHrSubmission ? '#E8730F' : '#1E7B3C' }}></i>
           <div style={{ flex: 1, minWidth: 200 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1F12' }}>
               {needsHrSubmission ? 'Agreement not yet submitted to HR' : 'Agreement submitted to HR'}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', lineHeight: 1.5, marginTop: 2 }}>
               {needsHrSubmission
-                ? `Your referral codes are locked until you email your signed agreement to ${CONFIG.hrEmail}.`
-                : `Sent on ${fmtShortDate(agent.agreementEmailedAt)} to ${agent.agreementEmailedTo || CONFIG.hrEmail}`}
+                ? `Your referral codes are locked until you submit your signed agreement through the platform.`
+                : `Submitted on ${fmtShortDate(agent.agreementSubmittedAt)}${agent.agreementEmailSent ? ' · Email sent to ' + (agent.agreementEmailedTo || CONFIG.hrEmail) : ''}`}
             </div>
           </div>
-          {needsHrSubmission && (
-            <Btn variant="primary" size="sm" onClick={() => setShowHrGate(true)}>Complete now</Btn>
-          )}
+          {needsHrSubmission && <Btn variant="primary" size="sm" onClick={() => setShowHrGate(true)}>Submit now</Btn>}
         </div>
 
         <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 24 }}>
@@ -1210,7 +1198,6 @@ ${agent.displayName}`;
           <Kpi label="Pending" value={fmtZmw(pending)} sub="Clearing (7 days)" icon="fa-clock" color="#8A6828" />
         </div>
 
-        {/* Referral links — locked until HR submission is confirmed */}
         <div className="no-print" style={{ position: 'relative', background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#0A1F12' }}>Your Referral Links</h3>
           <p style={{ fontSize: 12.5, color: 'rgba(10,31,18,.6)', marginBottom: 16, lineHeight: 1.5 }}>
@@ -1251,7 +1238,7 @@ ${agent.displayName}`;
                 Submit your signed agreement to HR to activate your codes.
               </p>
               <Btn variant="primary" size="sm" onClick={() => setShowHrGate(true)}>
-                <i className="fas fa-envelope"></i> Complete HR submission
+                <i className="fas fa-paper-plane"></i> Submit to HR
               </Btn>
             </div>
           )}
@@ -1261,11 +1248,19 @@ ${agent.displayName}`;
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
             <div>
               <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: '#0A1F12' }}>
-                My Signed Agreement {agent.agreementEmailedAt && <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 800, color: '#1E7B3C' }}>✓ Submitted to HR</span>}
+                My Signed Agreement {agent.agreementSubmittedAt && <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 800, color: '#1E7B3C' }}>✓ Submitted to HR</span>}
               </h3>
-              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: 0 }}>Download, print, or send a copy to StartEasy for your records.</p>
+              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: 0 }}>
+                View a copy of your signed agreement, or download a personal copy for your records.
+              </p>
             </div>
-            <Btn variant="dark" onClick={() => setShowAgreement(true)}><i className="fas fa-file-signature"></i> View / Download Agreement</Btn>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <Btn variant="ghost" onClick={() => setShowAgreement(true)}><i className="fas fa-eye"></i> View</Btn>
+              <Btn variant="dark" onClick={downloadForRecords} disabled={downloading}>
+                <i className={`fas ${downloading ? 'fa-circle-notch spin' : 'fa-download'}`}></i>
+                {downloading ? 'Preparing…' : 'Download copy'}
+              </Btn>
+            </div>
           </div>
         </div>
 
@@ -1299,40 +1294,35 @@ ${agent.displayName}`;
 
       </div>
 
-      {/* Agreement view modal (optional, always accessible) */}
+      {/* Agreement view modal */}
       {showAgreement && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,31,18,.9)', overflowY: 'auto', padding: '40px 16px' }}>
           <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
-
             <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, background: '#fff', padding: '16px 20px', borderRadius: 12, flexWrap: 'wrap', gap: 12 }}>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <Btn variant="dark" onClick={downloadPdf} disabled={downloading}>
-                  <i className={`fas ${downloading ? 'fa-circle-notch spin' : 'fa-file-pdf'}`}></i>
-                  {downloading ? 'Preparing PDF…' : 'Download PDF'}
+                <Btn variant="dark" onClick={downloadForRecords} disabled={downloading}>
+                  <i className={`fas ${downloading ? 'fa-circle-notch spin' : 'fa-download'}`}></i>
+                  {downloading ? 'Preparing…' : 'Download for my records'}
                 </Btn>
-                <a href={hrMailto} onClick={() => setEmailOpened(true)} style={{ padding: '11px 20px', background: '#1B6CA8', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fas fa-envelope"></i> Email to HR Team</a>
-                <a href={waUrl(waShareMsg)} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}><i className="fab fa-whatsapp"></i> Share to WhatsApp</a>
               </div>
               <button onClick={() => setShowAgreement(false)} style={{ background: 'none', border: 'none', fontSize: 24, color: '#B8564F', cursor: 'pointer', padding: '0 10px' }}>✕</button>
             </div>
-
             <AgreementLetter agent={agent} />
           </div>
         </div>
       )}
 
-      {/* HR submission gate (mandatory) */}
+      {/* Mandatory HR submission gate */}
       {showHrGate && needsHrSubmission && (
         <HrSubmissionGate
-          pdfDownloaded={pdfDownloaded}
-          emailOpened={emailOpened}
-          downloading={downloading}
+          agent={agent}
           submitting={submitting}
-          onDownload={downloadPdf}
-          onEmail={openHrEmail}
-          onConfirm={confirmSentToHr}
+          stage={submitStage}
+          error={submitError}
+          onSubmit={submitAgreement}
           onDismiss={() => setShowHrGate(false)}
           hrEmail={CONFIG.hrEmail}
+          emailEnabled={emailjsReady()}
         />
       )}
     </div>
@@ -1367,36 +1357,16 @@ function App() {
     let docUnsub = null;
     const authUnsub = auth.onAuthStateChanged(user => {
       if (docUnsub) { docUnsub(); docUnsub = null; }
-
       if (!user || user.isAnonymous) {
-        setAuthUid(null);
-        setAgent(null);
-        setAgentDocLoaded(false);
-        setBootChecked(true);
-        return;
+        setAuthUid(null); setAgent(null); setAgentDocLoaded(false); setBootChecked(true); return;
       }
-
       setAuthUid(user.uid);
-
       docUnsub = db.collection(SE_AGENTS).doc(user.uid).onSnapshot(
-        snap => {
-          setAgent(snap.exists ? { id: user.uid, ...snap.data() } : null);
-          setAgentDocLoaded(true);
-          setBootChecked(true);
-        },
-        err => {
-          console.error('agent doc listen failed:', err);
-          setAgent(null);
-          setAgentDocLoaded(true);
-          setBootChecked(true);
-        }
+        snap => { setAgent(snap.exists ? { id: user.uid, ...snap.data() } : null); setAgentDocLoaded(true); setBootChecked(true); },
+        err => { console.error('agent doc listen failed:', err); setAgent(null); setAgentDocLoaded(true); setBootChecked(true); }
       );
     });
-
-    return () => {
-      authUnsub();
-      if (docUnsub) docUnsub();
-    };
+    return () => { authUnsub(); if (docUnsub) docUnsub(); };
   }, []);
 
   const raw = (hash || '#/').replace(/^#\/?/, '');
@@ -1405,19 +1375,11 @@ function App() {
   const routeArg = parts[1] || '';
 
   const go = useCallback((r) => { window.location.hash = '#/' + r; window.scrollTo(0, 0); }, []);
-
   const onSignOut = async () => {
     try { await auth.signOut(); } catch (e) {}
-    setAgent(null);
-    setAuthUid(null);
-    setAgentDocLoaded(false);
-    go('');
+    setAgent(null); setAuthUid(null); setAgentDocLoaded(false); go('');
   };
-
-  const onAuth = useCallback((agentData) => {
-    if (agentData) setAgent(agentData);
-    go('dashboard');
-  }, [go]);
+  const onAuth = useCallback((agentData) => { if (agentData) setAgent(agentData); go('dashboard'); }, [go]);
 
   if (!bootChecked) return <Spinner />;
   if (route === 'r' && routeArg) return <RedirectHandler code={routeArg.toUpperCase()} />;
@@ -1429,13 +1391,9 @@ function App() {
   else if (route === 'join') page = <JoinPage go={go} onAuth={onAuth} />;
   else if (route === 'login') page = <LoginPage go={go} onAuth={onAuth} />;
   else if (route === 'dashboard') {
-    if (authUid && !agentDocLoaded) {
-      page = <Spinner label="Loading your dashboard…" />;
-    } else if (!agent) {
-      page = <LoginPage go={go} onAuth={onAuth} />;
-    } else {
-      page = <Dashboard go={go} onSignOut={onSignOut} agent={agent} setAgent={setAgent} />;
-    }
+    if (authUid && !agentDocLoaded) page = <Spinner label="Loading your dashboard…" />;
+    else if (!agent) page = <LoginPage go={go} onAuth={onAuth} />;
+    else page = <Dashboard go={go} onSignOut={onSignOut} agent={agent} setAgent={setAgent} />;
   }
 
   return (
