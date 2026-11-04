@@ -111,7 +111,6 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 .el .ft{margin-top:22px;padding-top:16px;border-top:2px solid #0A1F12;font-size:10.5px;color:#666;line-height:1.6}
 
 .el h4 { page-break-after: avoid; break-after: avoid; }
-.el p  { page-break-inside: avoid; break-inside: avoid; }
 .el .sign { page-break-inside: avoid; break-inside: avoid; }
 
 .doc-input-line {
@@ -977,14 +976,11 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [showAgreement, setShowAgreement] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  // Local storage keys for progress persistence
   const localSubmittedKey = agent?.id ? `se_submitted_${agent.id}` : '';
   const localDownloadedKey = agent?.id ? `se_downloaded_${agent.id}` : '';
   const localEmailKey = agent?.id ? `se_email_opened_${agent.id}` : '';
 
   const localSubmittedAt = localSubmittedKey ? localStorage.getItem(localSubmittedKey) : null;
-
-  // Needs submission ONLY if neither Firestore nor LocalStorage shows it's done
   const needsHrSubmission = !agent?.agreementSubmittedAt && !localSubmittedAt;
   
   const [showHrGate, setShowHrGate] = useState(needsHrSubmission);
@@ -1009,7 +1005,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     if (agent?.agreementSubmittedAt || localSubmittedAt) setShowHrGate(false);
   }, [agent?.agreementSubmittedAt, localSubmittedAt]);
 
-  // Background sync: If we have local proof of submission but Firestore doesn't, sync it silently
   useEffect(() => {
     if (agent?.id && localSubmittedAt && !agent.agreementSubmittedAt) {
       db.collection(SE_AGENTS).doc(agent.id).update({
@@ -1048,10 +1043,17 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
       const filename = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
 
       await window.html2pdf().set({
-        margin: [12, 12, 12, 12],
+        margin: [10, 10, 10, 10],
         filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, windowWidth: el.scrollWidth },
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: {
+          scale: 1.5, // <--- FIX: Reduced from 2 to prevent mobile memory truncation
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          scrollY: 0,
+          scrollX: 0
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['css', 'legacy'] }
       }).from(el).save();
@@ -1080,15 +1082,13 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     setSubmitting(true);
     setSubmitError('');
     
-    // 1. Save locally immediately (Optimistic UI)
     const now = Date.now();
     localStorage.setItem(localSubmittedKey, now.toString());
-    setAgent(prev => ({ ...prev, agreementSubmittedAt: now })); // Instantly unlocks UI
+    setAgent(prev => ({ ...prev, agreementSubmittedAt: now }));
     setShowHrGate(false);
     setMsg('✓ Agreement successfully submitted to HR. Your referral codes are now active.');
     setTimeout(() => setMsg(''), 6000);
 
-    // 2. Sync to Firestore
     try {
       await db.collection(SE_AGENTS).doc(agent.id).update({
         agreementSubmittedAt: now,
@@ -1113,10 +1113,17 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
       const filename = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
 
       await window.html2pdf().set({
-        margin: [12, 12, 12, 12],
+        margin: [10, 10, 10, 10],
         filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, windowWidth: el.scrollWidth },
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: {
+          scale: 1.5, // <--- FIX applied here too
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          scrollY: 0,
+          scrollX: 0
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['css', 'legacy'] }
       }).from(el).save();
@@ -1131,8 +1138,8 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
 
-      {/* Hidden source for PDF generation */}
-      <div ref={pdfSourceRef} style={{ position: 'fixed', left: -99999, top: 0, width: 800, pointerEvents: 'none' }} aria-hidden="true">
+      {/* FIX: Changed from left -99999px to opacity 0.01 / z-index -1 to force mobile browsers to render the full height */}
+      <div ref={pdfSourceRef} style={{ position: 'absolute', top: 0, left: 0, width: '800px', zIndex: -1, opacity: 0.01, pointerEvents: 'none' }} aria-hidden="true">
         <AgreementLetter agent={agent} />
       </div>
 
@@ -1229,7 +1236,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           )}
         </div>
 
-        {/* WhatsApp Community Card */}
         <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
             <div>
@@ -1296,7 +1302,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
 
       </div>
 
-      {/* Agreement view modal */}
       {showAgreement && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10,31,18,.9)', overflowY: 'auto', padding: '40px 16px' }}>
           <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative' }}>
@@ -1314,7 +1319,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
         </div>
       )}
 
-      {/* Mandatory HR submission gate */}
       {showHrGate && needsHrSubmission && (
         <HrSubmissionGate
           agent={agent}
