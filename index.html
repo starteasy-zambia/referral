@@ -159,6 +159,7 @@ const CONFIG = {
   adminWhatsapp: '260762499581',
   contactEmail: 'referrals@starteasyzambia.com',
   hrEmail: 'hr@starteasyzambia.com',
+  whatsappGroupUrl: 'https://chat.whatsapp.com/GgdCRxHHdxADUElBDFQ9I3?s=cl&p=a&mlu=4&ilr=4',
   attributionDays: 30,
   minPayoutZmw: 200,
   clearingDays: 7,
@@ -361,55 +362,76 @@ function AgreementLetter({ agent, id }) {
 }
 
 /* ---------------- HR SUBMISSION GATE ---------------- */
-function HrSubmissionGate({ agent, downloading, submitting, hasDownloaded, error, onDownloadAndEmail, onConfirm, onDismiss, hrEmail }) {
+function HrSubmissionGate({ agent, downloading, submitting, hasDownloaded, emailOpened, error, onDownload, onEmail, onConfirm, onDismiss, hrEmail }) {
+  const [showPreview, setShowPreview] = useState(false);
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 110, background: 'rgba(10,31,18,.92)', overflowY: 'auto', padding: '32px 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
-      <div style={{ background: '#fff', borderRadius: 16, maxWidth: 560, width: '100%', padding: '32px 28px', boxShadow: '0 30px 80px rgba(0,0,0,.5)', margin: 'auto' }}>
+      <div style={{ background: '#fff', borderRadius: 16, maxWidth: 600, width: '100%', padding: '32px 28px', boxShadow: '0 30px 80px rgba(0,0,0,.5)', margin: 'auto' }}>
+        
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ width: 64, height: 64, borderRadius: 50, background: '#FFF4E5', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-            <i className="fas fa-envelope-open-text" style={{ fontSize: 24, color: '#E8730F' }}></i>
+            <i className="fas fa-file-signature" style={{ fontSize: 24, color: '#E8730F' }}></i>
           </div>
           <h2 className="serif" style={{ fontSize: 22, color: '#0A1F12', marginBottom: 8, lineHeight: 1.25 }}>Submit your signed agreement</h2>
           <p style={{ fontSize: 13.5, color: 'rgba(10,31,18,.7)', lineHeight: 1.6, margin: 0 }}>
-            To activate your referral codes, you must email a copy of your signed agreement to <strong style={{ color: '#0A1F12' }}>{hrEmail}</strong>.
+            To activate your referral codes, please complete the steps below to send your agreement to <strong style={{ color: '#0A1F12' }}>{hrEmail}</strong>.
           </p>
         </div>
 
-        <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.08)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)', marginBottom: 10 }}>Confirming as</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 13 }}>
-            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Name</span><br/><strong>{agent.displayName}</strong></div>
-            <div><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Agent Code</span><br/><strong style={{ fontFamily: 'monospace' }}>{agent.agentCode}</strong></div>
-            <div style={{ gridColumn: '1 / -1' }}><span style={{ color: 'rgba(10,31,18,.55)', fontSize: 11 }}>Email</span><br/><strong style={{ wordBreak: 'break-all' }}>{agent.email}</strong></div>
-          </div>
+        <div style={{ marginBottom: 20 }}>
+          <button onClick={() => setShowPreview(!showPreview)} style={{ background: 'none', border: 'none', color: '#E8730F', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, margin: '0 auto' }}>
+            <i className={`fas ${showPreview ? 'fa-eye-slash' : 'fa-eye'}`}></i> 
+            {showPreview ? 'Hide Agreement Preview' : 'Preview Agreement Document'}
+          </button>
+          
+          {showPreview && (
+            <div style={{ maxHeight: 250, overflowY: 'auto', border: '1px solid #ccc', borderRadius: 8, padding: 10, marginTop: 12, background: '#F9FBFA' }}>
+              <AgreementLetter agent={agent} />
+            </div>
+          )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-          {/* Step 1 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+          {/* Step 1: Download */}
           <div style={{ background: hasDownloaded ? '#EAF7EE' : '#F9FBFA', border: `1px solid ${hasDownloaded ? '#1E7B3C55' : 'rgba(10,31,18,.1)'}`, borderRadius: 10, padding: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <div style={{ width: 26, height: 26, borderRadius: 50, background: hasDownloaded ? '#1E7B3C' : '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
                 {hasDownloaded ? <i className="fas fa-check"></i> : '1'}
               </div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Download PDF & Open Email</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Download PDF</div>
             </div>
-            <p style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', margin: '0 0 10px', lineHeight: 1.5 }}>
-              We will download your PDF and open your email app with a professional draft to HR. <strong>Attach the downloaded PDF and hit send.</strong>
-            </p>
-            <Btn variant={hasDownloaded ? 'ghost' : 'primary'} onClick={onDownloadAndEmail} disabled={downloading} style={{ width: '100%' }}>
+            <Btn variant={hasDownloaded ? 'ghost' : 'primary'} onClick={onDownload} disabled={downloading} style={{ width: '100%' }}>
               <i className={`fas ${downloading ? 'fa-circle-notch spin' : 'fa-download'}`}></i>
-              {downloading ? 'Downloading PDF...' : hasDownloaded ? 'Download & Open Email Again' : 'Download PDF & Open Email App'}
+              {downloading ? 'Generating PDF...' : hasDownloaded ? 'Download Again' : 'Download PDF'}
             </Btn>
           </div>
 
-          {/* Step 2 */}
-          <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.1)', borderRadius: 10, padding: 16, opacity: hasDownloaded ? 1 : 0.55 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <div style={{ width: 26, height: 26, borderRadius: 50, background: '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>2</div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Confirm you have sent it</div>
+          {/* Step 2: Open Email */}
+          <div style={{ background: emailOpened ? '#EAF7EE' : '#F9FBFA', border: `1px solid ${emailOpened ? '#1E7B3C55' : 'rgba(10,31,18,.1)'}`, borderRadius: 10, padding: 16, opacity: hasDownloaded ? 1 : 0.55 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <div style={{ width: 26, height: 26, borderRadius: 50, background: emailOpened ? '#1E7B3C' : '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
+                {emailOpened ? <i className="fas fa-check"></i> : '2'}
+              </div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Open Email App</div>
             </div>
-            <Btn variant="success" onClick={onConfirm} disabled={!hasDownloaded || submitting} style={{ width: '100%' }}>
-              {submitting ? <><i className="fas fa-circle-notch spin"></i> Saving…</> : <><i className="fas fa-check"></i> I have sent the email to HR</>}
+            <p style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', margin: '0 0 10px', lineHeight: 1.5 }}>
+              Opens a pre-filled email to HR. <strong>Attach the PDF you just downloaded</strong>, then hit send.
+            </p>
+            <Btn variant={emailOpened ? 'ghost' : 'primary'} onClick={onEmail} disabled={!hasDownloaded} style={{ width: '100%' }}>
+              <i className="fas fa-envelope"></i>
+              {emailOpened ? 'Open Email Again' : 'Open Email to HR'}
+            </Btn>
+          </div>
+
+          {/* Step 3: Confirm */}
+          <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.1)', borderRadius: 10, padding: 16, opacity: emailOpened ? 1 : 0.55 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <div style={{ width: 26, height: 26, borderRadius: 50, background: '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>3</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Confirm Submission</div>
+            </div>
+            <Btn variant="success" onClick={onConfirm} disabled={!emailOpened || submitting} style={{ width: '100%' }}>
+              {submitting ? <><i className="fas fa-circle-notch spin"></i> Unlocking Codes…</> : <><i className="fas fa-check"></i> I have sent the email to HR</>}
             </Btn>
           </div>
         </div>
@@ -961,6 +983,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [showHrGate, setShowHrGate] = useState(needsHrSubmission);
   const [submitting, setSubmitting] = useState(false);
   const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [emailOpened, setEmailOpened] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
   const pdfSourceRef = useRef(null);
@@ -995,49 +1018,42 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     setTimeout(() => setMsg(''), 2000);
   };
 
-  const buildPdf = async () => {
-    const el = pdfSourceRef.current?.querySelector('.el.printable');
-    if (!el) throw new Error('Agreement content not found.');
-    if (document.fonts?.ready) { try { await document.fonts.ready; } catch (e) {} }
-    await new Promise(r => setTimeout(r, 200));
-    
-    const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
-    const filename = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
-
-    await window.html2pdf().set({
-      margin: [12, 12, 12, 12],
-      filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, windowWidth: el.scrollWidth },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
-    }).from(el).save();
-  };
-
-  const handleDownloadAndEmail = async () => {
+  const handleDownload = async () => {
     setSubmitError('');
     setDownloading(true);
     try {
-      // 1. Download the PDF
-      await buildPdf();
-      setHasDownloaded(true);
-
-      // 2. Redirect to Email app
-      const subject = `Signed Referral Agreement — ${agent.displayName} (${agent.agentCode})`;
-      const body = buildHrEmailBody(agent);
-      const mailto = `mailto:${CONFIG.hrEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const el = pdfSourceRef.current?.querySelector('.el.printable');
+      if (!el) throw new Error('Agreement content not found.');
+      if (document.fonts?.ready) { try { await document.fonts.ready; } catch (e) {} }
+      await new Promise(r => setTimeout(r, 200));
       
-      // Small delay to allow the download to start smoothly on mobile
-      setTimeout(() => {
-        window.location.href = mailto;
-      }, 500);
+      const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
+      const filename = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
 
+      await window.html2pdf().set({
+        margin: [12, 12, 12, 12],
+        filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, windowWidth: el.scrollWidth },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      }).from(el).save();
+
+      setHasDownloaded(true);
     } catch (e) {
       console.error(e);
       setSubmitError('Failed to generate PDF. Please try again or use the "Download copy" button on the dashboard.');
     } finally {
       setDownloading(false);
     }
+  };
+
+  const handleOpenEmail = () => {
+    const subject = `Signed Referral Agreement — ${agent.displayName} (${agent.agentCode})`;
+    const body = buildHrEmailBody(agent);
+    const mailto = `mailto:${CONFIG.hrEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+    setEmailOpened(true);
   };
 
   const confirmSentToHr = async () => {
@@ -1062,7 +1078,22 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const downloadForRecords = async () => {
     setDownloading(true);
     try {
-      await buildPdf();
+      const el = pdfSourceRef.current?.querySelector('.el.printable');
+      if (!el) return;
+      if (document.fonts?.ready) { try { await document.fonts.ready; } catch (e) {} }
+      await new Promise(r => setTimeout(r, 200));
+      
+      const safeName = (agent.displayName || 'agent').replace(/[^A-Za-z0-9_-]+/g, '_');
+      const filename = `StartEasy-Agreement-${safeName}-${agent.agentCode}.pdf`;
+
+      await window.html2pdf().set({
+        margin: [12, 12, 12, 12],
+        filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, windowWidth: el.scrollWidth },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      }).from(el).save();
     } catch (e) {
       console.error(e);
       window.print();
@@ -1070,8 +1101,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
       setDownloading(false);
     }
   };
-
-  const signedDate = fmtShortDate(agent.createdAt);
 
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
@@ -1174,6 +1203,23 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           )}
         </div>
 
+        {/* WhatsApp Community Card */}
+        <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: '#0A1F12' }}>
+                Join our Agent Community
+              </h3>
+              <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: 0 }}>
+                Get the latest updates, share tips, and connect with other StartEasy agents on WhatsApp.
+              </p>
+            </div>
+            <a href={CONFIG.whatsappGroupUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '11px 20px', background: '#25D366', color: '#fff', borderRadius: 8, fontSize: 13.5, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <i className="fab fa-whatsapp" style={{ fontSize: 18 }}></i> Join Group
+            </a>
+          </div>
+        </div>
+
         <div className="no-print" style={{ background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
             <div>
@@ -1249,8 +1295,10 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           downloading={downloading}
           submitting={submitting}
           hasDownloaded={hasDownloaded}
+          emailOpened={emailOpened}
           error={submitError}
-          onDownloadAndEmail={handleDownloadAndEmail}
+          onDownload={handleDownload}
+          onEmail={handleOpenEmail}
           onConfirm={confirmSentToHr}
           onDismiss={() => setShowHrGate(false)}
           hrEmail={CONFIG.hrEmail}
