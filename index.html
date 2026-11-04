@@ -203,7 +203,6 @@ const generateAgentCode = name => {
 };
 const fmtShortDate = ts => ts ? new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
-/* Clean, professional email body for HR */
 const buildHrEmailBody = (agent) => {
   const signedDate = fmtShortDate(agent.createdAt);
   return `Dear StartEasy HR Team,
@@ -978,12 +977,20 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [showAgreement, setShowAgreement] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  // Submission gate state
-  const needsHrSubmission = !agent?.agreementSubmittedAt;
+  // Local storage keys for progress persistence
+  const localSubmittedKey = agent?.id ? `se_submitted_${agent.id}` : '';
+  const localDownloadedKey = agent?.id ? `se_downloaded_${agent.id}` : '';
+  const localEmailKey = agent?.id ? `se_email_opened_${agent.id}` : '';
+
+  const localSubmittedAt = localSubmittedKey ? localStorage.getItem(localSubmittedKey) : null;
+
+  // Needs submission ONLY if neither Firestore nor LocalStorage shows it's done
+  const needsHrSubmission = !agent?.agreementSubmittedAt && !localSubmittedAt;
+  
   const [showHrGate, setShowHrGate] = useState(needsHrSubmission);
   const [submitting, setSubmitting] = useState(false);
-  const [hasDownloaded, setHasDownloaded] = useState(false);
-  const [emailOpened, setEmailOpened] = useState(false);
+  const [hasDownloaded, setHasDownloaded] = useState(() => localStorage.getItem(localDownloadedKey) === 'true');
+  const [emailOpened, setEmailOpened] = useState(() => localStorage.getItem(localEmailKey) === 'true');
   const [submitError, setSubmitError] = useState('');
 
   const pdfSourceRef = useRef(null);
@@ -999,8 +1006,18 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   }, [agent?.id]);
 
   useEffect(() => {
-    if (agent?.agreementSubmittedAt) setShowHrGate(false);
-  }, [agent?.agreementSubmittedAt]);
+    if (agent?.agreementSubmittedAt || localSubmittedAt) setShowHrGate(false);
+  }, [agent?.agreementSubmittedAt, localSubmittedAt]);
+
+  // Background sync: If we have local proof of submission but Firestore doesn't, sync it silently
+  useEffect(() => {
+    if (agent?.id && localSubmittedAt && !agent.agreementSubmittedAt) {
+      db.collection(SE_AGENTS).doc(agent.id).update({
+        agreementSubmittedAt: Number(localSubmittedAt),
+        agreementEmailedTo: CONFIG.hrEmail
+      }).catch(err => console.log('Background sync pending network...', err));
+    }
+  }, [agent?.id, localSubmittedAt, agent?.agreementSubmittedAt]);
 
   if (loading || !agent) return <Spinner label="Loading dashboard…" />;
 
@@ -1039,6 +1056,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
         pagebreak: { mode: ['css', 'legacy'] }
       }).from(el).save();
 
+      localStorage.setItem(localDownloadedKey, 'true');
       setHasDownloaded(true);
     } catch (e) {
       console.error(e);
@@ -1052,24 +1070,32 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     const subject = `Signed Referral Agreement — ${agent.displayName} (${agent.agentCode})`;
     const body = buildHrEmailBody(agent);
     const mailto = `mailto:${CONFIG.hrEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
+    
+    localStorage.setItem(localEmailKey, 'true');
     setEmailOpened(true);
+    window.location.href = mailto;
   };
 
   const confirmSentToHr = async () => {
     setSubmitting(true);
     setSubmitError('');
+    
+    // 1. Save locally immediately (Optimistic UI)
+    const now = Date.now();
+    localStorage.setItem(localSubmittedKey, now.toString());
+    setAgent(prev => ({ ...prev, agreementSubmittedAt: now })); // Instantly unlocks UI
+    setShowHrGate(false);
+    setMsg('✓ Agreement successfully submitted to HR. Your referral codes are now active.');
+    setTimeout(() => setMsg(''), 6000);
+
+    // 2. Sync to Firestore
     try {
       await db.collection(SE_AGENTS).doc(agent.id).update({
-        agreementSubmittedAt: Date.now(),
+        agreementSubmittedAt: now,
         agreementEmailedTo: CONFIG.hrEmail
       });
-      setShowHrGate(false);
-      setMsg('✓ Agreement successfully submitted to HR. Your referral codes are now active.');
-      setTimeout(() => setMsg(''), 6000);
     } catch (e) {
-      console.error(e);
-      setSubmitError('Failed to save submission. Check your internet connection and try again.');
+      console.warn('Offline or network error during sync. Will retry in background.', e);
     } finally {
       setSubmitting(false);
     }
@@ -1144,7 +1170,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
             <div style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', lineHeight: 1.5, marginTop: 2 }}>
               {needsHrSubmission
                 ? `Your referral codes are locked until you submit your signed agreement through the platform.`
-                : `Submitted on ${fmtShortDate(agent.agreementSubmittedAt)}`}
+                : `Submitted on ${fmtShortDate(agent.agreementSubmittedAt || localSubmittedAt)}`}
             </div>
           </div>
           {needsHrSubmission && <Btn variant="primary" size="sm" onClick={() => setShowHrGate(true)}>Submit now</Btn>}
