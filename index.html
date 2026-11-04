@@ -202,45 +202,25 @@ const generateAgentCode = name => {
 };
 const fmtShortDate = ts => ts ? new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
-/* Enhanced HR email body */
+/* Clean, professional email body for HR */
 const buildHrEmailBody = (agent) => {
   const signedDate = fmtShortDate(agent.createdAt);
   return `Dear StartEasy HR Team,
 
-I am writing to formally submit my signed Referral Agent Agreement and to confirm my acceptance of the StartEasy Zambia Referral Program terms.
+Please find attached my signed Referral Agent Agreement for the StartEasy Zambia Referral Program.
 
-AGENT DETAILS
--------------
-Full Name:        ${agent.displayName}
-Agent Code:       ${agent.agentCode}
-Email:            ${agent.email}
-Phone:            ${agent.phone}
-Location:         ${agent.location}
-Agreement Date:   ${signedDate}
+Agent Details:
+- Full Name: ${agent.displayName}
+- Agent Code: ${agent.agentCode}
+- Phone: ${agent.phone}
+- Location: ${agent.location}
+- Date: ${signedDate}
 
-DECLARATION
------------
-I, ${agent.displayName}, hereby confirm the following:
-
-1. I have read, understood, and signed the Opportunity Engagement Agreement attached to this submission.
-
-2. I understand that this is an independent contractor arrangement — NOT an employment contract. I am not entitled to any salary, guaranteed income, or employee benefits of any kind.
-
-3. I understand that my earnings are commission-only, calculated as a fixed percentage of the StartEasy service fee on approved sales I refer, and that commissions clear after a 7-day period.
-
-4. I understand that a minimum balance of K200 must be reached before any payout can be requested, and that payouts are processed to my Airtel Money, MTN MoMo, or bank account within 5 working days.
-
-5. I agree not to engage in self-referral, fraudulent activity, or misrepresentation of StartEasy's services, and I understand that any such activity may result in immediate termination of my agent status and cancellation of any pending commissions.
-
-6. I have submitted my signed agreement through the StartEasy agent platform for StartEasy's permanent records.
-
-For any clarification, I can be reached at ${agent.email} or ${agent.phone}.
-
-Thank you for this opportunity.
+I confirm that I have read and agree to the terms outlined in the attached document.
 
 Kind regards,
 ${agent.displayName}
-Agent Code: ${agent.agentCode}`;
+${agent.email}`;
 };
 
 /* ---------------- ATTRIBUTION ---------------- */
@@ -411,14 +391,14 @@ function HrSubmissionGate({ agent, downloading, submitting, hasDownloaded, error
               <div style={{ width: 26, height: 26, borderRadius: 50, background: hasDownloaded ? '#1E7B3C' : '#E8730F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
                 {hasDownloaded ? <i className="fas fa-check"></i> : '1'}
               </div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Download & Open Email App</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A1F12' }}>Download PDF & Open Email</div>
             </div>
             <p style={{ fontSize: 12, color: 'rgba(10,31,18,.6)', margin: '0 0 10px', lineHeight: 1.5 }}>
-              We will download your PDF and open your email app with a pre-written message to HR. <strong>You just need to attach the downloaded PDF and hit send.</strong>
+              We will download your PDF and open your email app with a professional draft to HR. <strong>Attach the downloaded PDF and hit send.</strong>
             </p>
             <Btn variant={hasDownloaded ? 'ghost' : 'primary'} onClick={onDownloadAndEmail} disabled={downloading} style={{ width: '100%' }}>
               <i className={`fas ${downloading ? 'fa-circle-notch spin' : 'fa-download'}`}></i>
-              {downloading ? 'Generating PDF...' : hasDownloaded ? 'Download & Open Email Again' : 'Download PDF & Open Email App'}
+              {downloading ? 'Downloading PDF...' : hasDownloaded ? 'Download & Open Email Again' : 'Download PDF & Open Email App'}
             </Btn>
           </div>
 
