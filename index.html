@@ -42,6 +42,20 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
 .spin { animation: spin 1s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Live Pulse Animation */
+.live-dot {
+  width: 8px; height: 8px; background-color: #1E7B3C; border-radius: 50%;
+  display: inline-block; position: relative;
+}
+.live-dot::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: #1E7B3C; border-radius: 50%; animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
 .site-header {
   position: sticky; top: 0; z-index: 50;
   background: #0A1F12; border-bottom: 1px solid rgba(245,166,35,.1);
@@ -219,6 +233,16 @@ const generateAgentCode = name => {
   return 'SE-' + clean + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 };
 const fmtShortDate = ts => ts ? new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+const timeAgo = ts => {
+  if (!ts) return '';
+  const seconds = Math.floor((Date.now() - ts) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+};
 
 const buildHrEmailBody = (agent) => {
   const signedDate = fmtShortDate(agent.createdAt);
@@ -292,15 +316,15 @@ const Spinner = ({ label }) => (
 const Badge = ({ status }) => {
   const m = {
     active: { label: 'Active', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
-    pending: { label: 'Pending', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
+    pending: { label: 'Pending (7 Days)', color: '#8A6828', bg: '#FFF4E5', icon: 'fa-clock' },
     earned: { label: 'Earned', color: '#1E7B3C', bg: '#EAF7EE', icon: 'fa-circle-check' },
     paid: { label: 'Paid', color: '#0E7C7B', bg: '#E6F4F4', icon: 'fa-money-bill-wave' }
   }[status] || { label: status, color: '#666', bg: '#eee', icon: 'fa-circle' };
   return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 99, fontSize: 10.5, fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase', background: m.bg, color: m.color, border: `1px solid ${m.color}33` }}><i className={`fas ${m.icon}`}></i> {m.label}</span>;
 };
 
-const Kpi = ({ label, value, sub, color = '#E8730F', icon }) => (
-  <div style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '16px 18px', borderTopWidth: 3, borderTopColor: color }}>
+const Kpi = ({ label, value, sub, color = '#E8730F', icon, onClick }) => (
+  <div onClick={onClick} style={{ background: '#fff', border: '1px solid rgba(10,31,18,.08)', borderRadius: 12, padding: '16px 18px', borderTopWidth: 3, borderTopColor: color, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.1s' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
       <span style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', fontWeight: 800, color: 'rgba(10,31,18,.5)' }}>{label}</span>
       {icon && <i className={`fas ${icon}`} style={{ color, fontSize: 12 }}></i>}
@@ -1061,6 +1085,7 @@ function LoginPage({ go, onAuth }) {
 /* ---------------- DASHBOARD ---------------- */
 function Dashboard({ go, onSignOut, agent, setAgent }) {
   const [commissions, setCommissions] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
   const [showCodeBanner, setShowCodeBanner] = useState(true);
@@ -1088,7 +1113,8 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     if (!agent?.id) return;
     const unsubs = [
       db.collection(SE_AGENTS).doc(agent.id).onSnapshot(s => { if (s.exists) setAgent({ id: s.id, ...s.data() }); }),
-      db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).orderBy('createdAt', 'desc').limit(100).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+      db.collection(SE_COMMISSIONS).where('agentId', '==', agent.id).orderBy('createdAt', 'desc').limit(100).onSnapshot(s => setCommissions(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {}),
+      db.collection(SE_EVENTS).where('agentCode', '==', agent.agentCode).orderBy('at', 'desc').limit(5).onSnapshot(s => setEvents(s.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
     ];
     setLoading(false);
     return () => unsubs.forEach(u => u());
@@ -1236,6 +1262,18 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
     }
   };
 
+  const renderEventIcon = (type) => {
+    switch(type) {
+      case 'referral_click': return <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E0F2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0284C7' }}><i className="fas fa-mouse-pointer" style={{ fontSize: 14 }}></i></div>;
+      default: return <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}><i className="fas fa-bell" style={{ fontSize: 14 }}></i></div>;
+    }
+  };
+
+  const renderEventText = (ev) => {
+    if (ev.type === 'referral_click') return <span><strong>New Link Click</strong> via {ev.route === 'redirect' ? 'Main Platform' : 'Directory'}</span>;
+    return <span>Activity logged</span>;
+  };
+
   return (
     <div className="fadein" style={{ minHeight: '100vh', background: '#F5FAF6', paddingBottom: 60 }}>
 
@@ -1257,7 +1295,12 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
 
         <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: 0 }}>Agent Dashboard</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h1 className="serif" style={{ fontSize: 26, color: '#0A1F12', margin: 0 }}>Agent Dashboard</h1>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#1E7B3C', fontWeight: 700, background: '#EAF7EE', padding: '4px 10px', borderRadius: 99, border: '1px solid #1E7B3C33' }}>
+                <span className="live-dot"></span> Live
+              </span>
+            </div>
             <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: '4px 0 0' }}>Code: <strong>{agent.agentCode}</strong></p>
           </div>
           <Btn onClick={onSignOut} variant="ghost" size="sm">Sign Out</Btn>
@@ -1285,10 +1328,9 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
           {needsHrSubmission && <Btn variant="primary" size="sm" onClick={() => setShowHrGate(true)}>Submit now</Btn>}
         </div>
 
-        {/* New Balance Section matching image design */}
+        {/* Live Balance & Earnings Section */}
         <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 24 }}>
           
-          {/* Card 1: Total Cash Earned */}
           <div style={{ background: '#fff', borderRadius: 16, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 4px 15px rgba(0,0,0,.03)', border: '1px solid rgba(10,31,18,.05)' }}>
             <div style={{ width: 52, height: 52, borderRadius: 14, background: '#F4E6FA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span style={{ color: '#9333EA', fontSize: 24, fontWeight: 900, fontFamily: 'serif' }}>K</span>
@@ -1301,7 +1343,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
             </div>
           </div>
 
-          {/* Card 2: Available Balance with Cashout Button */}
           <div style={{ background: '#EEF2FF', borderRadius: 16, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, boxShadow: '0 4px 15px rgba(79, 70, 229, .1)', border: '1px solid #C7D2FE' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ width: 52, height: 52, borderRadius: 14, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,.05)', flexShrink: 0 }}>
@@ -1329,7 +1370,71 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
         <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, marginBottom: 24 }}>
           <Kpi label="Clicks" value={fmtInt(agent.totals?.clicks)} sub="Link clicks" icon="fa-eye" color="#1B6CA8" />
           <Kpi label="Conversions" value={fmtInt(agent.totals?.conversions)} sub="Approved payments" icon="fa-circle-check" color="#1E7B3C" />
-          <Kpi label="Pending" value={fmtZmw(pending)} sub="Clearing (7 days)" icon="fa-clock" color="#8A6828" />
+          <Kpi label="Pending" value={fmtZmw(pending)} sub="Clearing (7 days)" icon="fa-clock" color="#8A6828" onClick={() => setMsg('Pending commissions clear automatically after 7 days of the client payment being approved.')} />
+        </div>
+
+        <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 24 }}>
+          
+          {/* Live Activity Feed */}
+          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', padding: 20 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: '#0A1F12', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <i className="fas fa-bolt" style={{ color: '#E8730F' }}></i> Live Activity Tracker
+            </h3>
+            {events.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(10,31,18,.4)', fontSize: 13 }}>
+                Waiting for your first link click...
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {events.map((ev, i) => (
+                  <div key={ev.id || i} style={{ display: 'flex', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottom: i !== events.length - 1 ? '1px solid #eee' : 'none' }}>
+                    {renderEventIcon(ev.type)}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, color: '#111' }}>{renderEventText(ev)}</div>
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{timeAgo(ev.at)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #eee', textAlign: 'center' }}>
+              <span style={{ fontSize: 11, color: 'rgba(10,31,18,.4)' }}>Only showing last 5 activities</span>
+            </div>
+          </div>
+
+          {/* Pending Commissions Breakdown */}
+          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', padding: 20 }}>
+             <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: '#0A1F12', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <i className="fas fa-clock" style={{ color: '#8A6828' }}></i> Clearing Progress
+            </h3>
+            {commissions.filter(c => c.status === 'pending').length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(10,31,18,.4)', fontSize: 13 }}>
+                No commissions pending clearing.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {commissions.filter(c => c.status === 'pending').slice(0, 3).map((c, i) => {
+                  const daysPassed = Math.floor((Date.now() - c.createdAt) / (1000 * 60 * 60 * 24));
+                  const daysLeft = Math.max(0, 7 - daysPassed);
+                  const progress = Math.min(100, (daysPassed / 7) * 100);
+                  return (
+                    <div key={i}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                        <span style={{ fontWeight: 600 }}>{c.serviceTitle}</span>
+                        <span style={{ fontWeight: 800, color: '#E8730F' }}>{fmtZmw(c.commissionZmw)}</span>
+                      </div>
+                      <div style={{ width: '100%', height: 6, background: '#eee', borderRadius: 99, overflow: 'hidden' }}>
+                        <div style={{ width: `${progress}%`, height: '100%', background: '#E8730F', borderRadius: 99 }}></div>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 4, textAlign: 'right' }}>
+                        {daysLeft > 0 ? `Clears in ${daysLeft} day${daysLeft > 1 ? 's' : ''}` : 'Clearing today...'}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="no-print" style={{ position: 'relative', background: '#fff', padding: 20, borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', marginBottom: 24 }}>
@@ -1415,7 +1520,10 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
         </div>
 
         <div className="no-print" style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(10,31,18,.08)', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(10,31,18,.08)', fontWeight: 700, fontSize: 14 }}>Recent Commissions</div>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(10,31,18,.08)', fontWeight: 700, fontSize: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            Recent Commissions
+            <span style={{ fontSize: 12, color: 'rgba(10,31,18,.5)', fontWeight: 500 }}>Real-time updates</span>
+          </div>
           {commissions.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: 'rgba(10,31,18,.5)', fontSize: 13 }}>No commissions yet. Share your links to start earning.</div>
           ) : (
@@ -1423,12 +1531,13 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
                 <thead>
                   <tr style={{ background: '#F9FBFA', borderBottom: '1px solid rgba(10,31,18,.08)' }}>
-                    {['Ref', 'Service', 'Fee', 'Commission', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: 12, fontSize: 11, textTransform: 'uppercase', color: 'rgba(10,31,18,.5)' }}>{h}</th>)}
+                    {['Date', 'Ref', 'Service', 'Fee', 'Commission', 'Status'].map(h => <th key={h} style={{ textAlign: 'left', padding: 12, fontSize: 11, textTransform: 'uppercase', color: 'rgba(10,31,18,.5)' }}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {commissions.map(c => (
                     <tr key={c.id} style={{ borderBottom: '1px solid rgba(10,31,18,.05)' }}>
+                      <td style={{ padding: 12, fontSize: 12, color: '#666' }}>{fmtShortDate(c.createdAt)}</td>
                       <td style={{ padding: 12, fontSize: 12, fontFamily: 'monospace' }}>{c.paymentRef}</td>
                       <td style={{ padding: 12, fontSize: 13 }}>{c.serviceTitle}</td>
                       <td style={{ padding: 12, fontSize: 13 }}>{fmtZmw(c.grossZmw)}</td>
@@ -1485,7 +1594,6 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
         />
       )}
 
-      {/* Low Balance Warning Modal */}
       {showLowBalanceWarning && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 120, background: 'rgba(10,31,18,.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
            <div style={{ background: '#fff', borderRadius: 16, padding: '32px 28px', maxWidth: 400, width: '100%', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,.2)' }}>
