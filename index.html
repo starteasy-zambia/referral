@@ -37,7 +37,6 @@ html, body {
 }
 .serif { font-family: 'Playfair Display', Georgia, serif; }
 input:focus, select:focus { outline: none; border-color: var(--orange) !important; }
-/* FIX: Removed transform from fadein to prevent fixed-position modals from being trapped */
 .fadein { animation: fi .3s ease-out both; }
 @keyframes fi { from { opacity: 0; } to { opacity: 1; } }
 .spin { animation: spin 1s linear infinite; display: inline-block; }
@@ -248,13 +247,15 @@ const timeAgo = ts => {
 
 const buildHrEmailBody = (agent) => {
   const signedDate = fmtShortDate(agent.createdAt);
+  const role = agent.agreementType === 'internal' ? 'Internal Founding Team Participant' : 'External Sales & Business Development Agent';
   return `Dear StartEasy HR Team,
 
-Please find attached my signed Referral Agent Agreement for the StartEasy Zambia Referral Program.
+Please find attached my signed ${agent.agreementType === 'internal' ? 'Revenue Participation' : 'Opportunity Engagement'} Agreement.
 
 Agent Details:
 - Full Name: ${agent.displayName}
 - Agent Code: ${agent.agentCode}
+- Classification: ${role}
 - Phone: ${agent.phone}
 - Location: ${agent.location}
 - Date: ${signedDate}
@@ -414,6 +415,7 @@ function CashOutModal({ agent, available, onClose }) {
 function AgreementLetter({ agent, id }) {
   const signedDate = fmtShortDate(agent.createdAt);
   const refCode = 'SE-AGT-' + new Date(agent.createdAt).getFullYear() + '-' + agent.agentCode.split('-')[2];
+  const isInternal = agent.agreementType === 'internal';
 
   return (
     <div className="el printable" id={id}>
@@ -423,7 +425,7 @@ function AgreementLetter({ agent, id }) {
           <div className="sub">StartEasy Zambia</div>
         </div>
         <div>
-          <div className="dt">OPPORTUNITY ENGAGEMENT</div>
+          <div className="dt">{isInternal ? 'FOUNDING TEAM PARTICIPATION' : 'OPPORTUNITY ENGAGEMENT'}</div>
           <div className="mt">
             {signedDate}<br/>
             Ref: {refCode}
@@ -432,15 +434,23 @@ function AgreementLetter({ agent, id }) {
       </div>
 
       <p><strong>Dear {agent.displayName},</strong></p>
-      <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
+      {isInternal ? (
+        <p>Thank you for your commitment as a founding member of StartEasy Zambia. This agreement sets out the terms of your participation in our Revenue Participation & Referral Program as an internal stakeholder.</p>
+      ) : (
+        <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
+      )}
 
       <h4>1. Nature of Engagement</h4>
-      <p>You are joining as an independent Referral Agent. This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
+      {isInternal ? (
+        <p>You are joining as an Internal Founding Team Participant (Category A). While this is <strong>NOT</strong> an employment contract and does not guarantee a base salary, you are granted revenue participation directly tied to the approved sales you refer through the StartEasy system. Your earnings depend solely on the volume and value of your successful referrals.</p>
+      ) : (
+        <p>You are joining as an External Sales & Business Development Agent (Category B). This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
+      )}
 
       <h4>2. Commission & Payouts</h4>
       <p>You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions clear after a 7-day period and can be withdrawn to your mobile money or bank account once your balance reaches K200.</p>
 
-      <h4>3. Agent Details</h4>
+      <h4>3. Participant Details</h4>
       <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
         <span>
           <strong>Email Address:</strong><br/>
@@ -457,7 +467,7 @@ function AgreementLetter({ agent, id }) {
       </p>
 
       <h4>4. Acceptance</h4>
-      <p>The Agent has confirmed agreement to the engagement terms and signed below.</p>
+      <p>The Participant has confirmed agreement to the engagement terms and signed below.</p>
 
       <div className="sign">
         <div>
@@ -466,7 +476,7 @@ function AgreementLetter({ agent, id }) {
         </div>
         <div>
           <div className="sigval" style={{ borderBottom: '1px solid #333' }}>{agent.displayName}</div>
-          <div className="lbl">For the Agent</div>
+          <div className="lbl">For the Participant</div>
         </div>
       </div>
 
@@ -665,11 +675,47 @@ function Landing({ go }) {
             Share StartEasy. <em style={{ fontStyle: 'italic', color: '#F5A623' }}>Earn on every sale.</em>
           </h1>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: 'rgba(255,255,255,.7)', marginBottom: 32, maxWidth: 600, margin: '0 auto 32px' }}>
-            Sign your opportunity engagement agreement to get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement, you earn a commission.
+            Join our Revenue Participation & Referral Programme. Sign your agreement to get your unique referral code instantly. Share it with your network. When someone you referred completes a StartEasy engagement, you earn a commission.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Btn size="lg" variant="primary" onClick={() => go('join')}>Sign Agreement & Get Code</Btn>
             <Btn size="lg" variant="ghost" onClick={() => go('how-it-works')}>See How It Works</Btn>
+          </div>
+        </div>
+      </section>
+
+      {/* New Programme Section */}
+      <section style={{ padding: '64px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <h2 className="serif" style={{ fontSize: 'clamp(1.8rem,3vw,2.4rem)', color: '#0A1F12', marginBottom: 16 }}>STARTEASY ZAMBIA – REVENUE PARTICIPATION & REFERRAL PROGRAMME</h2>
+            <p style={{ fontSize: 16, color: 'rgba(10,31,18,.7)', maxWidth: 800, margin: '0 auto', lineHeight: 1.7 }}>
+              We offer two distinct pathways for participants to earn through our referral system. Both classifications utilise the exact same tracking, attribution rules, dashboard, and basic commission principles.
+            </p>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+            {/* Category A */}
+            <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.08)', borderRadius: 16, padding: 32, boxShadow: '0 4px 15px rgba(0,0,0,.02)' }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#EAF7EE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                <i className="fas fa-users" style={{ color: '#1E7B3C', fontSize: 20 }}></i>
+              </div>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0A1F12', marginBottom: 12 }}>Category A – Internal Founding Team Participants</h3>
+              <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', lineHeight: 1.6 }}>
+                Designed for core team members and stakeholders who are actively building StartEasy. This track formalises your revenue participation and grants you access to the referral dashboard to track your contributed business.
+              </p>
+            </div>
+
+            {/* Category B */}
+            <div style={{ background: '#F9FBFA', border: '1px solid rgba(10,31,18,.08)', borderRadius: 16, padding: 32, boxShadow: '0 4px 15px rgba(0,0,0,.02)' }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#FFF4E5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                <i className="fas fa-briefcase" style={{ color: '#E8730F', fontSize: 20 }}></i>
+              </div>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0A1F12', marginBottom: 12 }}>Category B – External Sales & Business Development Agents</h3>
+              <p style={{ fontSize: 14, color: 'rgba(10,31,18,.7)', lineHeight: 1.6 }}>
+                Designed for independent contractors and partners who want to earn commissions by referring clients to StartEasy. You utilise the same powerful tracking dashboard but operate strictly as an independent agent.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -791,7 +837,7 @@ function HowItWorks({ go }) {
 
 function FAQPage() {
   const faqs = [
-    { q: 'Is this a salaried job?', a: 'No. This is an independent contractor opportunity. You are not an employee, and there is no salary or guaranteed income. Your earnings depend entirely on the sales you refer.' },
+    { q: 'Is this a salaried job?', a: 'No. Whether you are Category A or Category B, this is a commission/revenue participation opportunity. There is no guaranteed salary. Your earnings depend entirely on the sales you refer.' },
     { q: 'Why do I have to submit my agreement to HR?', a: 'Submission through the platform is what activates your referral codes. This ensures StartEasy has a verified copy of your signed agreement on file. Your links stay locked until submission is complete.' },
     { q: 'Why do I have two links?', a: 'StartEasy has two platforms. The Main Platform is for business services (PACRA, ZRA, compliance). The Directory is for buyers and suppliers. Both links use the exact same referral code to track your commissions.' },
     { q: 'Can I refer myself or my own business?', a: 'No. Self-referrals are automatically detected and blocked by our system to prevent fraud.' },
@@ -842,6 +888,7 @@ function SupportPage() {
 
 function JoinPage({ go, onAuth }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '', location: '', password: '' });
+  const [agreementType, setAgreementType] = useState('external');
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
@@ -868,6 +915,7 @@ function JoinPage({ go, onAuth }) {
         email: form.email.trim().toLowerCase(),
         phone: form.phone.trim(),
         location: form.location,
+        agreementType: agreementType, // Save the selection
         status: 'active',
         commissionPct: 20,
         createdAt: Date.now(),
@@ -884,6 +932,8 @@ function JoinPage({ go, onAuth }) {
     } finally { setBusy(false); }
   };
 
+  const isInternal = agreementType === 'internal';
+
   return (
     <div style={{ background: '#F5FAF6', padding: '40px 16px', minHeight: '100vh' }}>
       <div className="el fadein printable">
@@ -893,7 +943,7 @@ function JoinPage({ go, onAuth }) {
             <div className="sub">StartEasy Zambia</div>
           </div>
           <div>
-            <div className="dt">OPPORTUNITY ENGAGEMENT</div>
+            <div className="dt">{isInternal ? 'FOUNDING TEAM PARTICIPATION' : 'OPPORTUNITY ENGAGEMENT'}</div>
             <div className="mt">
               {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}<br/>
               Ref: SE-AGT-{new Date().getFullYear()}-{String(Math.floor(Math.random()*9000)+1000)}
@@ -902,15 +952,45 @@ function JoinPage({ go, onAuth }) {
         </div>
 
         <p><strong>Dear {form.name.trim() ? form.name.trim() : '___________________'},</strong></p>
-        <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
+
+        {/* Agreement Type Selector */}
+        <div className="no-print" style={{ marginTop: 16, marginBottom: 24, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px solid #ddd' }}>
+          <div style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: 'rgba(10,31,18,.6)', marginBottom: 12 }}>Select Your Agreement Classification</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div 
+              onClick={() => setAgreementType('internal')}
+              style={{ padding: 16, borderRadius: 8, border: `2px solid ${isInternal ? '#E8730F' : '#ddd'}`, background: isInternal ? '#FFF4E5' : '#fff', cursor: 'pointer', transition: 'all .2s' }}
+            >
+              <div style={{ fontWeight: 700, fontSize: 13, color: '#0A1F12', marginBottom: 4 }}>Category A</div>
+              <div style={{ fontSize: 11, color: 'rgba(10,31,18,.6)', lineHeight: 1.4 }}>Internal Founding Team Revenue Participation Agreement</div>
+            </div>
+            <div 
+              onClick={() => setAgreementType('external')}
+              style={{ padding: 16, borderRadius: 8, border: `2px solid ${!isInternal ? '#E8730F' : '#ddd'}`, background: !isInternal ? '#FFF4E5' : '#fff', cursor: 'pointer', transition: 'all .2s' }}
+            >
+              <div style={{ fontWeight: 700, fontSize: 13, color: '#0A1F12', marginBottom: 4 }}>Category B</div>
+              <div style={{ fontSize: 11, color: 'rgba(10,31,18,.6)', lineHeight: 1.4 }}>External Agent Opportunity Engagement Agreement</div>
+            </div>
+          </div>
+        </div>
+
+        {isInternal ? (
+          <p>Thank you for your commitment as a founding member of StartEasy Zambia. This agreement sets out the terms of your participation in our Revenue Participation & Referral Program as an internal stakeholder.</p>
+        ) : (
+          <p>Thank you for considering an opportunity engagement with StartEasy Zambia. This agreement sets out the terms of your participation in our Referral Program as an independent agent.</p>
+        )}
 
         <h4>1. Nature of Engagement</h4>
-        <p>You are joining as an independent Referral Agent. This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
+        {isInternal ? (
+          <p>You are joining as an Internal Founding Team Participant (Category A). While this is <strong>NOT</strong> an employment contract and does not guarantee a base salary, you are granted revenue participation directly tied to the approved sales you refer through the StartEasy system. Your earnings depend solely on the volume and value of your successful referrals.</p>
+        ) : (
+          <p>You are joining as an External Sales & Business Development Agent (Category B). This is <strong>NOT</strong> an employment contract. You are not an employee of StartEasy Zambia, and there is no salary, no guaranteed income, and no employee benefits. Your earnings depend solely on the volume and value of approved sales you refer.</p>
+        )}
 
         <h4>2. Commission & Payouts</h4>
         <p>You will earn a fixed percentage commission on the service fees of approved sales you refer. Commissions clear after a 7-day period and can be withdrawn to your mobile money or bank account once your balance reaches K200.</p>
 
-        <h4>3. Agent Details</h4>
+        <h4>3. Participant Details</h4>
         <p style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 10 }}>
           <span>
             <strong>Email Address:</strong><br/>
@@ -935,7 +1015,7 @@ function JoinPage({ go, onAuth }) {
         <div style={{ marginTop: 12, marginBottom: 20, padding: 16, background: '#F9FBFA', borderRadius: 8, border: '1px dashed #ccc' }}>
           <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
             <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 18, height: 18, marginTop: 2, accentColor: '#E8730F' }} />
-            <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand this is a commission-only independent contractor agreement, and I agree to submit a signed copy through the platform before my codes are activated.</span>
+            <span style={{ fontSize: 12, lineHeight: 1.5, color: '#0A1F12' }}>I have read and agree to the engagement terms above. I understand this is a commission/revenue participation agreement, and I agree to submit a signed copy through the platform before my codes are activated.</span>
           </label>
 
           <div style={{ marginTop: 16 }}>
@@ -964,7 +1044,7 @@ function JoinPage({ go, onAuth }) {
           </div>
           <div>
             <input className="siginput" placeholder="Type your full name to sign" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-            <div className="lbl">For the Agent</div>
+            <div className="lbl">For the Participant</div>
           </div>
         </div>
 
@@ -1202,7 +1282,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   };
 
   const handleOpenEmail = () => {
-    const subject = `Signed Referral Agreement — ${agent.displayName} (${agent.agentCode})`;
+    const subject = `Signed ${agent.agreementType === 'internal' ? 'Revenue Participation' : 'Opportunity Engagement'} Agreement — ${agent.displayName} (${agent.agentCode})`;
     const body = buildHrEmailBody(agent);
     const mailto = `mailto:${CONFIG.hrEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
@@ -1307,7 +1387,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
                 <span className="live-dot"></span> Live
               </span>
             </div>
-            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: '4px 0 0' }}>Code: <strong>{agent.agentCode}</strong></p>
+            <p style={{ fontSize: 13, color: 'rgba(10,31,18,.6)', margin: '4px 0 0' }}>Code: <strong>{agent.agentCode}</strong> <span style={{ margin: '0 8px' }}>•</span> Category {agent.agreementType === 'internal' ? 'A (Internal)' : 'B (External)'}</p>
           </div>
           <Btn onClick={onSignOut} variant="ghost" size="sm">Sign Out</Btn>
         </div>
