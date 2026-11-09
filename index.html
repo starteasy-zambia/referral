@@ -56,6 +56,15 @@ input:focus, select:focus { outline: none; border-color: var(--orange) !importan
   100% { transform: scale(3); opacity: 0; }
 }
 
+/* Event highlight animation */
+@keyframes highlight {
+  0% { background-color: #EAF7EE; }
+  100% { background-color: transparent; }
+}
+.event-new {
+  animation: highlight 3s ease-out;
+}
+
 .site-header {
   position: sticky; top: 0; z-index: 50;
   background: #0A1F12; border-bottom: 1px solid rgba(245,166,35,.1);
@@ -277,13 +286,14 @@ const storeAttribution = code => {
     return rec;
   } catch (e) { return null; }
 };
-const logReferralClick = async code => {
+const logReferralClick = async (code, target = 'main') => {
   if (!fbReady) return;
   try {
     if (!auth.currentUser) {
       try { await auth.signInAnonymously(); } catch (e) {}
     }
-    await db.collection(SE_EVENTS).add({ type: 'referral_click', agentCode: code, at: Date.now(), route: 'redirect' });
+    const route = target === 'dir' ? 'dir' : 'main';
+    await db.collection(SE_EVENTS).add({ type: 'referral_click', agentCode: code, at: Date.now(), route });
     const q = await db.collection(SE_AGENTS).where('agentCode', '==', code).limit(1).get();
     if (!q.empty) {
       const ref = q.docs[0].ref;
@@ -293,7 +303,7 @@ const logReferralClick = async code => {
         t.update(ref, { 'totals.clicks': ((s.data().totals || {}).clicks || 0) + 1 });
       });
     }
-  } catch (e) {}
+  } catch (e) { console.error(e); }
 };
 
 /* ---------------- UI COMPONENTS ---------------- */
@@ -1219,8 +1229,9 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
 
   if (loading || !agent) return <Spinner label="Loading dashboard…" />;
 
-  const mainLink = `${CONFIG.mainSiteUrl}/?ref=${agent.agentCode}`;
-  const directoryLink = `${CONFIG.directoryUrl}/?ref=${agent.agentCode}`;
+  const portalBaseUrl = window.location.href.split('#')[0];
+  const mainLink = `${portalBaseUrl}#/r/main/${agent.agentCode}`;
+  const directoryLink = `${portalBaseUrl}#/r/dir/${agent.agentCode}`;
 
   const earned = agent.totals?.earnedZmw || 0;
   const paid = agent.totals?.paidZmw || 0;
@@ -1356,7 +1367,16 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   };
 
   const renderEventText = (ev) => {
-    if (ev.type === 'referral_click') return <span><strong>New Link Click</strong> via {ev.route === 'redirect' ? 'Main Platform' : 'Directory'}</span>;
+    if (ev.type === 'referral_click') {
+      return (
+        <span>
+          <strong>New Link Click</strong> 
+          <span style={{ color: ev.route === 'dir' ? '#E8730F' : '#1E7B3C', marginLeft: 6, fontSize: 11, fontWeight: 700 }}>
+            {ev.route === 'dir' ? 'Directory' : 'Main Platform'}
+          </span>
+        </span>
+      );
+    }
     return <span>Activity logged</span>;
   };
 
@@ -1473,7 +1493,7 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {events.map((ev, i) => (
-                  <div key={ev.id || i} style={{ display: 'flex', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottom: i !== events.length - 1 ? '1px solid #eee' : 'none' }}>
+                  <div key={ev.id || i} className={i === 0 ? "event-new" : ""} style={{ display: 'flex', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottom: i !== events.length - 1 ? '1px solid #eee' : 'none', padding: '8px', borderRadius: '8px' }}>
                     {renderEventIcon(ev.type)}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, color: '#111' }}>{renderEventText(ev)}</div>
@@ -1701,13 +1721,15 @@ function Dashboard({ go, onSignOut, agent, setAgent }) {
   );
 }
 
-function RedirectHandler({ code }) {
+function RedirectHandler({ code, target }) {
   useEffect(() => {
     if (!CODE_RX.test(code)) { window.location.hash = '#/'; return; }
-    logReferralClick(code);
+    logReferralClick(code, target);
     storeAttribution(code);
-    setTimeout(() => { window.location.href = CONFIG.mainSiteUrl + '/?ref=' + code; }, 500);
-  }, [code]);
+    
+    const dest = target === 'dir' ? CONFIG.directoryUrl : CONFIG.mainSiteUrl;
+    setTimeout(() => { window.location.href = dest + '/?ref=' + code; }, 800); // Short delay to ensure log fires
+  }, [code, target]);
   return <Spinner label="Redirecting to StartEasy..." />;
 }
 
@@ -1745,6 +1767,7 @@ function App() {
   const parts = raw.split('/').filter(Boolean);
   const route = parts[0] || '';
   const routeArg = parts[1] || '';
+  const routeArg2 = parts[2] || '';
 
   const go = useCallback((r) => { window.location.hash = '#/' + r; window.scrollTo(0, 0); }, []);
   const onSignOut = async () => {
@@ -1754,7 +1777,12 @@ function App() {
   const onAuth = useCallback((agentData) => { if (agentData) setAgent(agentData); go('dashboard'); }, [go]);
 
   if (!bootChecked) return <Spinner />;
-  if (route === 'r' && routeArg) return <RedirectHandler code={routeArg.toUpperCase()} />;
+  
+  if (route === 'r' && routeArg) {
+    const target = routeArg === 'dir' ? 'dir' : 'main';
+    const code = routeArg === 'dir' || routeArg === 'main' ? routeArg2 : routeArg;
+    if (code) return <RedirectHandler code={code.toUpperCase()} target={target} />;
+  }
 
   let page = <Landing go={go} />;
   if (route === 'how-it-works') page = <HowItWorks go={go} />;
